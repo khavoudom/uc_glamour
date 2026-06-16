@@ -132,7 +132,7 @@ export async function login(prevState: LoginState, formData: FormData) {
     return { message: 'Invalid email or password' };
   }
 
-  if (!user.emailVerified) {
+  if (!user.emailVerified && user.role !== 'admin') {
     return { message: 'Please verify your email first' };
   }
 

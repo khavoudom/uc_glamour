@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1781093992212,
+      "tag": "0000_brief_lockheed",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781342051964,
+      "tag": "0001_mature_microchip",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781488185281,
+      "tag": "0002_swift_puck",
+      "breakpoints": true
+    }
+  ]
+}

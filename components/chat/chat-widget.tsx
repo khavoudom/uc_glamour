@@ -132,7 +132,7 @@ export default function ChatWidget() {
           scale: 1,
           y: 0,
           width: isFullscreen ? '100vw' : width,
-          height: isFullscreen ? '100vh' : height,
+          height: isMinimized ? 56 : isFullscreen ? '100vh' : height,
         }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         transition={{

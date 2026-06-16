@@ -4,6 +4,8 @@ import Link from 'next/link';
 import ShippingToggleButton from './shipping-toggle-button';
 import ShippingDeleteButton from './shipping-delete-button';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminShippingServicesPage() {
   await verifyAdminSession();
   const allServices = await getAllShippingServices();

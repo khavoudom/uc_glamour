@@ -3,6 +3,8 @@ import { getProductAdminById } from '@/lib/data-access/products-admin';
 import { notFound } from 'next/navigation';
 import EditProductForm from './edit-form';
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   await verifyAdminSession();
   const { id } = await params;

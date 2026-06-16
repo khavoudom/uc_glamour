@@ -91,6 +91,8 @@ const icons = {
   ),
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
   await verifyAdminSession();
   const stats = await getStats();

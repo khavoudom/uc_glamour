@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import StatusBadge from '@/components/admin/status-badge';
 import OrderStatusForm from './order-status-form';
 
+export const dynamic = 'force-dynamic';
+
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await verifyAdminSession();
   const { id } = await params;

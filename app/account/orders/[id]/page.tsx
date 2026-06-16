@@ -5,6 +5,8 @@ import { getOrderInvoiceById } from '@/lib/data-access/orders';
 import { notFound } from 'next/navigation';
 import OrderInvoiceContent from './order-invoice-content';
 
+export const dynamic = 'force-dynamic';
+
 export default async function OrderInvoicePage({
   params,
 }: {

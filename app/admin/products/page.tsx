@@ -3,6 +3,8 @@ import { getAllProductsAdmin, deleteProduct } from '@/lib/data-access/products-a
 import Link from 'next/link';
 import ProductDeleteButton from './product-delete-button';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminProductsPage() {
   await verifyAdminSession();
   const allProducts = await getAllProductsAdmin();

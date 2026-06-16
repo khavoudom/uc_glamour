@@ -3,6 +3,8 @@ import { getAllOrders } from '@/lib/data-access/orders';
 import Link from 'next/link';
 import StatusBadge from '@/components/admin/status-badge';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminOrdersPage() {
   await verifyAdminSession();
   const allOrders = await getAllOrders();

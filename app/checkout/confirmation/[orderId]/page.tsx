@@ -2,6 +2,8 @@ import { getOrderById } from '@/lib/data-access/orders';
 import { notFound } from 'next/navigation';
 import OrderConfirmation from './checkout-success-content';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ orderId: string }>;
 }

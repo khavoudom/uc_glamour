@@ -3,6 +3,8 @@ import { getCouponById } from '@/lib/data-access/coupons-admin';
 import { notFound } from 'next/navigation';
 import EditCouponForm from './edit-form';
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditCouponPage({ params }: { params: Promise<{ id: string }> }) {
   await verifyAdminSession();
   const { id } = await params;

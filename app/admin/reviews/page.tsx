@@ -3,6 +3,8 @@ import { getAllReviews } from '@/lib/data-access/reviews';
 import ReviewToggleButton from './review-toggle-button';
 import ReviewDeleteButton from './review-delete-button';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminReviewsPage() {
   await verifyAdminSession();
   const allReviews = await getAllReviews();

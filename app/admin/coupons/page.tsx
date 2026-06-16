@@ -4,6 +4,8 @@ import Link from 'next/link';
 import CouponToggleButton from './coupon-toggle-button';
 import CouponDeleteButton from './coupon-delete-button';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminCouponsPage() {
   await verifyAdminSession();
   const allCoupons = await getAllCoupons();

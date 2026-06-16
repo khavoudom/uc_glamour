@@ -3,6 +3,8 @@ import { getShippingServiceById } from '@/lib/data-access/shipping-services';
 import { notFound } from 'next/navigation';
 import EditShippingServiceForm from './edit-form';
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditShippingServicePage({
   params,
 }: {

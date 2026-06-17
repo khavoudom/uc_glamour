@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir, unlink } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { put, del } from '@vercel/blob';
 
 export async function POST(request: Request) {
   try {
@@ -22,16 +20,12 @@ export async function POST(request: Request) {
 
     const ext = file.name.split('.').pop() ?? 'jpg';
     const filename = `${crypto.randomUUID()}.${ext}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
+    const blob = await put(filename, file, {
+      access: 'public',
+    });
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(uploadDir, filename), buffer);
-
-    return NextResponse.json({ url: `/uploads/${filename}` });
+    return NextResponse.json({ url: blob.url });
   } catch {
     return NextResponse.json({ error: 'Upload failed.' }, { status: 500 });
   }
@@ -44,12 +38,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'No URL provided.' }, { status: 400 });
     }
 
-    const filename = url.replace('/uploads/', '');
-    const filePath = path.join(process.cwd(), 'public', 'uploads', filename);
-
-    if (existsSync(filePath)) {
-      await unlink(filePath);
-    }
+    await del(url);
 
     return NextResponse.json({ success: true });
   } catch {

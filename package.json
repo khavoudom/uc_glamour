@@ -19,6 +19,7 @@
     "@ai-sdk/openai": "^3.0.71",
     "@base-ui/react": "^1.5.0",
     "@paypal/react-paypal-js": "^10.0.0",
+    "@vercel/blob": "^2.4.0",
     "ai": "^6.0.204",
     "axios": "^1.17.0",
     "bakong-khqr": "^1.0.20",

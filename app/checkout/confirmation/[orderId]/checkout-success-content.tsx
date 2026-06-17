@@ -89,10 +89,7 @@ function AnimatedCheckCircle() {
 export default function OrderConfirmation({ order }: { order: NonNullable<OrderPayload> }) {
   const router = useRouter();
 
-  const payMethod =
-    order.paymentMethod === 'paypal'
-      ? 'PayPal'
-      : 'Bakong KHQR';
+  const payMethod = order.paymentMethod === 'paypal' ? 'PayPal' : 'Bakong KHQR';
 
   return (
     <div className="min-h-screen bg-bg">
@@ -100,9 +97,7 @@ export default function OrderConfirmation({ order }: { order: NonNullable<OrderP
         {/* Success header */}
         <div className="mb-5 rounded-lg border border-border bg-white px-6 py-12 text-center">
           <AnimatedCheckCircle />
-          <h1 className="font-heading m-0 mb-1 text-2xl font-medium text-text">
-            Order Confirmed!
-          </h1>
+          <h1 className="font-heading m-0 mb-1 text-2xl font-medium text-text">Order Confirmed!</h1>
           <p className="m-0 text-xs text-muted">
             Thank you for your purchase. Your order has been placed successfully.
           </p>

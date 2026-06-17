@@ -120,7 +120,11 @@ function computeDiscount(cart: CartItem[], coupon: Coupon | null): number {
   return Math.round(calcSubtotal(cart) * (coupon.discountPercent / 100) * 100) / 100;
 }
 
-function computeCartDerived(cart: CartItem[], activeCoupon: Coupon | null, selectedServicePrice?: number) {
+function computeCartDerived(
+  cart: CartItem[],
+  activeCoupon: Coupon | null,
+  selectedServicePrice?: number,
+) {
   const subtotal = calcSubtotal(cart);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const shippingCost =
@@ -190,7 +194,11 @@ export const useStore = create<StoreState>()((set, get) => ({
   setIsAuthenticated: (val, role = null) => set({ isAuthenticated: val, userRole: role }),
 
   setSelectedShippingService: (id, price) => {
-    set({ selectedShippingServiceId: id, selectedShippingServicePrice: price, shippingCost: price });
+    set({
+      selectedShippingServiceId: id,
+      selectedShippingServicePrice: price,
+      shippingCost: price,
+    });
   },
 
   cart: [],

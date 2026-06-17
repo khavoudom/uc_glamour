@@ -7,11 +7,7 @@ import OrderInvoiceContent from './order-invoice-content';
 
 export const dynamic = 'force-dynamic';
 
-export default async function OrderInvoicePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function OrderInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { userId } = await verifySession();
   const session = await auth();
   if (session?.user?.role === 'admin') redirect('/admin');

@@ -92,7 +92,9 @@ export default function OrderInvoiceContent({ order }: { order: OrderInvoice }) 
                     {canReview && (
                       <td className="px-2 py-1.5 text-center">
                         {reviewSubmittedIds.has(item.productId) ? (
-                          <span className="text-[11px] text-success font-medium">Review submitted</span>
+                          <span className="text-[11px] text-success font-medium">
+                            Review submitted
+                          </span>
                         ) : reviewingProductId === item.productId ? (
                           <ReviewForm
                             productId={item.productId}

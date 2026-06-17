@@ -15,11 +15,7 @@ interface ShippingService {
   isActive: boolean;
 }
 
-export default function EditShippingServiceForm({
-  service,
-}: {
-  service: ShippingService;
-}) {
+export default function EditShippingServiceForm({ service }: { service: ShippingService }) {
   const [state, action, pending] = useActionState<ShippingServiceFormState | undefined, FormData>(
     updateShippingServiceAction,
     undefined,

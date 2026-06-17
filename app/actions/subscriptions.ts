@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db';
 import { subscriptions } from '@/lib/db/schema';
-import { verifySession } from '@/lib/dal';
+import { verifyCustomerSession } from '@/lib/dal';
 import { eq, and, sql } from 'drizzle-orm';
 
 export async function addSubscription(data: {
@@ -13,7 +13,7 @@ export async function addSubscription(data: {
   frequency: number;
   price: number;
 }) {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
 
   // Remove existing subscription for same product+shade
   await db
@@ -38,7 +38,7 @@ export async function addSubscription(data: {
 }
 
 export async function removeSubscription(productId: number, shade: string | null) {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
   await db
     .delete(subscriptions)
     .where(
@@ -55,7 +55,7 @@ export async function updateSubscriptionFrequency(
   shade: string | null,
   frequency: number,
 ) {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
   await db
     .update(subscriptions)
     .set({ frequency })
@@ -69,6 +69,6 @@ export async function updateSubscriptionFrequency(
 }
 
 export async function getSubscriptions() {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
   return db.select().from(subscriptions).where(eq(subscriptions.userId, userId));
 }

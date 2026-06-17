@@ -28,7 +28,12 @@ export default function NewShippingServicePage() {
         action={action}
         className="flex max-w-[400px] flex-col gap-4 rounded-lg border border-border bg-white p-6"
       >
-        <Field label="Name" name="name" placeholder="e.g. Standard Shipping" error={state?.errors?.name?.[0]} />
+        <Field
+          label="Name"
+          name="name"
+          placeholder="e.g. Standard Shipping"
+          error={state?.errors?.name?.[0]}
+        />
         <Field
           label="Price ($)"
           name="price"

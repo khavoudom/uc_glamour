@@ -2,11 +2,11 @@
 
 import { db } from '@/lib/db';
 import { cartItems, products } from '@/lib/db/schema';
-import { verifySession, getOptionalSession } from '@/lib/dal';
+import { verifyCustomerSession, getOptionalCustomerSession } from '@/lib/dal';
 import { eq, and, sql } from 'drizzle-orm';
 
 export async function addToCart(productId: number, shade: string | null, quantity: number) {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
 
   const existing = await db
     .select()
@@ -36,7 +36,7 @@ export async function addToCart(productId: number, shade: string | null, quantit
 }
 
 export async function removeFromCart(productId: number, shade: string | null) {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
 
   await db
     .delete(cartItems)
@@ -50,7 +50,7 @@ export async function removeFromCart(productId: number, shade: string | null) {
 }
 
 export async function updateCartQuantity(productId: number, shade: string | null, delta: number) {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
 
   const existing = await db
     .select()
@@ -75,7 +75,7 @@ export async function updateCartQuantity(productId: number, shade: string | null
 }
 
 export async function getCart() {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
 
   const items = await db.select().from(cartItems).where(eq(cartItems.userId, userId));
 
@@ -104,14 +104,14 @@ export async function getCart() {
 }
 
 export async function clearCart() {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
   await db.delete(cartItems).where(eq(cartItems.userId, userId));
 }
 
 export async function mergeGuestCart(
   guestItems: { productId: number; shade: string | null; quantity: number }[],
 ) {
-  const session = await getOptionalSession();
+  const session = await getOptionalCustomerSession();
   if (!session) return;
 
   const { userId } = session;

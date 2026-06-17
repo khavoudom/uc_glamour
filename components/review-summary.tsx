@@ -24,7 +24,9 @@ export default function ReviewSummary({ stats, loading, error }: ReviewSummaryPr
 
   if (error) {
     return (
-      <p className="text-[13px] text-danger mb-4">Could not load reviews. Please try again later.</p>
+      <p className="text-[13px] text-danger mb-4">
+        Could not load reviews. Please try again later.
+      </p>
     );
   }
 
@@ -45,7 +47,9 @@ export default function ReviewSummary({ stats, loading, error }: ReviewSummaryPr
           {'★'.repeat(Math.floor(stats.average))}
           {stats.average % 1 >= 0.5 ? '½' : ''}
         </div>
-        <div className="text-[11px] text-muted mt-1">{stats.total} review{stats.total !== 1 ? 's' : ''}</div>
+        <div className="text-[11px] text-muted mt-1">
+          {stats.total} review{stats.total !== 1 ? 's' : ''}
+        </div>
       </div>
 
       {/* Distribution bars */}

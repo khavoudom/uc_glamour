@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useActionState } from 'react';
+import { Suspense, useEffect, useState, useActionState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { login, type LoginState } from '@/app/actions/auth';
@@ -13,11 +13,21 @@ function LoginForm() {
   const [state, action, pending] = useActionState<LoginState, FormData>(login, undefined);
   const { data: session, status } = useSession();
 
-  // Already logged in — redirect to home
-  if (status === 'authenticated') {
-    router.replace('/');
-    return null;
-  }
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.replace(session?.user?.role === 'admin' ? '/admin' : '/');
+    }
+  }, [status, session, router]);
+
+  // Clear password field when login fails (keep email)
+  useEffect(() => {
+    if (state?.message) {
+      setPassword('');
+    }
+  }, [state]);
 
   if (status === 'loading') {
     return (
@@ -48,6 +58,8 @@ function LoginForm() {
               name="email"
               type="email"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               className="w-full rounded-sm border border-border-md px-3.5 py-[10px] text-[13px] text-text outline-none"
             />
@@ -62,6 +74,8 @@ function LoginForm() {
               name="password"
               type="password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="w-full rounded-sm border border-border-md px-3.5 py-[10px] text-[13px] text-text outline-none"
             />

@@ -14,9 +14,7 @@ export async function POST(req: NextRequest) {
     async start(controller) {
       try {
         for await (const chunk of agentLoop(messages)) {
-          controller.enqueue(
-            encoder.encode(`data: ${chunk}\n\n`),
-          );
+          controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
         }
       } catch (err) {
         console.error('Agent stream error:', err);

@@ -112,24 +112,26 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
           </svg>
         </button>
 
-        <button
-          onClick={() => router.push('/wishlist')}
-          aria-label="Wishlist"
-          className={navBtnCls}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {userRole !== 'admin' && (
+          <button
+            onClick={() => router.push('/wishlist')}
+            aria-label="Wishlist"
+            className={navBtnCls}
           >
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-          </svg>
-        </button>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            </svg>
+          </button>
+        )}
 
         <div className="relative" ref={menuRef}>
           <button
@@ -161,20 +163,26 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
                 <p className="text-[13px] font-medium text-text truncate">
                   {session?.user?.name || 'User'}
                 </p>
-                <p className="text-[11px] text-muted truncate">
-                  {session?.user?.email || ''}
-                </p>
+                <p className="text-[11px] text-muted truncate">{session?.user?.email || ''}</p>
               </div>
               <div className="py-1">
-                <button
-                  onClick={() => { router.push('/account'); setMenuOpen(false); }}
-                  className="flex w-full items-center gap-2 px-4 py-[10px] text-left text-[13px] text-text hover:bg-bg cursor-pointer border-none"
-                >
-                  My Orders
-                </button>
+                {userRole !== 'admin' && (
+                  <button
+                    onClick={() => {
+                      router.push('/account');
+                      setMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-4 py-[10px] text-left text-[13px] text-text hover:bg-bg cursor-pointer border-none"
+                  >
+                    My Orders
+                  </button>
+                )}
                 {userRole === 'admin' && (
                   <button
-                    onClick={() => { router.push('/admin'); setMenuOpen(false); }}
+                    onClick={() => {
+                      router.push('/admin');
+                      setMenuOpen(false);
+                    }}
                     className="flex w-full items-center gap-2 px-4 py-[10px] text-left text-[13px] text-text hover:bg-bg cursor-pointer border-none"
                   >
                     Admin Panel
@@ -194,31 +202,33 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
           )}
         </div>
 
-        <button
-          onClick={openCart}
-          aria-label={`Shopping cart with ${cartCount} items`}
-          className={`${navBtnCls} relative`}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {userRole !== 'admin' && (
+          <button
+            onClick={openCart}
+            aria-label={`Shopping cart with ${cartCount} items`}
+            className={`${navBtnCls} relative`}
           >
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-            <path d="M3 6h18" />
-            <path d="M16 10a4 4 0 0 1-8 0" />
-          </svg>
-          {cartCount > 0 && (
-            <span className="absolute top-[4px] right-[4px] w-[14px] h-[14px] bg-pink rounded-full text-white text-[8px] font-semibold flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
-        </button>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+              <path d="M3 6h18" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            {cartCount > 0 && (
+              <span className="absolute top-[4px] right-[4px] w-[14px] h-[14px] bg-pink rounded-full text-white text-[8px] font-semibold flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        )}
       </div>
     </nav>
   );

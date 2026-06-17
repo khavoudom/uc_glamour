@@ -84,8 +84,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   setWidth: (width) => set({ width, isFullscreen: false, isMinimized: false }),
   setHeight: (height) => set({ height, isMinimized: false }),
   setIsMinimized: (val) => set({ isMinimized: val, isFullscreen: false }),
-  setIsFullscreen: (val) =>
-    set({ isFullscreen: val, isMinimized: false }),
+  setIsFullscreen: (val) => set({ isFullscreen: val, isMinimized: false }),
   setPosition: (pos) => set({ position: pos }),
   setIsOpen: (val) => set({ isOpen: val }),
   setToolStatus: (label) => set({ toolStatus: label }),
@@ -153,10 +152,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       });
 
       if (!res.ok) {
-        updateMessage(
-          aiMsg.id,
-          'Sorry, I encountered an error. Please try again.',
-        );
+        updateMessage(aiMsg.id, 'Sorry, I encountered an error. Please try again.');
         return;
       }
 
@@ -245,10 +241,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       }
     } catch (error) {
       console.error('Chat fetch error:', error);
-      updateMessage(
-        aiMsg.id,
-        'Sorry, I encountered an error. Please try again.',
-      );
+      updateMessage(aiMsg.id, 'Sorry, I encountered an error. Please try again.');
     } finally {
       setAiLoading(false);
       setToolStatus(null);

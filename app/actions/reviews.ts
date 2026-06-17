@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { verifySession } from '@/lib/dal';
+import { verifyCustomerSession } from '@/lib/dal';
 import { createReview, hasUserReviewedProduct, getUserName } from '@/lib/data-access/reviews';
 import { getOrderInvoiceById } from '@/lib/data-access/orders';
 
@@ -14,17 +14,19 @@ const ReviewSchema = z.object({
   body: z.string().min(10, 'Review must be at least 10 characters').max(2000),
 });
 
-export type CreateReviewState = {
-  errors?: { rating?: string[]; body?: string[] };
-  message?: string;
-  success?: boolean;
-} | undefined;
+export type CreateReviewState =
+  | {
+      errors?: { rating?: string[]; body?: string[] };
+      message?: string;
+      success?: boolean;
+    }
+  | undefined;
 
 export async function createReviewAction(
   prevState: CreateReviewState,
   formData: FormData,
 ): Promise<CreateReviewState> {
-  const { userId } = await verifySession();
+  const { userId } = await verifyCustomerSession();
 
   const validated = ReviewSchema.safeParse({
     productId: formData.get('productId'),

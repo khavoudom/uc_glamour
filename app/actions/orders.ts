@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db';
 import { orders, orderItems } from '@/lib/db/schema';
-import { getOptionalSession } from '@/lib/dal';
+import { getOptionalCustomerSession } from '@/lib/dal';
 import { sendReceiptEmail } from '@/lib/receipt-email';
 import { sendTelegramNotification } from '@/lib/telegram-notify';
 import { redirect } from 'next/navigation';
@@ -36,7 +36,7 @@ export interface CreateOrderInput {
 }
 
 export async function createOrder(input: CreateOrderInput) {
-  const session = await getOptionalSession();
+  const session = await getOptionalCustomerSession();
   const userId = session?.userId ?? null;
 
   const [order] = await db

@@ -89,9 +89,24 @@ async function seed() {
 
   // Seed shipping services
   const defaultServices = [
-    { name: 'Standard Shipping', price: '0', estimatedDelivery: '5-7 business days', isActive: true },
-    { name: 'Express Shipping', price: '9.99', estimatedDelivery: '2-3 business days', isActive: true },
-    { name: 'Next Day Delivery', price: '19.99', estimatedDelivery: 'Next business day', isActive: true },
+    {
+      name: 'Standard Shipping',
+      price: '0',
+      estimatedDelivery: '5-7 business days',
+      isActive: true,
+    },
+    {
+      name: 'Express Shipping',
+      price: '9.99',
+      estimatedDelivery: '2-3 business days',
+      isActive: true,
+    },
+    {
+      name: 'Next Day Delivery',
+      price: '19.99',
+      estimatedDelivery: 'Next business day',
+      isActive: true,
+    },
   ];
   for (const svc of defaultServices) {
     await db.insert(shippingServices).values(svc);

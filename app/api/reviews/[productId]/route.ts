@@ -1,9 +1,6 @@
 import { getReviewsByProduct, getReviewStatsByProduct } from '@/lib/data-access/reviews';
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ productId: string }> },
-) {
+export async function GET(_req: Request, { params }: { params: Promise<{ productId: string }> }) {
   const { productId } = await params;
   const id = parseInt(productId, 10);
   if (isNaN(id)) {

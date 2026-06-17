@@ -15,7 +15,10 @@ export default function ReviewForm({ productId, orderId, onSuccess }: ReviewForm
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
 
-  async function wrappedAction(prevState: CreateReviewState, formData: FormData): Promise<CreateReviewState> {
+  async function wrappedAction(
+    prevState: CreateReviewState,
+    formData: FormData,
+  ): Promise<CreateReviewState> {
     formData.set('rating', String(rating));
     const result = await createReviewAction(prevState, formData);
     if (result?.success && onSuccess) {
@@ -69,15 +72,11 @@ export default function ReviewForm({ productId, orderId, onSuccess }: ReviewForm
           disabled={pending}
         />
         <div className="flex justify-between mt-1">
-          {state?.errors?.body && (
-            <p className="text-[11px] text-danger">{state.errors.body[0]}</p>
-          )}
+          {state?.errors?.body && <p className="text-[11px] text-danger">{state.errors.body[0]}</p>}
           {state?.message && !state.success && (
             <p className="text-[11px] text-danger">{state.message}</p>
           )}
-          {state?.success && (
-            <p className="text-[11px] text-success">{state.message}</p>
-          )}
+          {state?.success && <p className="text-[11px] text-success">{state.message}</p>}
         </div>
       </div>
 

@@ -26,12 +26,8 @@ export async function sendTelegramNotification(orderId: number) {
     lines.push('<b>Items:</b>');
     for (const item of order.items) {
       const lineTotal = Number(item.unitPrice) * item.quantity;
-      const name = item.shade
-        ? `${item.productName} (${item.shade})`
-        : item.productName;
-      lines.push(
-        `  ${item.emoji} ${name} x${item.quantity} — $${lineTotal.toFixed(2)}`,
-      );
+      const name = item.shade ? `${item.productName} (${item.shade})` : item.productName;
+      lines.push(`  ${item.emoji} ${name} x${item.quantity} — $${lineTotal.toFixed(2)}`);
     }
     lines.push('');
   }

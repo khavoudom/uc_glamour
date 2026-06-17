@@ -30,7 +30,11 @@ const LoginSchema = z.object({
 
 async function getUserForValidCredentials(email: string, password: string) {
   const [user] = await db
-    .select({ role: users.role, hashedPassword: users.hashedPassword, emailVerified: users.emailVerified })
+    .select({
+      role: users.role,
+      hashedPassword: users.hashedPassword,
+      emailVerified: users.emailVerified,
+    })
     .from(users)
     .where(eq(users.email, email))
     .limit(1);
@@ -172,15 +176,13 @@ export async function resendVerification(prevState: ResendState, formData: FormD
     return { message: 'Please enter your email address' };
   }
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (!user) {
     // Don't reveal whether the email exists
-    return { success: 'If an account exists with this email, a new verification link has been sent.' };
+    return {
+      success: 'If an account exists with this email, a new verification link has been sent.',
+    };
   }
 
   if (user.emailVerified) {
@@ -203,7 +205,9 @@ export async function resendVerification(prevState: ResendState, formData: FormD
   });
   processEmailQueue();
 
-  return { success: 'If an account exists with this email, a new verification link has been sent.' };
+  return {
+    success: 'If an account exists with this email, a new verification link has been sent.',
+  };
 }
 
 export async function logout() {

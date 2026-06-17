@@ -1,6 +1,13 @@
 import 'server-only';
 import { db } from '@/lib/db';
-import { products, shades, cartItems, reviews, wishlistItems, subscriptions } from '@/lib/db/schema';
+import {
+  products,
+  shades,
+  cartItems,
+  reviews,
+  wishlistItems,
+  subscriptions,
+} from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { clearCatalogCache } from '@/lib/chat/catalog';
 

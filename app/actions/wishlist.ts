@@ -2,11 +2,11 @@
 
 import { db } from '@/lib/db';
 import { wishlistItems } from '@/lib/db/schema';
-import { getOptionalSession } from '@/lib/dal';
+import { getOptionalCustomerSession } from '@/lib/dal';
 import { eq, and } from 'drizzle-orm';
 
 export async function toggleWishlist(productId: number) {
-  const session = await getOptionalSession();
+  const session = await getOptionalCustomerSession();
   if (!session) return { added: false, removed: false };
 
   const existing = await db
@@ -28,7 +28,7 @@ export async function toggleWishlist(productId: number) {
 }
 
 export async function getWishlist() {
-  const session = await getOptionalSession();
+  const session = await getOptionalCustomerSession();
   if (!session) return [];
   const items = await db
     .select()

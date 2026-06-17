@@ -22,7 +22,7 @@ interface HomeClientProps {
   coupons: { code: string; discountPercent: number; isActive: boolean }[];
 }
 
-export default function HomeClient({ products: allProducts, coupons: _coupons }: HomeClientProps) {
+export default function HomeClient({ products: allProducts, coupons }: HomeClientProps) {
   const router = useRouter();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('All');
@@ -40,7 +40,7 @@ export default function HomeClient({ products: allProducts, coupons: _coupons }:
 
   return (
     <div className="store min-h-screen">
-      <PromoBanner />
+      <PromoBanner couponCode={coupons[0]?.code} discountPercent={coupons[0]?.discountPercent} />
       <div className="mx-auto w-full max-w-[90%]">
         <Header
           onSearchToggle={() => setSearchOpen((prev) => !prev)}

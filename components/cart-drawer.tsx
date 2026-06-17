@@ -15,7 +15,9 @@ export default function CartDrawer() {
     subtotal,
     shippingCost,
     showToast,
+    userRole,
   } = useStore();
+  const isAdmin = userRole === 'admin';
 
   const [open, setOpen] = useState(false);
   const [couponInput, setCouponInput] = useState('');
@@ -41,6 +43,7 @@ export default function CartDrawer() {
   };
 
   const handleApplyCoupon = () => {
+    if (isAdmin) return;
     if (!couponInput.trim()) return;
     const result = applyCoupon(couponInput);
     if (!result.success) {
@@ -114,7 +117,10 @@ export default function CartDrawer() {
                         <div className="flex items-center gap-[10px]">
                           <div className="flex items-center border border-border rounded-[20px] overflow-hidden">
                             <button
-                              onClick={() => updateQuantity(item.productId, item.shade, -1)}
+                              onClick={() => {
+                                if (isAdmin) return;
+                                updateQuantity(item.productId, item.shade, -1);
+                              }}
                               className="w-[26px] h-[26px] bg-none border-none text-[14px] cursor-pointer flex items-center justify-center text-text"
                               aria-label="Decrease quantity"
                             >
@@ -124,7 +130,10 @@ export default function CartDrawer() {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => updateQuantity(item.productId, item.shade, 1)}
+                              onClick={() => {
+                                if (isAdmin) return;
+                                updateQuantity(item.productId, item.shade, 1);
+                              }}
                               className="w-[26px] h-[26px] bg-none border-none text-[14px] cursor-pointer flex items-center justify-center text-text"
                               aria-label="Increase quantity"
                             >
@@ -135,7 +144,10 @@ export default function CartDrawer() {
                             ${(item.price * item.quantity).toFixed(2)}
                           </span>
                           <button
-                            onClick={() => removeFromCart(item.productId, item.shade)}
+                            onClick={() => {
+                              if (isAdmin) return;
+                              removeFromCart(item.productId, item.shade);
+                            }}
                             aria-label="Remove item"
                             className="bg-none border-none cursor-pointer text-hint text-[14px] ml-1"
                           >
@@ -169,13 +181,19 @@ export default function CartDrawer() {
                       onChange={(e) => setCouponInput(e.target.value)}
                       placeholder="Enter coupon code"
                       aria-label="Enter coupon code"
-                      className="flex-1 border border-border-md rounded-lg px-3 py-2 text-[12px] font-sans outline-none text-text bg-white"
+                      disabled={isAdmin}
+                      className="flex-1 border border-border-md rounded-lg px-3 py-2 text-[12px] font-sans outline-none text-text bg-white disabled:bg-bg disabled:cursor-not-allowed"
                     />
                     <button
                       onClick={handleApplyCoupon}
-                      className="border-none rounded-lg px-[14px] py-2 text-[12px] font-medium cursor-pointer font-sans text-white"
+                      disabled={isAdmin}
+                      className="border-none rounded-lg px-[14px] py-2 text-[12px] font-medium font-sans text-white disabled:cursor-not-allowed"
                       style={{
-                        background: activeCoupon ? 'var(--color-pink)' : 'var(--color-text)',
+                        background: isAdmin
+                          ? 'var(--color-hint)'
+                          : activeCoupon
+                            ? 'var(--color-pink)'
+                            : 'var(--color-text)',
                       }}
                     >
                       {activeCoupon ? 'Applied' : 'Apply'}
@@ -205,10 +223,15 @@ export default function CartDrawer() {
 
                   <button
                     onClick={() => {
+                      if (isAdmin) return;
                       setOpen(false);
                       window.location.href = '/checkout';
                     }}
-                    className="w-full bg-pink text-white border-none rounded-[24px] py-[13px] text-[13px] font-medium font-sans cursor-pointer tracking-[0.4px] flex items-center justify-center gap-2"
+                    className={`w-full rounded-[24px] py-[13px] text-[13px] font-medium font-sans tracking-[0.4px] flex items-center justify-center gap-2 ${
+                      isAdmin
+                        ? 'bg-hint cursor-not-allowed text-white border-none'
+                        : 'bg-pink text-white border-none cursor-pointer'
+                    }`}
                   >
                     Checkout Securely{' '}
                     <svg

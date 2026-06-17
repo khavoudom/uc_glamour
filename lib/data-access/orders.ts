@@ -145,7 +145,7 @@ export async function getOrdersByUserId(userId: number): Promise<OrderSummary[]>
 
 export async function getOrderInvoiceById(
   orderId: number,
-  userId: number
+  userId: number,
 ): Promise<OrderInvoice | null> {
   const [order] = await db
     .select({
@@ -188,5 +188,10 @@ export async function getOrderInvoiceById(
     .from(orderItems)
     .where(eq(orderItems.orderId, orderId));
 
-  return { ...order, paymentStatus: order.paymentStatus as OrderInvoice['paymentStatus'], fulfillmentStatus: order.fulfillmentStatus as OrderInvoice['fulfillmentStatus'], items };
+  return {
+    ...order,
+    paymentStatus: order.paymentStatus as OrderInvoice['paymentStatus'],
+    fulfillmentStatus: order.fulfillmentStatus as OrderInvoice['fulfillmentStatus'],
+    items,
+  };
 }

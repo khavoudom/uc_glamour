@@ -6,10 +6,9 @@ export const handlers = [
     if (!body.messages?.length) {
       return HttpResponse.json({ error: 'No messages' }, { status: 400 });
     }
-    return new Response(
-      `data: {"token":"Hello"}\ndata: {"token":" world"}\ndata: [DONE]\n\n`,
-      { headers: { 'Content-Type': 'text/event-stream' } },
-    );
+    return new Response(`data: {"token":"Hello"}\ndata: {"token":" world"}\ndata: [DONE]\n\n`, {
+      headers: { 'Content-Type': 'text/event-stream' },
+    });
   }),
 
   http.get('/api/auth/session', () => {

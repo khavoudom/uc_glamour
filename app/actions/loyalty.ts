@@ -2,12 +2,12 @@
 
 import { db } from '@/lib/db';
 import { loyaltyTransactions } from '@/lib/db/schema';
-import { getOptionalSession } from '@/lib/dal';
+import { getOptionalCustomerSession } from '@/lib/dal';
 import { updateLoyaltyPoints } from '@/lib/data-access/users';
 import { eq } from 'drizzle-orm';
 
 export async function addLoyaltyPoints(amount: number, reference?: string) {
-  const session = await getOptionalSession();
+  const session = await getOptionalCustomerSession();
   if (!session) return null;
 
   const user = await updateLoyaltyPoints(session.userId, amount);
@@ -27,7 +27,7 @@ export async function addLoyaltyPoints(amount: number, reference?: string) {
 }
 
 export async function redeemLoyaltyPoints(points: number) {
-  const session = await getOptionalSession();
+  const session = await getOptionalCustomerSession();
   if (!session) return null;
 
   const user = await updateLoyaltyPoints(session.userId, -points);
@@ -47,7 +47,7 @@ export async function redeemLoyaltyPoints(points: number) {
 }
 
 export async function getLoyaltyData() {
-  const session = await getOptionalSession();
+  const session = await getOptionalCustomerSession();
   if (!session) {
     return { points: 0, tier: 'Bronze' };
   }

@@ -35,12 +35,8 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Info */}
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-        <p className="truncate text-[13px] font-[500] text-[var(--color-text)]">
-          {product.name}
-        </p>
-        <p className="truncate text-[11px] text-[var(--color-muted)]">
-          {product.brand}
-        </p>
+        <p className="truncate text-[13px] font-[500] text-[var(--color-text)]">{product.name}</p>
+        <p className="truncate text-[11px] text-[var(--color-muted)]">{product.brand}</p>
         <div className="mt-0.5 flex items-center gap-2">
           <span className="text-[14px] font-[600] text-[var(--color-text)]">
             ${product.price.toFixed(2)}

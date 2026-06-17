@@ -1,9 +1,6 @@
 import { tool, zodSchema } from 'ai';
 import { z } from 'zod';
-import {
-  getProductById,
-  searchProducts,
-} from '@/lib/data-access/products';
+import { getProductById, searchProducts } from '@/lib/data-access/products';
 import { addToCart } from '@/app/actions/cart';
 
 export const searchProductsTool = tool({
@@ -129,7 +126,8 @@ export const addToCartTool = tool({
 });
 
 export const applyCouponTool = tool({
-  description: 'Apply a coupon or discount code. Available coupons: GLAM20 (20% off), BEAUTY10 (10% off).',
+  description:
+    'Apply a coupon or discount code. Available coupons: GLAM20 (20% off), BEAUTY10 (10% off).',
   inputSchema: zodSchema(
     z.object({
       code: z.string().describe('Coupon code to apply'),

@@ -13,7 +13,10 @@ export function ResendForm({ email: initialEmail }: { email: string }) {
 
       {!initialEmail && (
         <div className="mb-3">
-          <label htmlFor="resend-email" className="mb-1 block text-left text-[11px] font-medium text-text">
+          <label
+            htmlFor="resend-email"
+            className="mb-1 block text-left text-[11px] font-medium text-text"
+          >
             Email
           </label>
           <input
@@ -28,7 +31,9 @@ export function ResendForm({ email: initialEmail }: { email: string }) {
       )}
 
       {state?.message && (
-        <p className="mb-3 rounded-sm bg-[#fde8e8] px-3 py-2 text-xs text-danger">{state.message}</p>
+        <p className="mb-3 rounded-sm bg-[#fde8e8] px-3 py-2 text-xs text-danger">
+          {state.message}
+        </p>
       )}
       {state?.success && (
         <p className="mb-3 rounded-sm bg-green-50 px-3 py-2 text-xs text-green-700">

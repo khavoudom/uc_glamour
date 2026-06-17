@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 
-export default function PromoBanner() {
+interface PromoBannerProps {
+  couponCode?: string;
+  discountPercent?: number;
+}
+
+export default function PromoBanner({ couponCode, discountPercent }: PromoBannerProps) {
   const [visible, setVisible] = useState(true);
   const [leaving, setLeaving] = useState(false);
 
@@ -23,7 +28,8 @@ export default function PromoBanner() {
       }`}
     >
       Free next day shipping on orders over $100 &nbsp;·&nbsp;
-      <strong className="font-medium tracking-[1px]">GLAMOUR20</strong> — 20% off your first order
+      <strong className="font-medium tracking-[1px]">{couponCode}</strong> — {discountPercent}% off
+      your first order
       <button
         onClick={handleDismiss}
         aria-label="Close"

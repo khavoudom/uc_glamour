@@ -21,9 +21,17 @@ const FREQUENCIES: { value: SubscriptionFrequency; label: string }[] = [
 ];
 
 export default function ProductModal({ product, onClose }: ProductModalProps) {
-  const { addToCart, addSubscription, showToast, toggleWishlist, isWishlisted, isAuthenticated } =
-    useStore();
+  const {
+    addToCart,
+    addSubscription,
+    showToast,
+    toggleWishlist,
+    isWishlisted,
+    isAuthenticated,
+    userRole,
+  } = useStore();
   const router = useRouter();
+  const isAdmin = userRole === 'admin';
   const [visible, setVisible] = useState(false);
   const [selectedShade, setSelectedShade] = useState<Shade | null>(
     product.shades.length > 0 ? product.shades[0] : null,
@@ -94,6 +102,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   };
 
   const handleAddToCart = () => {
+    if (isAdmin) return;
     if (quantity < 1) return;
     if (isSubscribe && product.isSubscriptionEligible) {
       addSubscription({
@@ -271,64 +280,70 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
             </div>
 
             {/* Quantity + Add to Cart */}
-            <div className="flex gap-[10px] items-center mb-[10px]">
-              <div className="flex items-center border border-border-md rounded-[20px] overflow-hidden">
+            {!isAdmin && (
+              <div className="flex gap-[10px] items-center mb-[10px]">
+                <div className="flex items-center border border-border-md rounded-[20px] overflow-hidden">
+                  <button
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="w-8 h-[38px] bg-white border-none text-[16px] cursor-pointer text-text flex items-center justify-center"
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+                  <span className="w-7 text-center text-[13px] font-medium">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="w-8 h-[38px] bg-white border-none text-[16px] cursor-pointer text-text flex items-center justify-center"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
                 <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-8 h-[38px] bg-white border-none text-[16px] cursor-pointer text-text flex items-center justify-center"
-                  aria-label="Decrease quantity"
+                  className={`flex-1 text-white border-none rounded-[24px] py-[11px] text-[12px] font-medium tracking-[0.5px] uppercase font-sans ${
+                    isAdmin ? 'bg-hint cursor-not-allowed' : 'bg-pink cursor-pointer'
+                  }`}
+                  onClick={handleAddToCart}
                 >
-                  −
+                  {isAdmin ? 'Admin' : `Add to Cart — $${(displayPrice * quantity).toFixed(2)}`}
                 </button>
-                <span className="w-7 text-center text-[13px] font-medium">{quantity}</span>
                 <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="w-8 h-[38px] bg-white border-none text-[16px] cursor-pointer text-text flex items-center justify-center"
-                  aria-label="Increase quantity"
+                  onClick={() => {
+                    if (isAdmin) return;
+                    if (!isAuthenticated) {
+                      router.push(
+                        '/login?callbackUrl=' + encodeURIComponent(window.location.pathname),
+                      );
+                      return;
+                    }
+                    toggleWishlist(product.id);
+                  }}
+                  className="w-[38px] h-[38px] bg-white border border-border-md rounded-full flex items-center justify-center cursor-pointer shrink-0"
+                  aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
-                  +
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill={isWishlisted(product.id) ? 'var(--color-pink)' : 'none'}
+                    stroke="var(--color-pink)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                  </svg>
                 </button>
               </div>
-              <button
-                className="flex-1 bg-pink text-white border-none rounded-[24px] py-[11px] text-[12px] font-medium tracking-[0.5px] uppercase cursor-pointer font-sans"
-                onClick={handleAddToCart}
-              >
-                Add to Cart — ${(displayPrice * quantity).toFixed(2)}
-              </button>
-              <button
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    router.push(
-                      '/login?callbackUrl=' + encodeURIComponent(window.location.pathname),
-                    );
-                    return;
-                  }
-                  toggleWishlist(product.id);
-                }}
-                className="w-[38px] h-[38px] bg-white border border-border-md rounded-full flex items-center justify-center cursor-pointer shrink-0"
-                aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill={isWishlisted(product.id) ? 'var(--color-pink)' : 'none'}
-                  stroke="var(--color-pink)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                </svg>
-              </button>
-            </div>
+            )}
 
-            {/* Loyalty points */}
-            <div className="text-[11px] text-muted mb-4">
-              Collect{' '}
-              <span className="text-pink font-medium">{Math.round(displayPrice)} points</span> with
-              this purchase
-            </div>
+            {!isAdmin && (
+              <div className="text-[11px] text-muted mb-4">
+                Collect{' '}
+                <span className="text-pink font-medium">{Math.round(displayPrice)} points</span>{' '}
+                with this purchase
+              </div>
+            )}
 
             {/* Features */}
             <div className="grid grid-cols-2 gap-2 pt-4 border-t border-border">
@@ -411,13 +426,14 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
             <div className="max-h-[300px] overflow-auto">
               <ReviewSummary stats={reviewStats} loading={reviewsLoading} error={reviewsError} />
               <div>
-                {reviews.length > 0 ? (
-                  reviews.map((r) => <ReviewCard key={r.id} review={r} />)
-                ) : (
-                  !reviewsLoading && !reviewsError && (
-                    <p className="text-[13px] text-muted">No reviews yet. Be the first to review!</p>
-                  )
-                )}
+                {reviews.length > 0
+                  ? reviews.map((r) => <ReviewCard key={r.id} review={r} />)
+                  : !reviewsLoading &&
+                    !reviewsError && (
+                      <p className="text-[13px] text-muted">
+                        No reviews yet. Be the first to review!
+                      </p>
+                    )}
               </div>
             </div>
           )}

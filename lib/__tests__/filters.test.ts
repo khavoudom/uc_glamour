@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  filterProducts,
-  FILTER_PRESETS,
-  COLLECTIONS,
-  lookupCollection,
-} from '@/lib/filters';
+import { filterProducts, FILTER_PRESETS, COLLECTIONS, lookupCollection } from '@/lib/filters';
 import { products } from '@/lib/data';
 
 describe('filterProducts()', () => {

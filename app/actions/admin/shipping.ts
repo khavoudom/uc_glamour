@@ -12,10 +12,7 @@ import {
 
 const shippingServiceSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  price: z.preprocess(
-    (v) => Number(v),
-    z.number().min(0, 'Price must be 0 or more'),
-  ),
+  price: z.preprocess((v) => Number(v), z.number().min(0, 'Price must be 0 or more')),
   estimatedDelivery: z.string().min(1, 'Estimated delivery is required'),
   isActive: z.preprocess((v) => v === 'on' || v === true, z.boolean()).optional(),
 });

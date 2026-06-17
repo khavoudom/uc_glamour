@@ -16,15 +16,15 @@ interface WishlistContentProps {
 export default function WishlistContent({ products }: WishlistContentProps) {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { wishlist, toggleWishlist } = useStore();
+  const { wishlist, toggleWishlist, userRole } = useStore();
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (status === 'unauthenticated' || userRole === 'admin') {
       router.replace('/login?callbackUrl=/wishlist');
     }
-  }, [status, router]);
+  }, [status, router, userRole]);
 
   useEffect(() => {
     setWishlistProducts(products.filter((p) => wishlist.includes(p.id)));
@@ -76,7 +76,10 @@ export default function WishlistContent({ products }: WishlistContentProps) {
                     {p.emoji}
                   </span>
                   <button
-                    onClick={() => toggleWishlist(p.id)}
+                    onClick={() => {
+                      if (userRole === 'admin') return;
+                      toggleWishlist(p.id);
+                    }}
                     className="absolute right-2 top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-border bg-white"
                   >
                     <svg

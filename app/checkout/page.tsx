@@ -92,7 +92,8 @@ function InputField({
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const isAdmin = session?.user?.role === 'admin';
   const {
     cart,
     subtotal,
@@ -126,13 +127,13 @@ export default function CheckoutPage() {
       .catch(() => {});
   }, []);
 
-  const isAuthenticated = status === 'authenticated';
+  const isAuthenticated = status === 'authenticated' && !isAdmin;
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (status === 'unauthenticated' || isAdmin) {
       router.replace('/login?callbackUrl=/checkout');
     }
-  }, [status, router]);
+  }, [status, router, isAdmin]);
 
   const grandTotal = Math.max(0, subtotal - couponDiscount + shippingCost);
 

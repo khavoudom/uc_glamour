@@ -28,7 +28,9 @@ export default async function VerifyEmailPage({
         ) : status === 'error' ? (
           <>
             <div className="mb-4 text-4xl">⏳</div>
-            <h1 className="font-heading mb-2 text-xl font-normal text-text">Link Expired or Invalid</h1>
+            <h1 className="font-heading mb-2 text-xl font-normal text-text">
+              Link Expired or Invalid
+            </h1>
             <p className="mb-6 text-xs text-muted">
               This verification link is no longer valid. Request a new one below.
             </p>

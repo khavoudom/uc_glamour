@@ -83,7 +83,14 @@ describe('ProductCard', () => {
   it('calls onSelect when article is clicked', async () => {
     const user = userEvent.setup();
     let selected: Product | null = null;
-    render(<ProductCard product={mockProduct} onSelect={(p) => { selected = p; }} />);
+    render(
+      <ProductCard
+        product={mockProduct}
+        onSelect={(p) => {
+          selected = p;
+        }}
+      />,
+    );
     await user.click(screen.getByRole('article'));
     expect(selected?.id).toBe('1');
   });

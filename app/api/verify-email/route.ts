@@ -14,10 +14,7 @@ export async function GET(request: NextRequest) {
     .select()
     .from(users)
     .where(
-      and(
-        eq(users.verificationToken, token),
-        gt(users.verificationTokenExpiresAt, new Date()),
-      ),
+      and(eq(users.verificationToken, token), gt(users.verificationTokenExpiresAt, new Date())),
     )
     .limit(1);
 

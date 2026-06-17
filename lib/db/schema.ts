@@ -233,8 +233,9 @@ export const orders = pgTable('orders', {
   shippingState: text('shipping_state'),
   shippingZip: text('shipping_zip'),
   shippingCountry: text('shipping_country'),
-  shippingServiceId: integer('shipping_service_id')
-    .references(() => shippingServices.id, { onDelete: 'set null' }),
+  shippingServiceId: integer('shipping_service_id').references(() => shippingServices.id, {
+    onDelete: 'set null',
+  }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 

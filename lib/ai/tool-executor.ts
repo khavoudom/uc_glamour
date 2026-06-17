@@ -17,7 +17,10 @@ function parseImageUrls(raw: string | null): string[] {
   }
 }
 
-export async function executeTool(name: string, args: Record<string, unknown>): Promise<ToolResult> {
+export async function executeTool(
+  name: string,
+  args: Record<string, unknown>,
+): Promise<ToolResult> {
   switch (name) {
     // UI Control tools
     case 'changeChatWidth': {
@@ -41,9 +44,19 @@ export async function executeTool(name: string, args: Record<string, unknown>): 
     case 'navigateToPage': {
       const page = String(args.page ?? '');
       const validPages = [
-        '/', '/products', '/bundles', '/about', '/our-story',
-        '/contact', '/help', '/track-order', '/wishlist',
-        '/login', '/signup', '/account', '/checkout',
+        '/',
+        '/products',
+        '/bundles',
+        '/about',
+        '/our-story',
+        '/contact',
+        '/help',
+        '/track-order',
+        '/wishlist',
+        '/login',
+        '/signup',
+        '/account',
+        '/checkout',
       ];
       if (!validPages.includes(page)) {
         return { error: `Invalid page: ${page}`, navigated: false };
@@ -128,7 +141,7 @@ export async function executeTool(name: string, args: Record<string, unknown>): 
         if (product) {
           const shadeName = (args.shade as string) ?? null;
           const matchedShade = shadeName
-            ? product.shades.find((s) => s.name === shadeName) ?? null
+            ? (product.shades.find((s) => s.name === shadeName) ?? null)
             : null;
           return {
             success: true,
@@ -138,9 +151,7 @@ export async function executeTool(name: string, args: Record<string, unknown>): 
               brand: product.brand,
               category: product.category,
               price: Number(product.price),
-              originalPrice: product.originalPrice
-                ? Number(product.originalPrice)
-                : undefined,
+              originalPrice: product.originalPrice ? Number(product.originalPrice) : undefined,
               emoji: product.emoji,
               description: product.description ?? '',
               rating: Number(product.rating),

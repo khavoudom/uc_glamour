@@ -24,12 +24,14 @@ function Badge({ badge }: { badge: Product['badge'] }) {
 }
 
 export default function ProductCard({ product, onSelect }: ProductCardProps) {
-  const { isWishlisted, toggleWishlist, addToCart, isAuthenticated } = useStore();
+  const { isWishlisted, toggleWishlist, addToCart, isAuthenticated, userRole } = useStore();
   const router = useRouter();
   const wishlisted = isWishlisted(product.id);
+  const isAdmin = userRole === 'admin';
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isAdmin) return;
     if (!isAuthenticated) {
       router.push('/login?callbackUrl=' + encodeURIComponent(window.location.pathname));
       return;
@@ -59,6 +61,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
           style={{
             background: wishlisted ? 'var(--color-pink)' : 'var(--color-white)',
             border: '0.5px solid var(--color-border)',
+            display: isAdmin ? 'none' : undefined,
           }}
           onClick={handleToggleWishlist}
         >
@@ -128,35 +131,37 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
               </span>
             )}
           </div>
-          <button
-            className="p-add w-7 h-7 bg-text border-none rounded-full flex items-center justify-center cursor-pointer shrink-0 text-white"
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart(product, product.shades[0] || null, 1);
-              openCart();
-            }}
-            aria-label="Add to cart"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-pink)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--color-text)';
-            }}
-          >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          {!isAdmin && (
+            <button
+              className={`p-add w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-white bg-text cursor-pointer`}
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(product, product.shades[0] || null, 1);
+                openCart();
+              }}
+              aria-label="Add to cart"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-pink)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--color-text)';
+              }}
             >
-              <path d="M12 5v14" />
-              <path d="M5 12h14" />
-            </svg>
-          </button>
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </article>

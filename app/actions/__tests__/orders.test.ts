@@ -15,7 +15,6 @@ beforeEach(() => {
 });
 
 // Mock side-effect modules
-vi.mock('@/lib/receipt-email', () => ({ sendReceiptEmail: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/lib/telegram-notify', () => ({
   sendTelegramNotification: vi.fn().mockResolvedValue(undefined),
 }));

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getOrderById, updateOrderPaymentStatus } from '@/lib/data-access/orders';
-import { sendReceiptEmail } from '@/lib/receipt-email';
 import { sendTelegramNotification } from '@/lib/telegram-notify';
 import { logger } from '@/lib/logger';
 
@@ -32,9 +31,7 @@ export async function POST(request: NextRequest) {
       log.info('Dev: marked order as paid', { orderId: order.id });
     }
 
-    // Fire notifications
     sendTelegramNotification(order.id).catch(() => {});
-    sendReceiptEmail(order.id).catch(() => {});
 
     return NextResponse.json({ success: true, orderId: order.id });
   } catch (error) {

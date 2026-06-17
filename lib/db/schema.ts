@@ -239,6 +239,19 @@ export const orders = pgTable('orders', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
+/* ── Email Queue ── */
+
+export const emailQueue = pgTable('email_queue', {
+  id: serial('id').primaryKey(),
+  to: text('to').notNull(),
+  subject: text('subject').notNull(),
+  html: text('html').notNull(),
+  status: text('status').notNull().default('pending'), // pending | sent | failed
+  error: text('error'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  sentAt: timestamp('sent_at'),
+});
+
 /* ── Order Items ── */
 
 export const orderItems = pgTable('order_items', {

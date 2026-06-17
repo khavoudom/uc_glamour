@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getOrderById } from '@/lib/data-access/orders';
 import { updateOrderPaymentStatus } from '@/lib/data-access/orders';
 import { checkBakongTransactionByMd5, BakongOpenAPIError } from '@/lib/payment/bakong-open-api';
+import { sendReceiptEmail } from '@/lib/receipt-email';
 import { sendTelegramNotification } from '@/lib/telegram-notify';
 import { logger } from '@/lib/logger';
 
@@ -58,6 +59,8 @@ export async function GET(request: NextRequest) {
     });
     if (bakongStatus.paid) {
       await updateOrderPaymentStatus(order.id, 'Paid');
+      // Fire-and-forget: send receipt email if we have the user's email
+      sendReceiptEmail(order.id).catch(() => {});
       sendTelegramNotification(order.id).catch(() => {});
     }
 

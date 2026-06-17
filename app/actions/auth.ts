@@ -9,6 +9,8 @@ import { signIn, signOut } from '@/auth';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { AuthError } from 'next-auth';
+import { buildVerificationHtml } from '@/lib/email-verification';
+import { enqueueEmail, processEmailQueue } from '@/lib/email-queue';
 
 const SignupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').trim(),
@@ -92,12 +94,22 @@ export async function signup(prevState: SignupState, formData: FormData) {
       verificationTokenExpiresAt,
     });
 
-    redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+    // Queue verification email (fast — just inserts into DB)
+    const verificationUrl = `${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000')}/api/verify-email?token=${encodeURIComponent(verificationToken)}`;
+    await enqueueEmail({
+      to: email,
+      subject: 'Verify your email — Glamour Beauty',
+      html: buildVerificationHtml(name, verificationUrl),
+    });
+
+    await processEmailQueue();
   } catch {
     return {
       message: 'Something went wrong. Please try again.',
     };
   }
+
+  redirect(`/verify-email?email=${encodeURIComponent(email)}`);
 }
 
 export type LoginState =
@@ -183,6 +195,14 @@ export async function resendVerification(prevState: ResendState, formData: FormD
     .update(users)
     .set({ verificationToken, verificationTokenExpiresAt })
     .where(eq(users.id, user.id));
+
+  const verificationUrl = `${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000')}/api/verify-email?token=${encodeURIComponent(verificationToken)}`;
+  await enqueueEmail({
+    to: email,
+    subject: 'Verify your email — Glamour Beauty',
+    html: buildVerificationHtml(user.name, verificationUrl),
+  });
+  await processEmailQueue();
 
   return {
     success: 'If an account exists with this email, a new verification link has been sent.',

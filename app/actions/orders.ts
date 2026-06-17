@@ -3,6 +3,7 @@
 import { db } from '@/lib/db';
 import { orders, orderItems } from '@/lib/db/schema';
 import { getOptionalCustomerSession } from '@/lib/dal';
+import { sendReceiptEmail } from '@/lib/receipt-email';
 import { sendTelegramNotification } from '@/lib/telegram-notify';
 import { redirect } from 'next/navigation';
 
@@ -76,6 +77,8 @@ export async function createOrder(input: CreateOrderInput) {
     );
   }
 
+  // Fire-and-forget: send receipt email if we have the user's email
+  sendReceiptEmail(order.id).catch(() => {});
   sendTelegramNotification(order.id).catch(() => {});
 
   return { orderId: order.id };

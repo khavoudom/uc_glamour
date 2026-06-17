@@ -44,3 +44,6 @@ backup
 # logs (keep directory, ignore content)
 logs
 !/logs/.gitkeep
+
+# uploaded images
+/public/uploads/

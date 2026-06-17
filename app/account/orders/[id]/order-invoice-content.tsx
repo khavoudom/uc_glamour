@@ -30,7 +30,7 @@ export default function OrderInvoiceContent({ order }: { order: OrderInvoice }) 
   return (
     <div className="min-h-screen bg-bg">
       <Header onSearchToggle={() => setSearchOpen((prev) => !prev)} />
-      <div className="mx-auto max-w-[800px] px-7 py-10">
+      <div className="mx-auto max-w-200 px-7 py-10">
         {/* Back navigation */}
         <button
           onClick={() => router.push('/account')}
@@ -165,9 +165,9 @@ export default function OrderInvoiceContent({ order }: { order: OrderInvoice }) 
                 <h2 className="text-sm font-semibold text-text">Shipping To</h2>
               </div>
               <div className="text-[13px] text-text">
-                <p className="m-0 mb-[2px] font-medium">{order.shippingName}</p>
+                <p className="m-0 mb-0.5 font-medium">{order.shippingName}</p>
                 {order.shippingAddress && (
-                  <p className="m-0 mb-[2px] text-muted">{order.shippingAddress}</p>
+                  <p className="m-0 mb-0.5 text-muted">{order.shippingAddress}</p>
                 )}
                 <p className="m-0 text-muted">
                   {[order.shippingCity, order.shippingState, order.shippingZip]
@@ -181,16 +181,16 @@ export default function OrderInvoiceContent({ order }: { order: OrderInvoice }) 
         </div>
 
         {/* Actions */}
-        <div className="mt-6 flex gap-[10px]">
+        <div className="mt-6 flex gap-2.5">
           <button
             onClick={() => router.push('/products')}
-            className="flex-1 cursor-pointer rounded-full border border-border-md bg-none p-[13px] text-[13px] font-medium font-sans text-text"
+            className="flex-1 cursor-pointer rounded-full border border-border-md bg-none p-3.25 text-[13px] font-medium font-sans text-text"
           >
             Continue Shopping
           </button>
           <button
             onClick={() => router.push('/account')}
-            className="flex-1 cursor-pointer rounded-full bg-pink p-[13px] text-[13px] font-medium font-sans text-white border-none"
+            className="flex-1 cursor-pointer rounded-full bg-pink p-3.25 text-[13px] font-medium font-sans text-white border-none"
           >
             Back to My Orders
           </button>

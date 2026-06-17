@@ -34,25 +34,25 @@ export default function Testimonials() {
       <div className="flex items-baseline justify-between mb-5">
         <div>
           <h2 className="font-heading text-[26px] font-normal text-text">What our customers say</h2>
-          <p className="text-[12px] text-muted mt-[2px]">Real reviews from real people</p>
+          <p className="text-xs text-muted mt-0.5">Real reviews from real people</p>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-4 mt-6">
         {testimonials.map((t) => (
-          <div key={t.author} className="bg-bg border border-border rounded-[12px] p-5">
-            <div className="text-gold text-[13px] mb-[10px]">★★★★★</div>
-            <div className="font-heading text-[13px] text-text leading-[1.7] mb-[14px] italic font-light">
+          <div key={t.author} className="bg-bg border border-border rounded-md p-5">
+            <div className="text-gold text-[13px] mb-2.5">★★★★★</div>
+            <div className="font-heading text-[13px] text-text leading-[1.7] mb-3.5 italic font-light">
               &ldquo;{t.quote}&rdquo;
             </div>
-            <div className="flex items-center gap-[10px]">
+            <div className="flex items-center gap-2.5">
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-medium shrink-0"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium shrink-0"
                 style={{ background: t.bg, color: t.color }}
               >
                 {t.initials}
               </div>
               <div>
-                <div className="text-[12px] font-medium text-text">{t.author}</div>
+                <div className="text-xs font-medium text-text">{t.author}</div>
                 <div className="text-[10px] text-muted">Verified buyer · {t.location}</div>
               </div>
             </div>

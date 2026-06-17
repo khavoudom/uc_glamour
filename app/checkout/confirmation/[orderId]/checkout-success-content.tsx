@@ -40,8 +40,8 @@ function OrderItem({
 }
 
 function AnimatedCheckCircle() {
-  const circleLen = 2 * Math.PI * 32; // ~201
-  const checkLen = 70; // approximate polyline length
+  const circleLen = 2 * Math.PI * 32;
+  const checkLen = 70;
 
   return (
     <div className="relative mx-auto mb-4 flex h-[72px] w-[72px] items-center justify-center">
@@ -59,7 +59,7 @@ function AnimatedCheckCircle() {
           strokeDasharray={circleLen}
           strokeDashoffset={circleLen}
           style={{
-            animation: 'ccDrawIn 0.4s ease-out 0.1s forwards',
+            animation: 'ccDrawIn 0.8s ease-out 0.1s forwards',
           }}
         />
         {/* Checkmark — draws in after circle */}
@@ -73,7 +73,7 @@ function AnimatedCheckCircle() {
           strokeDasharray={checkLen}
           strokeDashoffset={checkLen}
           style={{
-            animation: 'ccDrawIn 0.3s ease-out 0.5s forwards',
+            animation: 'ccDrawIn 0.6s ease-out 0.9s forwards',
           }}
         />
       </svg>
@@ -93,7 +93,7 @@ export default function OrderConfirmation({ order }: { order: NonNullable<OrderP
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="mx-auto max-w-[640px] px-7 py-10">
+      <div className="mx-auto max-w-160 px-7 py-10">
         {/* Success header */}
         <div className="mb-5 rounded-lg border border-border bg-white px-6 py-12 text-center">
           <AnimatedCheckCircle />
@@ -105,17 +105,17 @@ export default function OrderConfirmation({ order }: { order: NonNullable<OrderP
           <div className="mt-5 flex justify-center gap-6 border-t border-border pt-5">
             <div>
               <div className="text-[10px] uppercase tracking-[0.5px] text-muted">Order Number</div>
-              <div className="mt-[2px] text-base font-semibold text-text">#{order.id}</div>
+              <div className="mt-0.5 text-base font-semibold text-text">#{order.id}</div>
             </div>
             <div>
               <div className="text-[10px] uppercase tracking-[0.5px] text-muted">Total</div>
-              <div className="mt-[2px] text-base font-semibold text-pink">
+              <div className="mt-0.5 text-base font-semibold text-pink">
                 ${Number(order.total).toFixed(2)}
               </div>
             </div>
             <div>
               <div className="text-[10px] uppercase tracking-[0.5px] text-muted">Payment</div>
-              <div className="mt-[2px] text-base font-medium text-text">{payMethod}</div>
+              <div className="mt-0.5 text-base font-medium text-text">{payMethod}</div>
             </div>
           </div>
         </div>
@@ -145,8 +145,8 @@ export default function OrderConfirmation({ order }: { order: NonNullable<OrderP
               <h3 className="m-0 text-[15px] font-medium text-text">Shipping To</h3>
             </div>
             <div className="text-[13px] text-text">
-              <p className="m-0 mb-[2px] font-medium">{order.shippingName}</p>
-              <p className="m-0 mb-[2px] text-muted">{order.shippingAddress}</p>
+              <p className="m-0 mb-0.5 font-medium">{order.shippingName}</p>
+              <p className="m-0 mb-0.5 text-muted">{order.shippingAddress}</p>
               <p className="m-0 text-muted">
                 {order.shippingCity}, {order.shippingState} {order.shippingZip}
               </p>
@@ -156,16 +156,16 @@ export default function OrderConfirmation({ order }: { order: NonNullable<OrderP
         )}
 
         {/* Action */}
-        <div className="flex gap-[10px]">
+        <div className="flex gap-2.5">
           <button
             onClick={() => router.push('/products')}
-            className="flex-1 cursor-pointer rounded-full border border-border-md bg-none p-[13px] text-[13px] font-medium font-sans text-text"
+            className="flex-1 cursor-pointer rounded-full border border-border-md bg-none p-3.25 text-[13px] font-medium font-sans text-text"
           >
             Continue Shopping
           </button>
           <button
             onClick={() => router.push('/')}
-            className="flex-1 cursor-pointer rounded-full bg-pink p-[13px] text-[13px] font-medium font-sans text-white"
+            className="flex-1 cursor-pointer rounded-full bg-pink p-3.25 text-[13px] font-medium font-sans text-white"
           >
             Back to Home
           </button>

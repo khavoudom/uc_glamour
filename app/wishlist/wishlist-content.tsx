@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import Header from '@/components/header';
 import CartDrawer from '@/components/cart-drawer';
 import Toast from '@/components/toast';
+import ProductModal from '@/components/product-modal';
+import { openCart } from '@/components/cart-drawer';
 import type { Product } from '@/lib/types';
 
 interface WishlistContentProps {
@@ -16,9 +18,10 @@ interface WishlistContentProps {
 export default function WishlistContent({ products }: WishlistContentProps) {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { wishlist, toggleWishlist, userRole } = useStore();
+  const { wishlist, toggleWishlist, addToCart, userRole, isAuthenticated } = useStore();
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated' || userRole === 'admin') {
@@ -41,7 +44,7 @@ export default function WishlistContent({ products }: WishlistContentProps) {
   return (
     <div className="min-h-screen bg-bg">
       <Header onSearchToggle={() => setSearchOpen((prev) => !prev)} />
-      <div className="mx-auto max-w-[900px] px-7 py-10">
+      <div className="mx-auto max-w-225 px-7 py-10">
         <button
           onClick={() => router.push('/')}
           className="mb-5 cursor-pointer border-none bg-none text-xs text-muted"
@@ -54,7 +57,7 @@ export default function WishlistContent({ products }: WishlistContentProps) {
         </h1>
 
         {wishlistProducts.length === 0 ? (
-          <div className="rounded-lg border border-border bg-white px-[60px] py-15 text-center">
+          <div className="rounded-lg border border-border bg-white px-15 py-15 text-center">
             <span className="text-5xl" aria-hidden="true">
               🤍
             </span>
@@ -62,7 +65,7 @@ export default function WishlistContent({ products }: WishlistContentProps) {
             <p className="mt-1 text-xs text-muted">Save your favorite products here</p>
             <button
               onClick={() => router.push('/')}
-              className="mt-5 cursor-pointer rounded-full max-w-max bg-pink px-6 py-[10px] text-[13px] font-medium text-white"
+              className="mt-5 cursor-pointer rounded-full max-w-max bg-pink px-6 py-2.5 text-[13px] font-medium text-white"
             >
               Start Shopping
             </button>
@@ -70,17 +73,32 @@ export default function WishlistContent({ products }: WishlistContentProps) {
         ) : (
           <div className="grid grid-cols-3 gap-3.5">
             {wishlistProducts.map((p) => (
-              <div key={p.id} className="overflow-hidden rounded-lg border border-border bg-white">
+              <div
+                key={p.id}
+                className="overflow-hidden rounded-lg border border-border bg-white cursor-pointer"
+                style={{ transition: 'all 0.15s' }}
+                onClick={() => setSelectedProduct(p)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.borderColor = 'var(--color-hint)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = '';
+                  e.currentTarget.style.borderColor = '';
+                }}
+              >
                 <div className="relative flex aspect-square items-center justify-center bg-pink-lt">
                   <span className="text-5xl" aria-hidden="true">
                     {p.emoji}
                   </span>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (userRole === 'admin') return;
                       toggleWishlist(p.id);
                     }}
                     className="absolute right-2 top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-border bg-white"
+                    aria-label="Remove from wishlist"
                   >
                     <svg
                       width="14"
@@ -99,12 +117,34 @@ export default function WishlistContent({ products }: WishlistContentProps) {
                 <div className="p-3">
                   <div className="text-[11px] font-medium text-text">{p.name}</div>
                   <div className="mt-1 text-sm font-medium text-pink">${p.price.toFixed(2)}</div>
+                  {!userRole?.startsWith('admin') && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(p, p.shades[0] || null, 1);
+                        openCart();
+                      }}
+                      className="mt-2 w-full cursor-pointer rounded-full bg-text px-4 py-1.5 text-[11px] font-medium text-white"
+                      style={{ transition: 'background 0.15s' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--color-pink)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--color-text)';
+                      }}
+                    >
+                      Add to Cart
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+      {selectedProduct && (
+        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
       <CartDrawer />
       <Toast />
     </div>

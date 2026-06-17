@@ -6,11 +6,11 @@ export default function FeaturedBanner() {
   const router = useRouter();
   return (
     <div
-      className="mx-[28px] mb-5 bg-text rounded-[16px] overflow-hidden grid grid-cols-2"
+      className="mx-7 mb-5 bg-text rounded-2xl overflow-hidden grid grid-cols-2"
       style={{ minHeight: 200 }}
     >
       <div className="px-9 py-9 flex flex-col justify-center">
-        <div className="text-[10px] tracking-[2px] uppercase text-white/50 mb-[10px]">
+        <div className="text-[10px] tracking-[2px] uppercase text-white/50 mb-2.5">
           Limited Time Offer
         </div>
         <h2 className="font-heading text-[32px] font-light text-white leading-[1.15] mb-4">
@@ -20,7 +20,7 @@ export default function FeaturedBanner() {
         </h2>
         <button
           onClick={() => router.push('/products')}
-          className="bg-pink text-white border-none rounded-[20px] px-[22px] py-[10px] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center gap-[6px] w-fit"
+          className="bg-pink text-white border-none rounded-xl px-5.5 py-2.5 text-xs font-medium font-sans cursor-pointer inline-flex items-center gap-1.5 w-fit"
         >
           Explore the Edit{' '}
           <svg
@@ -46,7 +46,7 @@ export default function FeaturedBanner() {
         }}
       >
         <div
-          className="w-[120px] h-[120px] rounded-full flex items-center justify-center"
+          className="w-30 h-30 rounded-full flex items-center justify-center"
           style={{
             background: 'rgba(232,51,106,0.1)',
             border: '0.5px solid rgba(232,51,106,0.2)',

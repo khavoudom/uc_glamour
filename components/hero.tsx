@@ -8,7 +8,7 @@ export default function Hero() {
   return (
     <div className="bg-white overflow-hidden grid grid-cols-[1fr_380px]" style={{ minHeight: 480 }}>
       <div className="px-12 py-14 flex flex-col justify-center">
-        <div className="text-[10px] tracking-[2.5px] uppercase text-pink font-medium mb-[14px] flex items-center gap-2">
+        <div className="text-[10px] tracking-[2.5px] uppercase text-pink font-medium mb-3.5 flex items-center gap-2">
           <span className="block w-6 h-px bg-pink" />
           Summer 2026 Collection
         </div>
@@ -19,7 +19,7 @@ export default function Hero() {
           <strong style={{ fontWeight: 600 }}>look stunning</strong>
         </h1>
 
-        <p className="text-[14px] text-muted leading-[1.7] max-w-[380px] mb-7 font-light">
+        <p className="text-sm text-muted leading-[1.7] max-w-95 mb-7 font-light">
           Curated beauty essentials crafted for every complexion. Clean formulas, luxurious
           textures, results you can see.
         </p>
@@ -30,7 +30,7 @@ export default function Hero() {
               const el = document.querySelector('.section-wrap');
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }}
-            className="bg-pink text-white border-none rounded-[24px] px-7 py-3 text-[13px] font-medium font-sans cursor-pointer inline-flex items-center gap-2"
+            className="bg-pink text-white border-none rounded-2xl px-7 py-3 text-[13px] font-medium font-sans cursor-pointer inline-flex items-center gap-2"
           >
             Shop the Collection{' '}
             <svg
@@ -49,7 +49,7 @@ export default function Hero() {
           </button>
           <button
             onClick={() => router.push('/products')}
-            className="bg-none border border-border-md text-text rounded-[24px] px-6 py-3 text-[13px] font-normal font-sans cursor-pointer"
+            className="bg-none border border-border-md text-text rounded-2xl px-6 py-3 text-[13px] font-normal font-sans cursor-pointer"
           >
             View All Products
           </button>
@@ -58,15 +58,15 @@ export default function Hero() {
         <div className="flex gap-7 mt-8 pt-6 border-t border-border">
           <div>
             <div className="font-heading text-[26px] font-medium text-text leading-none">200+</div>
-            <div className="text-[10px] text-muted mt-[2px] tracking-[0.3px]">Products</div>
+            <div className="text-[10px] text-muted mt-0.5 tracking-[0.3px]">Products</div>
           </div>
           <div>
             <div className="font-heading text-[26px] font-medium text-text leading-none">48k</div>
-            <div className="text-[10px] text-muted mt-[2px] tracking-[0.3px]">Happy Customers</div>
+            <div className="text-[10px] text-muted mt-0.5 tracking-[0.3px]">Happy Customers</div>
           </div>
           <div>
             <div className="font-heading text-[26px] font-medium text-text leading-none">4.9★</div>
-            <div className="text-[10px] text-muted mt-[2px] tracking-[0.3px]">Average Rating</div>
+            <div className="text-[10px] text-muted mt-0.5 tracking-[0.3px]">Average Rating</div>
           </div>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function Hero() {
           }}
         >
           <div
-            className="w-[180px] h-[180px] rounded-full flex items-center justify-center"
+            className="w-45 h-[180px] rounded-full flex items-center justify-center"
             style={{
               background: 'rgba(232, 51, 106, 0.08)',
               border: '0.5px solid rgba(232, 51, 106, 0.15)',
@@ -108,9 +108,8 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Floating badge 1 */}
         <div
-          className="absolute top-[60px] left-5 bg-white border border-border rounded-[10px] px-3 py-2 flex items-center gap-2 text-[11px]"
+          className="absolute top-15 left-5 bg-white border border-border rounded-[10px] px-3 py-2 flex items-center gap-2 text-[11px]"
           style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
         >
           <svg
@@ -130,7 +129,6 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Floating badge 2 */}
         <div
           className="absolute bottom-20 right-4 bg-white border border-border rounded-[10px] px-3 py-2 flex items-center gap-2 text-[11px]"
           style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}

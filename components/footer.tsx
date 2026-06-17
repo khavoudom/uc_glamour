@@ -31,7 +31,6 @@ export default function Footer() {
   return (
     <footer className="bg-[#111110] px-7 pt-10 pb-5">
       <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] gap-6 pb-7 border-b border-white/[0.06]">
-        {/* Brand + Subscribe */}
         <div>
           <div
             onClick={() => router.push('/')}
@@ -39,31 +38,29 @@ export default function Footer() {
           >
             Glam<em style={{ color: 'var(--color-pink)', fontStyle: 'italic' }}>our</em>
           </div>
-          <div className="text-[11px] text-white/35 leading-[1.65] mb-4 max-w-[220px]">
+          <div className="text-[11px] text-white/35 leading-[1.65] mb-4 max-w-55">
             Clean, effective beauty essentials crafted for every complexion. Feel radiant, look
             stunning.
           </div>
           <div
-            className="rounded-[10px] p-[14px]"
+            className="rounded-[10px] p-3.5"
             style={{
               background: 'rgba(255,255,255,0.05)',
               border: '0.5px solid rgba(255,255,255,0.08)',
             }}
           >
-            <div className="text-[12px] font-medium text-white mb-[3px]">
-              Don&apos;t miss our offers
-            </div>
-            <div className="text-[10px] text-white/35 mb-[10px]">
+            <div className="text-xs font-medium text-white mb-0.75">Don&apos;t miss our offers</div>
+            <div className="text-[10px] text-white/35 mb-2.5">
               Beauty tips, exclusive deals, and new arrivals
             </div>
-            <div className="flex gap-[6px]">
+            <div className="flex gap-1.5">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
                 placeholder="your@email.com"
-                className="flex-1 border-none rounded-[6px] px-[10px] py-[7px] text-[11px] text-white font-sans outline-none"
+                className="flex-1 border-none rounded-sm px-2.5 py-1.75 text-[11px] text-white font-sans outline-none"
                 style={{
                   background: 'rgba(255,255,255,0.08)',
                   border: '0.5px solid rgba(255,255,255,0.12)',
@@ -71,7 +68,7 @@ export default function Footer() {
               />
               <button
                 onClick={handleSubscribe}
-                className="bg-pink border-none rounded-[6px] px-3 py-[7px] text-[11px] font-medium text-white font-sans cursor-pointer"
+                className="bg-pink border-none rounded-sm px-3 py-1.75 text-[11px] font-medium text-white font-sans cursor-pointer"
               >
                 Subscribe
               </button>
@@ -79,12 +76,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Products */}
         <div>
           <div className="text-[11px] font-medium text-white tracking-[0.5px] uppercase mb-3">
             Products
           </div>
-          <div className="flex flex-col gap-[7px]">
+          <div className="flex flex-col gap-1.75">
             {[
               { label: 'New Arrivals', href: '/products?filter=new-arrivals' },
               { label: 'Bestsellers', href: '/products?filter=bestsellers' },
@@ -103,7 +99,7 @@ export default function Footer() {
           <div className="text-[11px] font-medium text-white tracking-[0.5px] uppercase mb-3 mt-[18px]">
             Collections
           </div>
-          <div className="flex flex-col gap-[7px]">
+          <div className="flex flex-col gap-1.75">
             {[
               { label: 'Night Cream', href: '/collections/night-cream' },
               { label: 'Skin Toner', href: '/collections/skin-toner' },
@@ -121,12 +117,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Company */}
         <div>
           <div className="text-[11px] font-medium text-white tracking-[0.5px] uppercase mb-3">
             Company
           </div>
-          <div className="flex flex-col gap-[7px]">
+          <div className="flex flex-col gap-1.75">
             {[
               { label: 'About Us', href: '/about' },
               { label: 'Our Story', href: '/our-story' },
@@ -145,12 +140,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Support */}
         <div>
           <div className="text-[11px] font-medium text-white tracking-[0.5px] uppercase mb-3">
             Support
           </div>
-          <div className="flex flex-col gap-[7px]">
+          <div className="flex flex-col gap-1.75">
             {[
               { label: 'Help Center', href: '/help' },
               { label: 'Contact Us', href: '/contact' },
@@ -169,7 +163,7 @@ export default function Footer() {
           <div className="text-[11px] font-medium text-white tracking-[0.5px] uppercase mb-3 mt-[18px]">
             Legal
           </div>
-          <div className="flex flex-col gap-[7px]">
+          <div className="flex flex-col gap-1.75">
             {[
               { label: 'Privacy Policy', href: '/privacy' },
               { label: 'Terms of Service', href: '/terms' },
@@ -189,7 +183,7 @@ export default function Footer() {
 
       <div className="flex items-center justify-between pt-4 text-[10px] text-white/25">
         <span>&copy; 2026 Glamour. All rights reserved.</span>
-        <div className="flex gap-[10px]">
+        <div className="flex gap-2.5">
           {['instagram', 'facebook', 'twitter', 'pinterest'].map((social) => (
             <span
               key={social}

@@ -18,8 +18,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     <div>
       <h1 className="font-heading mb-6 text-2xl font-medium text-text">Order #{order.id}</h1>
 
-      <div className="grid max-w-[800px] grid-cols-2 gap-4">
-        {/* Order Summary */}
+      <div className="grid max-w-200 grid-cols-2 gap-4">
         <Card>
           <h2 className="mb-3 text-sm font-semibold text-text">Order Summary</h2>
           <div className="flex flex-col gap-2 text-xs">
@@ -46,7 +45,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </div>
         </Card>
 
-        {/* Customer Info */}
         <Card>
           <h2 className="mb-3 text-sm font-semibold text-text">Customer</h2>
           <div className="flex flex-col gap-2 text-xs">
@@ -55,7 +53,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </div>
         </Card>
 
-        {/* Items */}
         <Card>
           <h2 className="mb-3 text-sm font-semibold text-text">Items ({order.items.length})</h2>
           <table className="w-full border-collapse text-xs">
@@ -84,7 +81,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </table>
         </Card>
 
-        {/* Status Management */}
         <div className="flex flex-col gap-4">
           <Card>
             <h2 className="mb-3 text-sm font-semibold text-text">Payment Status</h2>

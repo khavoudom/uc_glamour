@@ -1,11 +1,7 @@
 import 'server-only';
 import { getOrderById } from '@/lib/data-access/orders';
-import { sendEmail } from '@/lib/email';
+import { enqueueEmail } from '@/lib/email-queue';
 
-/**
- * Build a plain-HTML receipt for an order and send it.
- * Silently skips if no email address is available.
- */
 export async function sendReceiptEmail(orderId: number) {
   const order = await getOrderById(orderId);
   if (!order) return;
@@ -84,7 +80,7 @@ export async function sendReceiptEmail(orderId: number) {
 </body>
 </html>`;
 
-  await sendEmail({
+  await enqueueEmail({
     to: emailTo,
     subject: `Order Confirmed — #${order.id}`,
     html,

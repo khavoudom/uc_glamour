@@ -5,12 +5,14 @@ import { compare, hash } from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
-import { signIn, signOut } from '@/auth';
+import { signIn } from '@/auth';
 import { eq } from 'drizzle-orm';
+import { verifySession } from '@/lib/dal';
+import { updateUserName } from '@/lib/data-access/users';
 import { redirect } from 'next/navigation';
 import { AuthError } from 'next-auth';
 import { buildVerificationHtml } from '@/lib/email-verification';
-import { enqueueEmail, processEmailQueue } from '@/lib/email-queue';
+import { enqueueEmail } from '@/lib/email-queue';
 
 const SignupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').trim(),
@@ -39,7 +41,7 @@ async function getUserForValidCredentials(email: string, password: string) {
     .where(eq(users.email, email))
     .limit(1);
 
-  if (!user) return null;
+  if (!user || !user.hashedPassword) return null;
 
   const isValid = await compare(password, user.hashedPassword);
   return isValid ? user : null;
@@ -71,7 +73,6 @@ export async function signup(prevState: SignupState, formData: FormData) {
 
   const { name, email, password } = validated.data;
 
-  // Check if user exists
   const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (existing) {
@@ -82,7 +83,7 @@ export async function signup(prevState: SignupState, formData: FormData) {
 
   const hashedPassword = await hash(password, 12);
   const verificationToken = randomUUID();
-  const verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  const verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   try {
     await db.insert(users).values({
@@ -94,15 +95,12 @@ export async function signup(prevState: SignupState, formData: FormData) {
       verificationTokenExpiresAt,
     });
 
-    // Queue verification email (fast — just inserts into DB)
     const verificationUrl = `${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000')}/api/verify-email?token=${encodeURIComponent(verificationToken)}`;
     await enqueueEmail({
       to: email,
       subject: 'Verify your email — Glamour Beauty',
       html: buildVerificationHtml(name, verificationUrl),
     });
-
-    await processEmailQueue();
   } catch {
     return {
       message: 'Something went wrong. Please try again.',
@@ -165,10 +163,6 @@ export type ResendState =
   | undefined;
 
 export async function resendVerification(prevState: ResendState, formData: FormData) {
-  // We need the email to resend. Let the user enter it in the form.
-  // For simplicity, we'll just return a message asking them to enter their email.
-  // A better approach: pass email via a form field.
-
   const email = formData.get('email') as string | null;
 
   if (!email) {
@@ -178,7 +172,6 @@ export async function resendVerification(prevState: ResendState, formData: FormD
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (!user) {
-    // Don't reveal whether the email exists
     return {
       success: 'If an account exists with this email, a new verification link has been sent.',
     };
@@ -202,14 +195,19 @@ export async function resendVerification(prevState: ResendState, formData: FormD
     subject: 'Verify your email — Glamour Beauty',
     html: buildVerificationHtml(user.name, verificationUrl),
   });
-  await processEmailQueue();
 
   return {
     success: 'If an account exists with this email, a new verification link has been sent.',
   };
 }
 
-export async function logout() {
-  await signOut({ redirect: false });
-  redirect('/');
+export async function updateAccountName(name: string) {
+  const { userId } = await verifySession();
+
+  const parsed = z.string().min(2, 'Name must be at least 2 characters').trim().safeParse(name);
+  if (!parsed.success) {
+    return { error: parsed.error.flatten().formErrors.join(', ') };
+  }
+
+  await updateUserName(userId, parsed.data);
 }

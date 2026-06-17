@@ -14,7 +14,6 @@ beforeEach(() => {
   } as never);
 });
 
-// Mock side-effect modules
 vi.mock('@/lib/receipt-email', () => ({ sendReceiptEmail: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/lib/telegram-notify', () => ({
   sendTelegramNotification: vi.fn().mockResolvedValue(undefined),
@@ -56,7 +55,6 @@ describe('createOrder()', () => {
     const insertValues = vi.fn().mockReturnThis();
     mockDbInsert.mockReturnValue({ values: insertValues, returning } as any);
 
-    // HACK: override the module mock within test since db mock is setup.ts is generic
     const result = await createOrder(validInput);
 
     expect(result.orderId).toBe(1);

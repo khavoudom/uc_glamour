@@ -27,12 +27,10 @@ export default function CategoryGrid({ onCategoryChange, products }: CategoryGri
     <div className="section-wrap px-7 py-10">
       <div className="section-head flex items-baseline justify-between mb-5">
         <div>
-          <h2 className="section-title font-heading text-[26px] font-normal text-[var(--color-text)]">
+          <h2 className="section-title font-heading text-[26px] font-normal text-(--color-text)">
             Shop by category
           </h2>
-          <p className="text-xs text-[var(--color-muted)] mt-0.5">
-            Find your perfect beauty routine
-          </p>
+          <p className="text-xs text-(--color-muted) mt-0.5">Find your perfect beauty routine</p>
         </div>
       </div>
       <div className="category-grid grid grid-cols-6 gap-2.5">
@@ -48,7 +46,7 @@ export default function CategoryGrid({ onCategoryChange, products }: CategoryGri
             <div
               key={cat.name}
               onClick={() => onCategoryChange(cat.filter)}
-              className="cat-card bg-white border-[0.5px] border-[var(--color-border)] rounded-xl px-2.5 py-4 text-center cursor-pointer transition-all duration-150 hover:border-[var(--color-pink)] hover:-translate-y-0.5"
+              className="cat-card bg-white border-[0.5px] border-(--color-border) rounded-xl px-2.5 py-4 text-center cursor-pointer transition-all duration-150 hover:border-(--color-pink) hover:-translate-y-0.5"
             >
               <div
                 className="w-12 h-12 rounded-full mx-auto mb-2.5 flex items-center justify-center"
@@ -106,12 +104,10 @@ export default function CategoryGrid({ onCategoryChange, products }: CategoryGri
                   )}
                 </svg>
               </div>
-              <div className="cat-name text-[11px] font-medium text-[var(--color-text)] mb-0.5">
+              <div className="cat-name text-[11px] font-medium text-(--color-text) mb-0.5">
                 {cat.name}
               </div>
-              <div className="cat-count text-[10px] text-[var(--color-muted)]">
-                {count} products
-              </div>
+              <div className="cat-count text-[10px] text-(--color-muted)">{count} products</div>
             </div>
           );
         })}

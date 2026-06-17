@@ -23,7 +23,7 @@ export default function NewCouponPage() {
 
       <form
         action={action}
-        className="flex max-w-[400px] flex-col gap-4 rounded-lg border border-border bg-white p-6"
+        className="flex max-w-100 flex-col gap-4 rounded-lg border border-border bg-white p-6"
       >
         <Field
           label="Code"
@@ -43,7 +43,7 @@ export default function NewCouponPage() {
           <button
             type="submit"
             disabled={pending}
-            className={`rounded-full px-6 py-[10px] text-[13px] font-medium text-white ${
+            className={`rounded-full px-6 py-2.5 text-[13px] font-medium text-white ${
               pending ? 'cursor-not-allowed bg-hint' : 'cursor-pointer bg-pink'
             }`}
           >
@@ -52,7 +52,7 @@ export default function NewCouponPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="cursor-pointer rounded-full border border-border bg-white px-6 py-[10px] text-[13px] text-text"
+            className="cursor-pointer rounded-full border border-border bg-white px-6 py-2.5 text-[13px] text-text"
           >
             Cancel
           </button>
@@ -85,7 +85,7 @@ function Field({
         name={name}
         type={type}
         placeholder={placeholder}
-        className={`w-full rounded-sm border px-3.5 py-[10px] text-[13px] text-text outline-none box-border ${
+        className={`w-full rounded-sm border px-3.5 py-2.5 text-[13px] text-text outline-none box-border ${
           error ? 'border-danger' : 'border-border-md'
         }`}
       />

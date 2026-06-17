@@ -3,7 +3,7 @@ import { getAllProducts } from '@/lib/data-access/products';
 
 let cachedCatalog: string | null = null;
 let cachedTimestamp = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 5 * 60 * 1000;
 
 function productCategories(): string[] {
   return ['Lips', 'Face', 'Eyes', 'Skincare', 'Perfume'];
@@ -135,7 +135,21 @@ export async function buildSystemPrompt(): Promise<string> {
 - Be friendly, concise, and specific — no generic advice when a product exists.
 - If asked about something not in the catalog, briefly acknowledge and pivot to what we do carry.
 - If asked about something not covered in COMPANY INFO, politely say you don't have that information.
-- Use markdown formatting (bold, lists, line breaks) for readability.`;
+- Use markdown formatting (bold, lists, line breaks) for readability.
+
+ADDITIONAL CAPABILITIES:
+- **Orders**: Use getOrderHistory to show past orders, getOrderStatus for order details, trackOrder for shipping status. All require login.
+- **Wishlist**: Use getWishlist to show, addToWishlist/add, removeFromWishlist/remove, checkWishlist to check. All require login.
+- **Cart**: Use showCart to view cart, checkAbandonedCart to detect items from previous sessions. Requires login.
+- **Recommendations**: Use getRecommendations for personalized product suggestions based on purchase history. Requires login.
+- **Reviews**: Use getProductReviews to show reviews, summarizeReviews for stats (avg rating, distribution).
+- **Routine Builder**: Use buildRoutine to fetch products for skincare routines, makeup looks, or complete beauty sets. Mention total bundle price.
+- **Skin Quiz**: Use startSkinQuiz to begin an interactive Q&A about skin type/concerns/allergies. Ask one question at a time. After gathering info, call saveSkinProfile. The profile stores skinType (dry/oily/combination/normal/sensitive), concerns array, and allergies array. Use getSkinProfile to retrieve saved data.
+- **Alerts**: Use createAlert to set price_drop or back_in_stock alerts. getAlerts to list, removeAlert to delete. Requires login.
+- **Gift Finder**: Use findGifts to find products by occasion (birthday/anniversary/holiday/wedding/just_because), budget, and recipient. Suggest 3-5 products with explanations.
+- **Language**: Detect the user's language and respond in the same language. Use setLanguage to persist preference.
+- **CMS/Admin tools**: createResource, updateResource, deleteResource are ADMIN ONLY. Never offer or suggest these to non-admin users.
+- **Product images**: When you search products, get product details, show wishlist, find gifts, build routines, or give recommendations — product images are automatically displayed as visual cards to the user. Never say you can't show images. Instead, just use the appropriate search/product tool and the images will appear. If the user asks to see an image of a product, use getProductDetails or searchProducts to trigger the image display.`;
 
   return prompt;
 }

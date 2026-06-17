@@ -25,7 +25,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
       </div>
 
       <div className="flex items-center gap-2 mb-1.5">
-        <span className="text-gold text-[12px]">
+        <span className="text-gold text-xs">
           {'★'.repeat(review.rating)}
           {'☆'.repeat(5 - review.rating)}
         </span>

@@ -7,12 +7,6 @@ import { logger } from '@/lib/logger';
 
 const log = logger('api/khqr/dev-mark-paid');
 
-/**
- * POST /api/khqr/dev-mark-paid
- *
- * Dev-only endpoint: marks an order as paid and sends notifications.
- * Called by the "/" key shortcut on the checkout page.
- */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -32,7 +26,6 @@ export async function POST(request: NextRequest) {
       log.info('Dev: marked order as paid', { orderId: order.id });
     }
 
-    // Fire notifications
     sendTelegramNotification(order.id).catch(() => {});
     sendReceiptEmail(order.id).catch(() => {});
 

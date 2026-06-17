@@ -19,7 +19,6 @@ async function convert(filePath) {
   const outPath = filePath.replace(ext, '.webp');
   await sharp(filePath).webp({ quality: 80 }).toFile(outPath);
   fs.unlinkSync(filePath);
-  console.log(`Converted & removed: ${filePath} -> ${outPath}`);
 }
 
 async function main() {

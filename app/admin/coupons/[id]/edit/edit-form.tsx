@@ -25,7 +25,7 @@ export default function EditCouponForm({ coupon }: { coupon: Coupon }) {
       {state?.message && (
         <p
           className={`mb-4 rounded-sm px-3 py-2 text-xs ${
-            state.errors ? 'bg-[#fef2f2] text-danger' : 'bg-[var(--color-success-lt)] text-success'
+            state.errors ? 'bg-[#fef2f2] text-danger' : 'bg-(--color-success-lt) text-success'
           }`}
         >
           {state.message}
@@ -34,7 +34,7 @@ export default function EditCouponForm({ coupon }: { coupon: Coupon }) {
 
       <form
         action={action}
-        className="flex max-w-[400px] flex-col gap-4 rounded-lg border border-border bg-white p-6"
+        className="flex max-w-100 flex-col gap-4 rounded-lg border border-border bg-white p-6"
       >
         <input type="hidden" name="id" value={coupon.id} />
         <Field
@@ -56,7 +56,7 @@ export default function EditCouponForm({ coupon }: { coupon: Coupon }) {
           <button
             type="submit"
             disabled={pending}
-            className={`rounded-full px-6 py-[10px] text-[13px] font-medium text-white ${
+            className={`rounded-full px-6 py-2.5 text-[13px] font-medium text-white ${
               pending ? 'cursor-not-allowed bg-hint' : 'cursor-pointer bg-pink'
             }`}
           >
@@ -65,7 +65,7 @@ export default function EditCouponForm({ coupon }: { coupon: Coupon }) {
           <button
             type="button"
             onClick={() => router.push('/admin/coupons')}
-            className="cursor-pointer rounded-full border border-border bg-white px-6 py-[10px] text-[13px] text-text"
+            className="cursor-pointer rounded-full border border-border bg-white px-6 py-2.5 text-[13px] text-text"
           >
             Cancel
           </button>
@@ -98,7 +98,7 @@ function Field({
         name={name}
         type={type}
         defaultValue={defaultValue}
-        className={`w-full rounded-sm border px-3.5 py-[10px] text-[13px] text-text outline-none box-border ${
+        className={`w-full rounded-sm border px-3.5 py-2.5 text-[13px] text-text outline-none box-border ${
           error ? 'border-danger' : 'border-border-md'
         }`}
       />

@@ -5,7 +5,7 @@ import ContentPageLayout from '@/components/content-page-layout';
 export default function AboutPage() {
   return (
     <ContentPageLayout title="About Us">
-      <h2 className="font-heading text-[18px] text-text font-normal mt-6">Our Mission</h2>
+      <h2 className="font-heading text-lg text-text font-normal mt-6">Our Mission</h2>
       <p>
         At Glamour, we believe beauty should feel good — for you and for the planet. We create
         clean, effective beauty essentials that celebrate every complexion. Every product is
@@ -16,7 +16,7 @@ export default function AboutPage() {
         inclusive shade ranges, and a commitment to sustainability at every step.
       </p>
 
-      <h2 className="font-heading text-[18px] text-text font-normal mt-6">What We Stand For</h2>
+      <h2 className="font-heading text-lg text-text font-normal mt-6">What We Stand For</h2>
       <p>
         <strong>Clean Beauty.</strong> Rigorously tested, dermatologist-approved formulas that
         deliver results without compromise.

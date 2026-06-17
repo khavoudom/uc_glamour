@@ -79,7 +79,6 @@ export async function getCart() {
 
   const items = await db.select().from(cartItems).where(eq(cartItems.userId, userId));
 
-  // Attach product details
   const enriched = await Promise.all(
     items.map(async (item) => {
       const [product] = await db
@@ -94,6 +93,7 @@ export async function getCart() {
         price: Number(product?.price ?? 0),
         originalPrice: product?.originalPrice ? Number(product.originalPrice) : undefined,
         emoji: product?.emoji ?? '',
+        imageUrls: product?.imageUrls ?? [],
         shade: item.shade,
         quantity: item.quantity,
       };

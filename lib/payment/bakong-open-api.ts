@@ -1,9 +1,3 @@
-/**
- * Bakong Open API - server-side KHQR payment client.
- *
- * Generates dynamic KHQR strings with the official bakong-khqr SDK and checks
- * sandbox payment settlement through Bakong Open API.
- */
 import 'server-only';
 
 import axios from 'axios';
@@ -101,7 +95,7 @@ export class BakongOpenAPIError extends Error {
 
 export function getBakongOpenAPIConfig(): BakongOpenAPIConfig {
   const baseUrl =
-    process.env.BAKONG_OPEN_API_BASE_URL?.replace(/\/$/, '') ?? 'https://sit-api-bakong.nbc.gov.kh';
+    process.env.BAKONG_OPEN_API_BASE_URL?.replace(/\/$/, '') ?? 'https://api-bakong.nbc.gov.kh';
   const token = process.env.BAKONG_OPEN_API_TOKEN || '';
   const accountId = process.env.BAKONG_KHQR_ACCOUNT_ID || '';
   const merchantName = process.env.BAKONG_KHQR_MERCHANT_NAME || 'Glamour Shop';

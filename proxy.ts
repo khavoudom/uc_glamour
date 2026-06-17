@@ -9,7 +9,6 @@ export default async function proxy(req: NextRequest) {
   const isAuthenticated = !!session?.user;
   const role = session?.user?.role as UserRole | undefined;
 
-  // Admin routes — require admin role
   if (pathname.startsWith('/admin')) {
     if (!isAuthenticated) {
       const loginUrl = new URL('/login', req.nextUrl);
@@ -22,7 +21,6 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Customer account routes — redirect admins to admin panel
   if (pathname.startsWith('/account')) {
     if (!isAuthenticated) {
       const loginUrl = new URL('/login', req.nextUrl);
@@ -35,7 +33,6 @@ export default async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // General authenticated routes
   if (pathname.startsWith('/checkout') || pathname.startsWith('/wishlist')) {
     if (!isAuthenticated) {
       const loginUrl = new URL('/login', req.nextUrl);

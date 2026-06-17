@@ -17,7 +17,7 @@ function MarkdownRenderer({ content }: { content: string }) {
         ol: ({ children }) => <ol className="list-decimal pl-4 mb-1 space-y-0.5">{children}</ol>,
         li: ({ children }) => <li>{children}</li>,
         strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-        em: ({ children }) => <em className="italic text-[var(--color-muted)]">{children}</em>,
+        em: ({ children }) => <em className="italic text-(--color-muted)">{children}</em>,
         code: ({ children }) => (
           <code className="bg-black/5 rounded px-1 text-[11px]">{children}</code>
         ),
@@ -39,10 +39,10 @@ export default function ChatMessageBubble({ message }: ChatMessageBubbleProps) {
       className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
     >
       <div
-        className={`max-w-[85%] rounded-[14px] px-3.5 py-2.5 text-[13px] leading-relaxed ${
+        className={`max-w-[85%] rounded-lg px-3.5 py-2.5 text-[13px] leading-relaxed ${
           isUser
-            ? 'bg-[var(--color-pink)] text-white rounded-tr-[4px]'
-            : 'bg-[var(--color-bg)] text-[var(--color-text)] rounded-tl-[4px]'
+            ? 'bg-(--color-pink) text-white rounded-tr-[4px]'
+            : 'bg-(--color-bg) text-(--color-text) rounded-tl-[4px]'
         }`}
       >
         {message.content ? (
@@ -71,7 +71,7 @@ export default function ChatMessageBubble({ message }: ChatMessageBubbleProps) {
           </span>
         )}
       </div>
-      <span className="mt-0.5 px-1 text-[9px] text-[var(--color-muted)]">
+      <span className="mt-0.5 px-1 text-[9px] text-(--color-muted)">
         {new Date(message.timestamp).toLocaleTimeString([], {
           hour: '2-digit',
           minute: '2-digit',

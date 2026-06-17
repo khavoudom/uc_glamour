@@ -9,6 +9,15 @@ import ChatMessageBubble from './chat-message';
 import ChatInput from './chat-input';
 import ProductCard from './product-card';
 
+const quickPrompts = [
+  { label: 'Track my order', text: 'Show my order history' },
+  { label: 'My wishlist', text: 'Show my wishlist' },
+  { label: 'Find a gift', text: 'Help me find a gift under $50' },
+  { label: 'Skin quiz', text: 'Start a skin analysis quiz' },
+  { label: 'Build a routine', text: 'Build me a skincare routine for dry skin' },
+  { label: 'Recommendations', text: 'Recommend some products for me' },
+];
+
 export default function ChatWidget() {
   const router = useRouter();
   const {
@@ -30,6 +39,8 @@ export default function ChatWidget() {
     setIsFullscreen,
     setWidth,
     setHeight,
+    conversationId,
+    switchConversation,
   } = useChatStore();
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -40,12 +51,10 @@ export default function ChatWidget() {
     startH: number;
   } | null>(null);
 
-  // Auto-scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Navigate when the agent sets a pending navigation
   useEffect(() => {
     if (pendingNavigation) {
       router.push(pendingNavigation);
@@ -53,15 +62,6 @@ export default function ChatWidget() {
     }
   }, [pendingNavigation, router, setPendingNavigation]);
 
-  // Predefined quick prompts
-  const quickPrompts = [
-    { label: '🎨 Find my shade', text: 'Help me find the right foundation shade for my skin tone' },
-    { label: '🧴 Skin consult', text: 'I need a skincare routine for dry skin' },
-    { label: '🔍 Search products', text: 'Show me your best lip products' },
-    { label: '💰 Coupons', text: 'Do you have any active coupons or discounts?' },
-  ];
-
-  // Resize handler
   const handleResizeStart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -94,7 +94,6 @@ export default function ChatWidget() {
     [width, height, setWidth, setHeight],
   );
 
-  // Determine position styles
   const posStyles =
     position === 'bottom-right'
       ? { bottom: 16, right: 16 }
@@ -104,7 +103,6 @@ export default function ChatWidget() {
           ? { top: 16, right: 16 }
           : { top: 16, left: 16 };
 
-  // Chat button
   if (!isOpen) {
     return (
       <motion.button
@@ -113,7 +111,7 @@ export default function ChatWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="fixed z-[150] flex items-center gap-2.5 rounded-[20px] bg-gradient-to-r from-[#D4537E] to-[#BA7517] px-5 py-3 text-[13px] font-medium text-white shadow-lg hover:shadow-xl transition-shadow"
+        className="fixed z-150 flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-[#D4537E] to-[#BA7517] px-5 py-3 text-[13px] font-medium text-white shadow-lg hover:shadow-xl transition-shadow"
         style={posStyles}
         aria-label="Open chat"
       >
@@ -141,7 +139,7 @@ export default function ChatWidget() {
           damping: 28,
           mass: 0.8,
         }}
-        className="fixed flex flex-col rounded-[14px] border-[0.5px] border-[var(--color-border)] bg-[var(--color-white)] shadow-2xl overflow-hidden"
+        className="fixed flex flex-col rounded-lg border-[0.5px] border-(--color-border) bg-(--color-white) shadow-2xl overflow-hidden"
         style={
           isFullscreen
             ? { top: 0, left: 0, right: 0, bottom: 0, borderRadius: 0, zIndex: 9999 }
@@ -158,20 +156,20 @@ export default function ChatWidget() {
               }
         }
       >
-        {/* Header */}
         <div className="relative flex items-center justify-between bg-gradient-to-r from-[#D4537E] to-[#BA7517] px-4 py-3 text-white shrink-0 cursor-grab">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
               <MessageCircle size={14} />
             </div>
             <div>
-              <p className="text-[13px] font-[500] leading-tight">AI Assistant</p>
-              <p className="text-[9px] opacity-70 leading-tight">Powered by AI Agent</p>
+              <p className="text-[13px] font-medium leading-tight">AI Assistant</p>
+              <p className="text-[9px] opacity-70 leading-tight">
+                {conversationId ? 'Persistent chat' : 'Powered by AI Agent'}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-1">
-            {/* Minimize */}
             <button
               onClick={() => setIsMinimized(!isMinimized)}
               className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
@@ -180,7 +178,6 @@ export default function ChatWidget() {
               {isMinimized ? <Maximize2 size={13} /> : <ChevronDown size={14} />}
             </button>
 
-            {/* Fullscreen */}
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
               className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
@@ -189,7 +186,6 @@ export default function ChatWidget() {
               <Fullscreen size={13} />
             </button>
 
-            {/* Close */}
             <button
               onClick={() => setIsOpen(false)}
               className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
@@ -200,7 +196,6 @@ export default function ChatWidget() {
           </div>
         </div>
 
-        {/* Messages area */}
         {!isMinimized && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -219,14 +214,13 @@ export default function ChatWidget() {
                 >
                   <MessageCircle size={28} className="text-[#D4537E]" />
                 </motion.div>
-                <p className="text-[13px] font-[500] text-[var(--color-text)]">
+                <p className="text-[13px] font-medium text-(--color-text)">
                   Hi! How can I help you today?
                 </p>
-                <p className="text-[11px] text-[var(--color-muted)] max-w-[240px]">
-                  I can search products, compare items, check coupons, and more.
+                <p className="text-[11px] text-(--color-muted) max-w-[240px]">
+                  I can track orders, manage your wishlist, find gifts, build routines, and more.
                 </p>
 
-                {/* Quick prompts */}
                 <div className="mt-1 flex flex-wrap gap-2 justify-center">
                   {quickPrompts.map((prompt, i) => (
                     <motion.button
@@ -236,7 +230,7 @@ export default function ChatWidget() {
                       transition={{ delay: 0.2 + i * 0.07 }}
                       onClick={() => sendMessage(prompt.text)}
                       disabled={isAiLoading}
-                      className="rounded-[10px] bg-[var(--color-bg)] px-3 py-2 text-[11px] text-[var(--color-text)] hover:bg-[var(--color-pink-lt)] transition-colors disabled:opacity-50"
+                      className="rounded-[10px] bg-(--color-bg) px-3 py-2 text-[11px] text-(--color-text) hover:bg-(--color-pink-lt) transition-colors disabled:opacity-50"
                     >
                       {prompt.label}
                     </motion.button>
@@ -247,27 +241,26 @@ export default function ChatWidget() {
               messages.map((msg) => <ChatMessageBubble key={msg.id} message={msg} />)
             )}
 
-            {/* Loading indicator */}
             {isAiLoading && messages[messages.length - 1]?.content !== '' && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="flex items-start"
               >
-                <div className="rounded-[14px] bg-[var(--color-bg)] px-3.5 py-2.5 text-[13px] rounded-tl-[4px]">
+                <div className="rounded-lg bg-(--color-bg) px-3.5 py-2.5 text-[13px] rounded-tl-[4px]">
                   <span className="inline-flex gap-1">
                     <motion.span
-                      className="h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]"
+                      className="h-1.5 w-1.5 rounded-full bg-(--color-muted)"
                       animate={{ opacity: [0.3, 1, 0.3] }}
                       transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
                     />
                     <motion.span
-                      className="h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]"
+                      className="h-1.5 w-1.5 rounded-full bg-(--color-muted)"
                       animate={{ opacity: [0.3, 1, 0.3] }}
                       transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
                     />
                     <motion.span
-                      className="h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]"
+                      className="h-1.5 w-1.5 rounded-full bg-(--color-muted)"
                       animate={{ opacity: [0.3, 1, 0.3] }}
                       transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
                     />
@@ -276,10 +269,9 @@ export default function ChatWidget() {
               </motion.div>
             )}
 
-            {/* Product cards */}
             {displayProducts.length > 0 && (
               <div className="flex flex-col gap-2">
-                <p className="text-[11px] font-[500] text-[var(--color-muted)] px-1">
+                <p className="text-[11px] font-medium text-(--color-muted) px-1">
                   Products found ({displayProducts.length})
                 </p>
                 {displayProducts.map((product) => (
@@ -288,7 +280,6 @@ export default function ChatWidget() {
               </div>
             )}
 
-            {/* Tool status label — replacing, single line */}
             {toolStatus && (
               <motion.div
                 key={toolStatus}
@@ -298,9 +289,9 @@ export default function ChatWidget() {
                 transition={{ duration: 0.15 }}
                 className="flex items-start px-1"
               >
-                <div className="rounded-[8px] bg-[var(--color-bg)] px-3 py-1.5 text-[11px] text-[var(--color-muted)]">
+                <div className="rounded-sm bg-(--color-bg) px-3 py-1.5 text-[11px] text-(--color-muted)">
                   <span className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-pink)] animate-pulse" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-(--color-pink) animate-pulse" />
                     {toolStatus}
                   </span>
                 </div>
@@ -311,10 +302,8 @@ export default function ChatWidget() {
           </motion.div>
         )}
 
-        {/* Input */}
-        {!isMinimized && <ChatInput onSend={sendMessage} disabled={isAiLoading} />}
+        {!isMinimized && <ChatInput />}
 
-        {/* Resize handle */}
         {!isMinimized && !isFullscreen && (
           <div
             onMouseDown={handleResizeStart}

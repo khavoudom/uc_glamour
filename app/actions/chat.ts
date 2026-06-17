@@ -44,11 +44,8 @@ export async function getDeepSeekResponse(
 ): Promise<string | null> {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
-    console.log('getDeepSeekResponse: no DEEPSEEK_API_KEY env var');
     return null;
   }
-  console.log('responding to chat with DeepSeek API, messages:', messages.length);
-
   try {
     const res = await axios.post(
       'https://api.deepseek.com/chat/completions',

@@ -6,7 +6,8 @@ import { useSession } from 'next-auth/react';
 import { useStore } from '@/lib/store';
 import type { CategoryFilter } from '@/lib/types';
 import { openCart } from './cart-drawer';
-import { logout } from '@/app/actions/auth';
+import { signOut } from 'next-auth/react';
+import ConfirmModal from '@/components/confirm-modal';
 
 interface HeaderProps {
   onSearchToggle: () => void;
@@ -27,6 +28,7 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,7 +43,12 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
 
   const handleLogout = async () => {
     setLogoutPending(true);
-    await logout();
+    await signOut({ redirect: false });
+    router.push('/');
+  };
+
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
   };
 
   const handleNavClick = (filter: CategoryFilter) => {
@@ -53,14 +60,14 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
   return (
     <nav
       id="navbar"
-      className="bg-white border-b border-border h-[var(--nav-h)] flex items-center px-7 gap-0 sticky top-0 z-[200]"
+      className="bg-white border-b border-border h-(--nav-h) flex items-center px-7 gap-0 sticky top-0 z-200"
     >
       <div className="flex gap-0 mr-auto">
         {NAV_CATEGORIES.map((link) => (
           <span
             key={link.label}
             onClick={() => handleNavClick(link.filter)}
-            className="px-[14px] h-[var(--nav-h)] flex items-center text-[12.5px] text-muted cursor-pointer border-b-2 border-transparent font-normal whitespace-nowrap"
+            className="px-3.5 h-(--nav-h) flex items-center text-[12.5px] text-muted cursor-pointer border-b-2 border-transparent font-normal whitespace-nowrap"
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-muted)')}
           >
@@ -70,7 +77,7 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
         {userRole === 'admin' && (
           <span
             onClick={() => router.push('/admin')}
-            className="px-[14px] h-[var(--nav-h)] flex items-center text-[12.5px] text-pink cursor-pointer border-b-2 border-transparent font-semibold whitespace-nowrap"
+            className="px-3.5 h-(--nav-h) flex items-center text-[12.5px] text-pink cursor-pointer border-b-2 border-transparent font-semibold whitespace-nowrap"
           >
             Admin
           </span>
@@ -84,14 +91,14 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
         Glam<em style={{ color: 'var(--color-pink)', fontStyle: 'italic' }}>our</em>
       </span>
 
-      <div className="flex items-center gap-[6px] ml-auto">
+      <div className="flex items-center gap-1.5 ml-auto">
         <span
           onClick={() => {
             if (!isAuthenticated) router.push('/login');
             else if (userRole === 'admin') router.push('/admin');
             else router.push('/account');
           }}
-          className="text-[11px] font-medium text-pink tracking-[0.3px] px-[6px] cursor-pointer"
+          className="text-[11px] font-medium text-pink tracking-[0.3px] px-1.5 cursor-pointer"
         >
           Rewards
         </span>
@@ -158,7 +165,7 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
           </button>
 
           {menuOpen && isAuthenticated && (
-            <div className="absolute right-0 top-full mt-2 w-[200px] rounded-lg border border-border bg-white shadow-lg z-50">
+            <div className="absolute right-0 top-full mt-2 w-50 rounded-lg border border-border bg-white shadow-lg z-50">
               <div className="border-b border-border px-4 py-3">
                 <p className="text-[13px] font-medium text-text truncate">
                   {session?.user?.name || 'User'}
@@ -172,7 +179,7 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
                       router.push('/account');
                       setMenuOpen(false);
                     }}
-                    className="flex w-full items-center gap-2 px-4 py-[10px] text-left text-[13px] text-text hover:bg-bg cursor-pointer border-none"
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-text hover:bg-bg cursor-pointer border-none"
                   >
                     My Orders
                   </button>
@@ -183,7 +190,7 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
                       router.push('/admin');
                       setMenuOpen(false);
                     }}
-                    className="flex w-full items-center gap-2 px-4 py-[10px] text-left text-[13px] text-text hover:bg-bg cursor-pointer border-none"
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-text hover:bg-bg cursor-pointer border-none"
                   >
                     Admin Panel
                   </button>
@@ -191,9 +198,9 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
               </div>
               <div className="border-t border-border py-1">
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   disabled={logoutPending}
-                  className="flex w-full items-center gap-2 px-4 py-[10px] text-left text-[13px] text-danger hover:bg-bg cursor-pointer border-none disabled:opacity-50"
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-danger hover:bg-bg cursor-pointer border-none disabled:opacity-50"
                 >
                   {logoutPending ? 'Logging out...' : 'Log out'}
                 </button>
@@ -201,6 +208,17 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
             </div>
           )}
         </div>
+
+        <ConfirmModal
+          open={showLogoutConfirm}
+          title="Sign out?"
+          message="Are you sure you want to sign out of your account?"
+          onConfirm={() => {
+            setShowLogoutConfirm(false);
+            handleLogout();
+          }}
+          onCancel={() => setShowLogoutConfirm(false)}
+        />
 
         {userRole !== 'admin' && (
           <button
@@ -223,7 +241,7 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
               <path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
             {cartCount > 0 && (
-              <span className="absolute top-[4px] right-[4px] w-[14px] h-[14px] bg-pink rounded-full text-white text-[8px] font-semibold flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-pink rounded-full text-white text-[8px] font-semibold flex items-center justify-center">
                 {cartCount}
               </span>
             )}

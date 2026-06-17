@@ -116,7 +116,6 @@ export const addToCartTool = tool({
     shade?: string;
   }) => {
     try {
-      // The server action handles auth
       await addToCart(productId, shade ?? null, quantity);
       return { success: true, productId, quantity, shade: shade ?? null };
     } catch (error) {

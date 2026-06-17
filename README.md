@@ -10,7 +10,7 @@ Direct-to-consumer (D2C) online retail for cosmetics. Revenue is generated throu
 
 | Layer             | Technology                                |
 | ----------------- | ----------------------------------------- |
-| **Framework**     | Next.js 16 (App Router, Turbopack)        |
+| **Framework**     | Next.js 16                                |
 | **Language**      | TypeScript                                |
 | **Database**      | PostgreSQL + Drizzle ORM                  |
 | **Auth**          | NextAuth 5 (beta)                         |

@@ -2,10 +2,24 @@ import 'server-only';
 import axios from 'axios';
 import { buildSystemPrompt } from '@/lib/chat/catalog';
 import { executeTool } from './tool-executor';
+import { saveChatMessage, saveToolExecution } from '@/lib/data-access/conversations';
+
+type MessageContent = string | any[];
 
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
-  content: string;
+  content: MessageContent;
+}
+
+export interface AgentContext {
+  userId?: number;
+  conversationId?: number;
+}
+
+function requireAuth(context?: AgentContext): void {
+  if (!context?.userId) {
+    throw new Error('Authentication required. Please log in first.');
+  }
 }
 
 function buildToolDefinitions() {
@@ -177,7 +191,7 @@ function buildToolDefinitions() {
       type: 'function',
       function: {
         name: 'createResource',
-        description: 'Create CMS resource.',
+        description: 'Create CMS resource. Admin only.',
         parameters: {
           type: 'object',
           properties: {
@@ -192,7 +206,7 @@ function buildToolDefinitions() {
       type: 'function',
       function: {
         name: 'updateResource',
-        description: 'Update CMS resource.',
+        description: 'Update CMS resource. Admin only.',
         parameters: {
           type: 'object',
           properties: {
@@ -208,7 +222,7 @@ function buildToolDefinitions() {
       type: 'function',
       function: {
         name: 'deleteResource',
-        description: 'Delete CMS resource.',
+        description: 'Delete CMS resource. Admin only.',
         parameters: {
           type: 'object',
           properties: {
@@ -233,6 +247,263 @@ function buildToolDefinitions() {
         },
       },
     },
+    {
+      type: 'function',
+      function: {
+        name: 'getOrderHistory',
+        description: "Get the user's order history. Requires login.",
+        parameters: { type: 'object', properties: {} },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'getOrderStatus',
+        description: 'Get status of a specific order by ID. Requires login.',
+        parameters: {
+          type: 'object',
+          properties: { orderId: { type: 'number' } },
+          required: ['orderId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'trackOrder',
+        description: 'Get shipping/fulfillment status of an order. Requires login.',
+        parameters: {
+          type: 'object',
+          properties: { orderId: { type: 'number' } },
+          required: ['orderId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'getWishlist',
+        description: "Show the user's wishlist. Requires login.",
+        parameters: { type: 'object', properties: {} },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'addToWishlist',
+        description: 'Add a product to wishlist by productId. Requires login.',
+        parameters: {
+          type: 'object',
+          properties: { productId: { type: 'number' } },
+          required: ['productId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'removeFromWishlist',
+        description: 'Remove a product from wishlist by productId. Requires login.',
+        parameters: {
+          type: 'object',
+          properties: { productId: { type: 'number' } },
+          required: ['productId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'checkWishlist',
+        description: "Check if a product is in the user's wishlist. Requires login.",
+        parameters: {
+          type: 'object',
+          properties: { productId: { type: 'number' } },
+          required: ['productId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'showCart',
+        description: "Show items in the user's shopping cart. Requires login.",
+        parameters: { type: 'object', properties: {} },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'checkAbandonedCart',
+        description: 'Check if user has items in their cart. Requires login.',
+        parameters: { type: 'object', properties: {} },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'getRecommendations',
+        description:
+          "Get personalized product recommendations based on user's purchase history and preferences.",
+        parameters: {
+          type: 'object',
+          properties: { category: { type: 'string' } },
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'getProductReviews',
+        description: 'Get reviews for a product by product ID.',
+        parameters: {
+          type: 'object',
+          properties: { productId: { type: 'number' } },
+          required: ['productId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'summarizeReviews',
+        description: 'Get review stats (average rating, total count, distribution) for a product.',
+        parameters: {
+          type: 'object',
+          properties: { productId: { type: 'number' } },
+          required: ['productId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'buildRoutine',
+        description:
+          'Build a multi-product routine or look based on user goals (skincare, makeup, complete look).',
+        parameters: {
+          type: 'object',
+          properties: {
+            routineType: { type: 'string', enum: ['skincare', 'makeup', 'complete_look'] },
+            goal: { type: 'string', description: 'e.g., anti-aging, dry skin, bridal, everyday' },
+          },
+          required: ['routineType', 'goal'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'startSkinQuiz',
+        description:
+          'Start a skin analysis quiz. The agent will ask about skin type, concerns, and preferences.',
+        parameters: { type: 'object', properties: {} },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'saveSkinProfile',
+        description: "Save the user's skin profile from quiz answers. Requires login.",
+        parameters: {
+          type: 'object',
+          properties: {
+            skinType: {
+              type: 'string',
+              enum: ['dry', 'oily', 'combination', 'normal', 'sensitive'],
+            },
+            concerns: { type: 'array', items: { type: 'string' } },
+            allergies: { type: 'array', items: { type: 'string' } },
+          },
+          required: ['skinType', 'concerns'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'getSkinProfile',
+        description: "Get the user's saved skin profile. Requires login.",
+        parameters: { type: 'object', properties: {} },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'createAlert',
+        description:
+          'Set up an alert for price drop or back-in-stock on a product. Requires login.',
+        parameters: {
+          type: 'object',
+          properties: {
+            productId: { type: 'number' },
+            alertType: { type: 'string', enum: ['back_in_stock', 'price_drop'] },
+            targetPrice: { type: 'number', description: 'Only for price_drop alerts' },
+          },
+          required: ['productId', 'alertType'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'getAlerts',
+        description: "List user's active alerts. Requires login.",
+        parameters: { type: 'object', properties: {} },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'removeAlert',
+        description: 'Remove an alert by its ID. Requires login.',
+        parameters: {
+          type: 'object',
+          properties: { alertId: { type: 'number' } },
+          required: ['alertId'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'findGifts',
+        description: 'Find gift ideas based on occasion, budget, and recipient preferences.',
+        parameters: {
+          type: 'object',
+          properties: {
+            occasion: {
+              type: 'string',
+              enum: ['birthday', 'anniversary', 'holiday', 'wedding', 'just_because'],
+            },
+            budget: { type: 'number' },
+            recipient: {
+              type: 'string',
+              enum: ['friend', 'partner', 'parent', 'coworker', 'other'],
+            },
+            preferences: {
+              type: 'string',
+              description: 'e.g., floral scents, natural makeup, luxury',
+            },
+          },
+          required: ['occasion', 'budget'],
+        },
+      },
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'setLanguage',
+        description: "Set the user's preferred language for future conversations. Requires login.",
+        parameters: {
+          type: 'object',
+          properties: {
+            language: { type: 'string', description: 'Language code (en, km, zh, etc.)' },
+          },
+          required: ['language'],
+        },
+      },
+    },
   ];
 }
 
@@ -242,6 +513,26 @@ const AGENT_INSTRUCTIONS = [
   'Wait for the tool results, then give a direct natural answer.',
   'Never explain your process or mention tools to the user.',
   'Keep responses concise and helpful.',
+  '',
+  'IMPORTANT CAPABILITIES (use these tools freely):',
+  '- Orders: getOrderHistory, getOrderStatus, trackOrder',
+  '- Wishlist: getWishlist, addToWishlist, removeFromWishlist, checkWishlist',
+  '- Cart: showCart, checkAbandonedCart (check at conversation start if you suspect items)',
+  '- Recommendations: getRecommendations (based on purchase history)',
+  '- Reviews: getProductReviews, summarizeReviews',
+  '- Routine: buildRoutine (skincare/makeup/complete_look)',
+  '- Skin Quiz: startSkinQuiz, saveSkinProfile, getSkinProfile',
+  '- Alerts: createAlert (back_in_stock/price_drop), getAlerts, removeAlert',
+  '- Gift Finder: findGifts (by occasion, budget, recipient)',
+  "- Language: setLanguage (respond in user's detected language)",
+  '',
+  'AUTHENTICATION RULES:',
+  '- If a tool requires login and the user is not authenticated, politely ask them to log in first.',
+  '- Never fabricate order or wishlist data for unauthenticated users.',
+  '',
+  'LANGUAGE RULES:',
+  "- Detect the user's language from their message and respond in the same language.",
+  '- Maintain all product info and tools in any language.',
 ].join('\n');
 
 function buildAgentSystemPrompt(basePrompt: string): string {
@@ -266,6 +557,27 @@ function friendlyToolName(name: string): string {
     createResource: 'Creating resource',
     updateResource: 'Updating resource',
     deleteResource: 'Deleting resource',
+    getOrderHistory: 'Looking up orders',
+    getOrderStatus: 'Checking order status',
+    trackOrder: 'Tracking order',
+    getWishlist: 'Loading wishlist',
+    addToWishlist: 'Adding to wishlist',
+    removeFromWishlist: 'Removing from wishlist',
+    checkWishlist: 'Checking wishlist',
+    showCart: 'Loading cart',
+    checkAbandonedCart: 'Checking cart',
+    getRecommendations: 'Finding recommendations',
+    getProductReviews: 'Loading reviews',
+    summarizeReviews: 'Summarizing reviews',
+    buildRoutine: 'Building routine',
+    startSkinQuiz: 'Starting skin quiz',
+    saveSkinProfile: 'Saving skin profile',
+    getSkinProfile: 'Loading skin profile',
+    createAlert: 'Setting up alert',
+    getAlerts: 'Loading alerts',
+    removeAlert: 'Removing alert',
+    findGifts: 'Finding gifts',
+    setLanguage: 'Setting language',
   };
   return map[name] ?? 'Running ' + name;
 }
@@ -279,7 +591,6 @@ function extractProducts(result: any): any[] | null {
   return null;
 }
 
-// Non-streaming call to detect if tools are needed (avoids leaking thinking text)
 async function detectTools(
   messages: any[],
   apiKey: string,
@@ -343,7 +654,10 @@ async function* streamFinal(messages: any[], apiKey: string): AsyncGenerator<str
   }
 }
 
-export async function* agentLoop(messages: ChatMessage[]): AsyncGenerator<string> {
+export async function* agentLoop(
+  messages: ChatMessage[],
+  context?: AgentContext,
+): AsyncGenerator<string> {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     yield JSON.stringify({ type: 'text', text: 'AI is not configured.' });
@@ -355,17 +669,56 @@ export async function* agentLoop(messages: ChatMessage[]): AsyncGenerator<string
 
   const currentMessages: any[] = [{ role: 'system', content: agentSystemPrompt }, ...messages];
 
+  if (context?.conversationId && messages.length <= 1) {
+    yield JSON.stringify({ type: 'conversation-created', conversationId: context.conversationId });
+  }
+
+  if (context?.conversationId && context?.userId && messages.length > 0) {
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg.role === 'user') {
+      const text = typeof lastMsg.content === 'string' ? lastMsg.content : '';
+      if (text) {
+        saveChatMessage({
+          conversationId: context.conversationId,
+          userId: context.userId,
+          role: 'user',
+          text,
+        }).catch(() => {});
+      }
+    }
+  }
+
   for (let round = 0; round < 5; round++) {
-    // Detect if tools are needed (non-streaming, avoids leaking thinking text)
     const toolsDetected = await detectTools(currentMessages, apiKey);
 
-    // No tools: make a proper streaming call for the full response
     if (!toolsDetected.toolCalls) {
-      yield* streamFinal(currentMessages, apiKey);
+      const finalText = [];
+      for await (const chunk of streamFinal(currentMessages, apiKey)) {
+        finalText.push(chunk);
+        yield chunk;
+      }
+
+      const fullText = finalText
+        .map((c) => {
+          try {
+            return JSON.parse(c).text ?? '';
+          } catch {
+            return '';
+          }
+        })
+        .join('');
+      if (context?.conversationId && context?.userId && fullText) {
+        saveChatMessage({
+          conversationId: context.conversationId,
+          userId: context.userId,
+          role: 'ai',
+          text: fullText,
+        }).catch(() => {});
+      }
+
       return;
     }
 
-    // Tools detected: emit status and execute tools silently
     for (const tc of toolsDetected.toolCalls) {
       yield JSON.stringify({ type: 'tool-status', label: friendlyToolName(tc.function.name) });
     }
@@ -384,8 +737,17 @@ export async function* agentLoop(messages: ChatMessage[]): AsyncGenerator<string
       let result: any;
       try {
         const args = JSON.parse(tc.function.arguments);
-        result = await executeTool(tc.function.name, args);
+        result = await executeTool(tc.function.name, args, context);
         yield JSON.stringify({ type: 'tool-result', toolName: tc.function.name, result });
+
+        if (context?.conversationId) {
+          saveToolExecution({
+            conversationId: context.conversationId,
+            toolName: tc.function.name,
+            input: JSON.stringify(args),
+            output: JSON.stringify(result),
+          }).catch(() => {});
+        }
 
         const products = extractProducts(result);
         if (products && products.length > 0) {
@@ -399,6 +761,27 @@ export async function* agentLoop(messages: ChatMessage[]): AsyncGenerator<string
     }
   }
 
-  // Max rounds reached — stream a final summary
-  yield* streamFinal(currentMessages, apiKey);
+  const finalText = [];
+  for await (const chunk of streamFinal(currentMessages, apiKey)) {
+    finalText.push(chunk);
+    yield chunk;
+  }
+
+  const fullText = finalText
+    .map((c) => {
+      try {
+        return JSON.parse(c).text ?? '';
+      } catch {
+        return '';
+      }
+    })
+    .join('');
+  if (context?.conversationId && context?.userId && fullText) {
+    saveChatMessage({
+      conversationId: context.conversationId,
+      userId: context.userId,
+      role: 'ai',
+      text: fullText,
+    }).catch(() => {});
+  }
 }

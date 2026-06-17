@@ -18,7 +18,6 @@ const mockProduct: Product = {
 };
 
 beforeEach(() => {
-  // Reset store to initial state before each test
   useStore.setState({
     _hydrated: false,
     isAuthenticated: false,
@@ -248,7 +247,6 @@ describe('loyalty operations', () => {
   it('setRedeemingPoints clamps to available points', () => {
     useStore.getState().addLoyaltyPoints(500);
     useStore.getState().setRedeemingPoints(999);
-    // max redeemable = floor(500/100)*100 = 500
     expect(useStore.getState().redeemingPoints).toBe(500);
     expect(useStore.getState().loyaltyDiscount).toBe(5);
   });

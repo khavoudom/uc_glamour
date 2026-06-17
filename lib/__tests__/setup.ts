@@ -1,10 +1,8 @@
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
-// Mock server-only — throws in client components, but harmless in tests
 vi.mock('server-only', () => ({}));
 
-// Mock next/navigation
 const mockRedirectError = new Error('NEXT_REDIRECT');
 (mockRedirectError as any).digest = 'NEXT_REDIRECT';
 
@@ -24,7 +22,6 @@ vi.mock('next/navigation', () => ({
   }),
 }));
 
-// Mock next-auth
 vi.mock('@/auth', () => ({
   auth: vi.fn().mockResolvedValue(null),
   signIn: vi.fn(),
@@ -32,7 +29,6 @@ vi.mock('@/auth', () => ({
   handlers: { GET: vi.fn(), POST: vi.fn() },
 }));
 
-// Mock Drizzle DB connection
 const mockQueryChain = () => {
   const chain: any = vi.fn(() => chain);
   chain.from = vi.fn(() => chain);

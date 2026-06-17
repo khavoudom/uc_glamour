@@ -94,7 +94,7 @@ export default function BundlesContent({ products }: BundlesContentProps) {
                   {bundle.emoji}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-heading text-[18px] font-normal text-text">{bundle.name}</h3>
+                  <h3 className="font-heading text-lg font-normal text-text">{bundle.name}</h3>
                   <p className="text-[11px] text-muted mt-1">{bundle.description}</p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {items.map((p) => (

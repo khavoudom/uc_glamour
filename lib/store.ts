@@ -19,16 +19,13 @@ interface ToastState {
 }
 
 interface StoreState {
-  /* Hydration */
   _hydrated: boolean;
   hydrate: () => void;
 
-  /* Session */
   isAuthenticated: boolean;
   userRole: UserRole | null;
   setIsAuthenticated: (val: boolean, role?: UserRole | null) => void;
 
-  /* Cart */
   cart: CartItem[];
   addToCart: (product: Product, shade: Shade | null, quantity: number) => void;
   removeFromCart: (productId: string, shade: string | null) => void;
@@ -36,29 +33,24 @@ interface StoreState {
   clearCart: () => void;
   cartCount: number;
 
-  /* Wishlist */
   wishlist: string[];
   toggleWishlist: (productId: string) => void;
   isWishlisted: (productId: string) => boolean;
 
-  /* Coupon */
   activeCoupon: Coupon | null;
   applyCoupon: (code: string) => { success: boolean; message: string };
   removeCoupon: () => void;
   couponDiscount: number;
 
-  /* Shipping */
   subtotal: number;
   shippingCost: number;
   selectedShippingServiceId: number | null;
   selectedShippingServicePrice: number;
   setSelectedShippingService: (id: number | null, price: number) => void;
 
-  /* Toast */
   toast: ToastState;
   showToast: (message: string) => void;
 
-  /* Loyalty */
   loyaltyPoints: number;
   loyaltyTier: LoyaltyTier;
   earnedThisSession: number;
@@ -71,7 +63,6 @@ interface StoreState {
   pendingTierUpgrade: string | null;
   dismissTierUpgrade: () => void;
 
-  /* Chat */
   chatMessages: ChatMessage[];
   addChatMessage: (msg: Omit<ChatMessage, 'id' | 'timestamp'>) => ChatMessage;
   updateChatMessage: (id: string, text: string) => void;
@@ -81,7 +72,6 @@ interface StoreState {
   chatOperatingHours: boolean;
   isAiLoading: boolean;
 
-  /* Subscriptions */
   subscriptions: SubscriptionPlan[];
   addSubscription: (plan: SubscriptionPlan) => void;
   removeSubscription: (productId: string, shade: string | null) => void;
@@ -175,7 +165,17 @@ export const useStore = create<StoreState>()((set, get) => ({
     } catch {
       subscriptions = [];
     }
-    const derived = computeCartDerived(cart, null);
+    const couponCodeRaw = ls('glamour_coupon');
+    let activeCoupon: Coupon | null = null;
+    if (couponCodeRaw) {
+      try {
+        const code = JSON.parse(couponCodeRaw);
+        activeCoupon = allCoupons.find((c) => c.code === code && c.isActive) ?? null;
+      } catch {
+        activeCoupon = null;
+      }
+    }
+    const derived = computeCartDerived(cart, activeCoupon);
     set({
       _hydrated: true,
       cart: derived.cart,
@@ -186,6 +186,8 @@ export const useStore = create<StoreState>()((set, get) => ({
       loyaltyPoints,
       loyaltyTier: getTier(loyaltyPoints).name as LoyaltyTier,
       subscriptions,
+      activeCoupon,
+      couponDiscount: derived.couponDiscount,
     });
   },
 
@@ -227,6 +229,7 @@ export const useStore = create<StoreState>()((set, get) => ({
               price: product.price,
               originalPrice: product.originalPrice,
               emoji: product.emoji,
+              imageUrls: product.imageUrls,
               shade: shadeName,
               quantity,
             },
@@ -270,6 +273,7 @@ export const useStore = create<StoreState>()((set, get) => ({
       selectedShippingServicePrice: 0,
     });
     lss('glamour_cart', []);
+    lss('glamour_coupon', null);
   },
 
   wishlist: [],
@@ -292,6 +296,7 @@ export const useStore = create<StoreState>()((set, get) => ({
   applyCoupon: (code) => {
     const coupon = allCoupons.find((c) => c.code === code.trim().toUpperCase() && c.isActive);
     if (!coupon) return { success: false, message: 'Invalid or expired coupon code' };
+    lss('glamour_coupon', coupon.code);
     set((state) => ({
       activeCoupon: coupon,
       couponDiscount: computeDiscount(state.cart, coupon),
@@ -299,7 +304,10 @@ export const useStore = create<StoreState>()((set, get) => ({
     return { success: true, message: `Coupon applied! ${coupon.discountPercent}% off` };
   },
 
-  removeCoupon: () => set({ activeCoupon: null, couponDiscount: 0 }),
+  removeCoupon: () => {
+    lss('glamour_coupon', null);
+    set({ activeCoupon: null, couponDiscount: 0 });
+  },
   couponDiscount: 0,
 
   toast: { message: '', visible: false },
@@ -380,7 +388,6 @@ export const useStore = create<StoreState>()((set, get) => ({
       .filter((m) => m.role !== 'ai' || m.text !== '')
       .map((m) => ({ role: m.role, text: m.text }));
 
-    // Create a placeholder message immediately so the user sees it
     const aiMsg = s.addChatMessage({ role: 'ai', text: '' });
     let accumulated = '';
 
@@ -423,9 +430,7 @@ export const useStore = create<StoreState>()((set, get) => ({
               accumulated += parsed.token;
               s.updateChatMessage(aiMsg.id, accumulated);
             }
-          } catch {
-            // skip malformed JSON lines
-          }
+          } catch {}
         }
       }
     } catch (error) {

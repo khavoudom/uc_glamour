@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useStore } from '@/lib/store';
 import axios from 'axios';
+import ReactCountryFlag from 'react-country-flag';
 import { ChevronLeft, CreditCard, QrCode, Truck, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { createOrderAndRedirect } from '@/app/actions/orders';
@@ -51,7 +52,7 @@ function validateForm(data: ShippingForm): Partial<Record<keyof ShippingForm, st
   if (!data.city.trim() || data.city.trim().length < 2) errors.city = 'City required';
   if (!data.state.trim() || data.state.trim().length < 2) errors.state = 'State required';
   if (!data.zip.trim() || data.zip.trim().length < 3) errors.zip = 'ZIP code required';
-  if (!data.country.trim() || data.country.trim().length < 2) errors.country = 'Country required';
+  if (!data.country) errors.country = 'Country required';
   return errors;
 }
 
@@ -81,13 +82,78 @@ function InputField({
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
         placeholder={placeholder}
-        className={`w-full rounded-sm border px-3 py-[10px] text-[13px] font-sans text-text outline-none transition-[border-color] duration-150 ${
+        className={`w-full rounded-sm border px-3 py-2.5 text-[13px] font-sans text-text outline-none transition-[border-color] duration-150 ${
           error ? 'border-danger' : 'border-border-md'
         }`}
       />
-      {error && <p className="mt-[2px] text-[11px] text-danger">{error}</p>}
+      {error && <p className="mt-0.5 text-[11px] text-danger">{error}</p>}
     </div>
   );
+}
+
+const countries = [
+  { code: 'KH', name: 'Cambodia' },
+  { code: 'US', name: 'United States' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'FR', name: 'France' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'KR', name: 'South Korea' },
+  { code: 'SG', name: 'Singapore' },
+  { code: 'MY', name: 'Malaysia' },
+  { code: 'TH', name: 'Thailand' },
+  { code: 'VN', name: 'Vietnam' },
+  { code: 'LA', name: 'Laos' },
+  { code: 'MM', name: 'Myanmar' },
+  { code: 'PH', name: 'Philippines' },
+  { code: 'ID', name: 'Indonesia' },
+  { code: 'BN', name: 'Brunei' },
+  { code: 'CN', name: 'China' },
+  { code: 'TW', name: 'Taiwan' },
+  { code: 'HK', name: 'Hong Kong' },
+  { code: 'IN', name: 'India' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'DK', name: 'Denmark' },
+  { code: 'FI', name: 'Finland' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'AT', name: 'Austria' },
+  { code: 'BE', name: 'Belgium' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'PL', name: 'Poland' },
+  { code: 'CZ', name: 'Czech Republic' },
+  { code: 'NZ', name: 'New Zealand' },
+  { code: 'AE', name: 'United Arab Emirates' },
+  { code: 'SA', name: 'Saudi Arabia' },
+  { code: 'EG', name: 'Egypt' },
+  { code: 'ZA', name: 'South Africa' },
+  { code: 'NG', name: 'Nigeria' },
+  { code: 'KE', name: 'Kenya' },
+  { code: 'BR', name: 'Brazil' },
+  { code: 'MX', name: 'Mexico' },
+  { code: 'AR', name: 'Argentina' },
+  { code: 'CO', name: 'Colombia' },
+  { code: 'CL', name: 'Chile' },
+  { code: 'PE', name: 'Peru' },
+  { code: 'RU', name: 'Russia' },
+  { code: 'TR', name: 'Turkey' },
+  { code: 'GR', name: 'Greece' },
+  { code: 'IE', name: 'Ireland' },
+  { code: 'IL', name: 'Israel' },
+  { code: 'PK', name: 'Pakistan' },
+  { code: 'BD', name: 'Bangladesh' },
+  { code: 'LK', name: 'Sri Lanka' },
+  { code: 'NP', name: 'Nepal' },
+] as const;
+
+const countryCodeByName: Record<string, string> = {};
+for (const c of countries) {
+  countryCodeByName[c.name] = c.code;
 }
 
 export default function CheckoutPage() {
@@ -105,16 +171,17 @@ export default function CheckoutPage() {
     setSelectedShippingService,
   } = useStore();
 
-  // All hooks must be before any early returns
   const [shipping, setShipping] = useState<ShippingForm>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof ShippingForm, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof ShippingForm, boolean>>>({});
+  const [countryOpen, setCountryOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<'paypal' | 'khqr' | null>(null);
   const [paypalError, setPaypalError] = useState<string | null>(null);
   const [khqrLoading, setKhqrLoading] = useState(false);
   const [khqrError, setKhqrError] = useState<string | null>(null);
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [khqrOrderId, setKhqrOrderId] = useState<number | null>(null);
+  const [qrCountdown, setQrCountdown] = useState(240);
   const [, setIsSubmitting] = useState(false);
   const [orderError] = useState<string | null>(null);
   const [statusChecking, setStatusChecking] = useState(false);
@@ -156,21 +223,25 @@ export default function CheckoutPage() {
     setShipping((prev) => ({ ...prev, [field]: value }));
   }, []);
 
-  // Build order items payload
+  const discountRatio = activeCoupon ? activeCoupon.discountPercent / 100 : 0;
+
   const orderItemsPayload = useMemo(
     () =>
-      cart.map((item) => ({
-        productId: parseInt(item.productId, 10),
-        productName: item.name,
-        emoji: item.emoji,
-        shade: item.shade,
-        quantity: item.quantity,
-        unitPrice: item.price,
-      })),
-    [cart],
+      cart.map((item) => {
+        const discountedPrice =
+          discountRatio > 0 ? Math.round(item.price * (1 - discountRatio) * 100) / 100 : item.price;
+        return {
+          productId: parseInt(item.productId, 10),
+          productName: item.name,
+          emoji: item.emoji,
+          shade: item.shade,
+          quantity: item.quantity,
+          unitPrice: discountedPrice,
+        };
+      }),
+    [cart, discountRatio],
   );
 
-  // Build the base order input (shared by PayPal + KHQR)
   const buildOrderInput = useCallback(
     (paymentId?: string): CreateOrderInput => ({
       items: orderItemsPayload,
@@ -264,8 +335,6 @@ export default function CheckoutPage() {
       const res = await axios.get(`/api/khqr/status?orderId=${khqrOrderId}`);
       const data = res.data;
 
-      console.log('[KHQR] Status check response:', JSON.stringify(data, null, 2));
-
       if (data.isPaid) {
         clearCart();
         router.push(`/checkout/confirmation/${khqrOrderId}`);
@@ -276,7 +345,6 @@ export default function CheckoutPage() {
       } else if (data.error) {
         setKhqrError(`Unable to check payment: ${data.error}. Please try again.`);
       }
-      // Payment still pending — silently wait for next poll
     } catch (err) {
       const message =
         axios.isAxiosError(err) && typeof err.response?.data?.error === 'string'
@@ -290,7 +358,6 @@ export default function CheckoutPage() {
     }
   }, [khqrOrderId, statusChecking, clearCart, router]);
 
-  // Dev mode: press "/" key to instantly mark as paid and go to success page
   useEffect(() => {
     if (!qrImage || !khqrOrderId) return;
     const handler = async (e: KeyboardEvent) => {
@@ -298,9 +365,7 @@ export default function CheckoutPage() {
         e.preventDefault();
         try {
           await axios.post('/api/khqr/dev-mark-paid', { orderId: khqrOrderId });
-        } catch {
-          // Dev shortcut — best-effort notification
-        }
+        } catch {}
         clearCart();
         router.push(`/checkout/confirmation/${khqrOrderId}`);
       }
@@ -309,27 +374,50 @@ export default function CheckoutPage() {
     return () => window.removeEventListener('keydown', handler);
   }, [qrImage, khqrOrderId, clearCart, router]);
 
-  // Auto-poll: silently check payment status every 5 seconds
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (qrImage && khqrOrderId) {
+      setQrCountdown(240);
+      countdownRef.current = setInterval(() => {
+        setQrCountdown((prev) => Math.max(0, prev - 1));
+      }, 1000);
+
+      return () => {
+        if (countdownRef.current) {
+          clearInterval(countdownRef.current);
+          countdownRef.current = null;
+        }
+      };
+    }
+  }, [qrImage, khqrOrderId]);
+
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollCountRef = useRef(0);
   const isPollingRef = useRef(false);
-  const POLL_TIMEOUT_SECONDS = 300; // 5 minutes max
+  const QR_HIDE_CYCLES = 48;
+  const POLL_STOP_CYCLES = 60;
 
   useEffect(() => {
     if (qrImage && khqrOrderId) {
       pollCountRef.current = 0;
-      console.log('[KHQR] Starting auto-poll for order', khqrOrderId);
 
       pollingRef.current = setInterval(async () => {
         pollCountRef.current += 1;
-        if (pollCountRef.current * 5 >= POLL_TIMEOUT_SECONDS) {
-          console.log('[KHQR] Polling timed out after 5 minutes for order', khqrOrderId);
+
+        if (pollCountRef.current === QR_HIDE_CYCLES) {
+          setQrImage(null);
+          setKhqrOrderId(null);
+        }
+
+        if (pollCountRef.current >= POLL_STOP_CYCLES) {
           if (pollingRef.current) {
             clearInterval(pollingRef.current);
             pollingRef.current = null;
           }
           return;
         }
+
         if (isPollingRef.current) return;
         isPollingRef.current = true;
         try {
@@ -340,7 +428,6 @@ export default function CheckoutPage() {
             router.push(`/checkout/confirmation/${khqrOrderId}`);
           }
         } catch {
-          // silently ignore poll errors
         } finally {
           isPollingRef.current = false;
         }
@@ -355,7 +442,6 @@ export default function CheckoutPage() {
     }
   }, [qrImage, khqrOrderId, clearCart, router]);
 
-  // PayPal callbacks
   const handleCreatePayPalOrder = useCallback(async (): Promise<string> => {
     const res = await axios.post('/api/paypal/create-order', { amount: grandTotal });
     return res.data.orderId;
@@ -396,18 +482,17 @@ export default function CheckoutPage() {
     return null;
   }
 
-  // --- Empty cart ---
   if (cart.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg p-5">
-        <div className="max-w-[400px] rounded-lg border border-border bg-white p-10 text-center">
+        <div className="max-w-100 rounded-lg border border-border bg-white p-10 text-center">
           <span className="text-5xl" aria-hidden="true">
             🛒
           </span>
           <p className="mt-3 mb-1 text-sm font-medium text-text">Your cart is empty</p>
           <button
             onClick={() => router.push('/')}
-            className="mt-4 cursor-pointer rounded-full bg-pink px-6 py-[10px] text-[13px] font-medium font-sans text-white"
+            className="mt-4 cursor-pointer rounded-full bg-pink px-6 py-2.5 text-[13px] font-medium font-sans text-white"
           >
             Continue Shopping
           </button>
@@ -420,8 +505,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="mx-auto max-w-[960px] px-7 py-10">
-        {/* Back */}
+      <div className="mx-auto max-w-240 px-7 py-10">
         <button
           onClick={() => router.push('/')}
           className="mb-5 flex cursor-pointer items-center gap-1 border-none bg-none p-0 text-xs text-muted font-sans"
@@ -430,24 +514,21 @@ export default function CheckoutPage() {
           Continue Shopping
         </button>
 
-        <div className="mb-7 flex items-center gap-[10px]">
+        <div className="mb-7 flex items-center gap-2.5">
           <h1 className="font-heading m-0 text-[28px] font-normal text-text">Checkout</h1>
           <Lock size={14} className="text-muted" />
           <span className="text-[11px] text-muted">Secure checkout</span>
         </div>
 
-        {/* Grid */}
         <div className="grid grid-cols-[1fr_360px] items-start gap-7">
-          {/* ============= LEFT COLUMN ============= */}
           <div className="flex flex-col gap-6">
-            {/* ── Shipping Information ── */}
             <section className="rounded-lg border border-border bg-white p-6">
               <div className="mb-5 flex items-center gap-2">
                 <Truck size={18} className="text-pink" />
                 <h2 className="m-0 text-base font-medium text-text">Shipping Information</h2>
               </div>
 
-              <div className="flex flex-col gap-[14px]">
+              <div className="flex flex-col gap-3.5">
                 <InputField
                   label="Full Name"
                   value={shipping.fullName}
@@ -511,19 +592,69 @@ export default function CheckoutPage() {
                     placeholder="12000"
                     onBlur={() => handleBlur('zip')}
                   />
-                  <InputField
-                    label="Country"
-                    value={shipping.country}
-                    onChange={(v) => updateField('country', v)}
-                    error={touched.country ? errors.country : undefined}
-                    placeholder="Cambodia"
-                    onBlur={() => handleBlur('country')}
-                  />
+                  <div className="relative">
+                    <label className="mb-1 block text-[11px] font-medium text-text">Country</label>
+                    <button
+                      type="button"
+                      onClick={() => setCountryOpen((o) => !o)}
+                      onBlur={() => {
+                        setTimeout(() => setCountryOpen(false), 150);
+                      }}
+                      className={`flex w-full cursor-pointer items-center gap-2 rounded-sm border px-3 py-2.5 text-[13px] font-sans text-text outline-none transition-[border-color] duration-150 ${
+                        errors.country && touched.country ? 'border-danger' : 'border-border-md'
+                      }`}
+                    >
+                      {shipping.country ? (
+                        <>
+                          <ReactCountryFlag
+                            countryCode={countryCodeByName[shipping.country] || ''}
+                            svg
+                            style={{ width: 18, height: 14 }}
+                          />
+                          <span className="flex-1 text-left">{shipping.country}</span>
+                        </>
+                      ) : (
+                        <span className="flex-1 text-left text-hint">Select a country</span>
+                      )}
+                      <span className="text-hint text-[10px]">▼</span>
+                    </button>
+                    {countryOpen && (
+                      <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-50 overflow-y-auto rounded-sm border border-border bg-white shadow-lg">
+                        {countries.map((c) => (
+                          <button
+                            key={c.code}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              updateField('country', c.name);
+                              setCountryOpen(false);
+                              setErrors(validateForm({ ...shipping, country: c.name }));
+                              setTouched((prev) => ({ ...prev, country: true }));
+                            }}
+                            className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-[13px] font-sans transition-[background] duration-75 ${
+                              shipping.country === c.name
+                                ? 'bg-pink-lt text-text'
+                                : 'text-text hover:bg-bg'
+                            }`}
+                          >
+                            <ReactCountryFlag
+                              countryCode={c.code}
+                              svg
+                              style={{ width: 18, height: 14 }}
+                            />
+                            {c.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {errors.country && touched.country && (
+                      <p className="mt-0.5 text-[11px] text-danger">{errors.country}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* ── Shipping Method ── */}
             {shippingServices.length > 0 && (
               <section className="rounded-lg border border-border bg-white p-6">
                 <div className="mb-5 flex items-center gap-2">
@@ -539,7 +670,7 @@ export default function CheckoutPage() {
                         key={svc.id}
                         type="button"
                         onClick={() => setSelectedShippingService(svc.id, price)}
-                        className={`flex w-full cursor-pointer items-center gap-[14px] rounded-md bg-white p-4 text-left font-sans ${
+                        className={`flex w-full cursor-pointer items-center gap-3.5 rounded-md bg-white p-4 text-left font-sans ${
                           shippingServiceId === svc.id
                             ? 'border-[1.5px] border-pink'
                             : 'border border-border'
@@ -566,7 +697,6 @@ export default function CheckoutPage() {
               </section>
             )}
 
-            {/* ── Payment Method ── */}
             <section className="rounded-lg border border-border bg-white p-6">
               <div className="mb-5 flex items-center gap-2">
                 <CreditCard size={18} className="text-pink" />
@@ -574,11 +704,10 @@ export default function CheckoutPage() {
               </div>
 
               <div className="flex flex-col gap-3">
-                {/* PayPal Card */}
                 <button
                   type="button"
                   onClick={() => setSelectedMethod('paypal')}
-                  className={`flex w-full cursor-pointer items-center gap-[14px] rounded-md bg-white p-4 text-left font-sans ${
+                  className={`flex w-full cursor-pointer items-center gap-3.5 rounded-md bg-white p-4 text-left font-sans ${
                     selectedMethod === 'paypal'
                       ? 'border-[1.5px] border-pink'
                       : 'border border-border'
@@ -611,11 +740,10 @@ export default function CheckoutPage() {
                   </div>
                 </button>
 
-                {/* Bakong KHQR Card */}
                 <button
                   type="button"
                   onClick={() => setSelectedMethod('khqr')}
-                  className={`flex w-full cursor-pointer items-center gap-[14px] rounded-md bg-white p-4 text-left font-sans ${
+                  className={`flex w-full cursor-pointer items-center gap-3.5 rounded-md bg-white p-4 text-left font-sans ${
                     selectedMethod === 'khqr'
                       ? 'border-[1.5px] border-pink'
                       : 'border border-border'
@@ -654,18 +782,15 @@ export default function CheckoutPage() {
                           <PayPalButtons
                             createOrder={handleCreatePayPalOrder}
                             onApprove={handlePayPalApprove}
-                            onCancel={() => {
-                              // user closed the popup — do nothing
-                            }}
+                            onCancel={() => {}}
                             onError={(err) => {
                               const paypalErr = err as { message?: string } | undefined;
                               if (
                                 paypalErr?.message?.includes('Detected popup close') ||
                                 paypalErr?.message?.includes('popup')
                               ) {
-                                return; // user closed the popup — do nothing
+                                return;
                               }
-                              console.error('PayPal error:', err);
                               setPaypalError('Payment failed. Please try again.');
                             }}
                             style={{ layout: 'vertical', shape: 'rect', height: 45 }}
@@ -684,7 +809,7 @@ export default function CheckoutPage() {
                         </div>
                       )}
                       {paypalError && (
-                        <div className="mt-3 flex items-center gap-1.5 rounded-sm bg-[rgba(163,32,32,0.08)] p-[10px] text-xs text-danger">
+                        <div className="mt-3 flex items-center gap-1.5 rounded-sm bg-[rgba(163,32,32,0.08)] p-2.5 text-xs text-danger">
                           <AlertCircle size={14} />
                           {paypalError}
                         </div>
@@ -700,7 +825,7 @@ export default function CheckoutPage() {
                           <button
                             type="button"
                             onClick={handleInitiateKHQR}
-                            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-pink p-[13px] text-[13px] font-medium font-sans text-white"
+                            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-pink p-3.25 text-[13px] font-medium font-sans text-white"
                           >
                             <QrCode size={16} />
                             Pay with Bakong KHQR - ${grandTotal.toFixed(2)}
@@ -718,11 +843,7 @@ export default function CheckoutPage() {
                       {qrImage && (
                         <>
                           <div className="inline-block rounded-md border border-border bg-white p-3">
-                            <img
-                              src={qrImage}
-                              alt="Bakong KHQR Code"
-                              className="block h-[200px] w-[200px]"
-                            />
+                            <img src={qrImage} alt="Bakong KHQR Code" className="block h-50 w-50" />
                           </div>
                           <p className="mt-3 mb-1 text-[13px] font-medium text-text">
                             Scan with any Bakong member app
@@ -733,16 +854,20 @@ export default function CheckoutPage() {
                           {khqrOrderId && (
                             <p className="my-1 text-[11px] text-muted">Order #{khqrOrderId}</p>
                           )}
-                          <div className="mb-4 mt-2">
-                            <span className="inline-block rounded-full bg-gold-lt px-[10px] py-[3px] text-[11px] font-medium text-gold">
+                          <div className="mb-2 mt-2 flex items-center justify-center gap-2">
+                            <span className="inline-block rounded-full bg-gold-lt px-2.5 py-0.75 text-[11px] font-medium text-gold">
                               Payment Pending
                             </span>
                           </div>
+                          <p className="mb-4 text-[11px] text-muted">
+                            Expires in {Math.floor(qrCountdown / 60)}:
+                            {(qrCountdown % 60).toString().padStart(2, '0')}
+                          </p>
                           <button
                             type="button"
                             onClick={handleCheckPaymentStatus}
                             disabled={statusChecking}
-                            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-pink p-[13px] text-[13px] font-medium font-sans text-white disabled:cursor-not-allowed disabled:bg-pink-mid"
+                            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-pink p-3.25 text-[13px] font-medium font-sans text-white disabled:cursor-not-allowed disabled:bg-pink-mid"
                           >
                             I Have Paid
                           </button>
@@ -750,8 +875,8 @@ export default function CheckoutPage() {
                       )}
 
                       {khqrError && (
-                        <div className="mt-3 flex items-start gap-1.5 rounded-sm bg-[rgba(163,32,32,0.08)] p-[10px] text-left text-xs text-danger">
-                          <AlertCircle size={14} className="mt-[1px] shrink-0" />
+                        <div className="mt-3 flex items-start gap-1.5 rounded-sm bg-[rgba(163,32,32,0.08)] p-2.5 text-left text-xs text-danger">
+                          <AlertCircle size={14} className="mt-px shrink-0" />
                           <span>{khqrError}</span>
                         </div>
                       )}
@@ -760,7 +885,7 @@ export default function CheckoutPage() {
 
                   {/* General submission error */}
                   {orderError && (
-                    <div className="mt-3 flex items-center gap-1.5 rounded-sm bg-[rgba(163,32,32,0.08)] p-[10px] text-xs text-danger">
+                    <div className="mt-3 flex items-center gap-1.5 rounded-sm bg-[rgba(163,32,32,0.08)] p-2.5 text-xs text-danger">
                       <AlertCircle size={14} />
                       {orderError}
                     </div>
@@ -782,26 +907,59 @@ export default function CheckoutPage() {
               Order Summary ({cart.reduce((s, i) => s + i.quantity, 0)} items)
             </h3>
 
-            <div className="mb-4 flex flex-col gap-[10px]">
-              {cart.map((item) => (
-                <div
-                  key={`${item.productId}-${item.shade}`}
-                  className="flex items-center gap-[10px] border-b border-border py-2"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-bg text-xl">
-                    {item.emoji}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-xs font-medium text-text">{item.name}</div>
-                    <div className="text-[11px] text-muted">
-                      {item.shade || 'Standard'} &times; {item.quantity}
+            <div className="mb-4 flex flex-col gap-2.5">
+              {cart.map((item, idx) => {
+                const discountedPrice =
+                  discountRatio > 0
+                    ? Math.round(item.price * (1 - discountRatio) * 100) / 100
+                    : item.price;
+                return (
+                  <div
+                    key={`${item.productId}-${item.shade}`}
+                    className="flex items-center gap-2.5 border-b border-border py-2"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-bg text-xl overflow-hidden">
+                      {item.imageUrls?.[0] ? (
+                        <img
+                          src={item.imageUrls[0]}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-lg">{item.emoji}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-xs font-medium text-text">{item.name}</div>
+                      <div className="text-[11px] text-muted">
+                        {item.shade || 'Standard'} &times; {item.quantity}
+                      </div>
+                      {discountRatio > 0 && (
+                        <div className="text-[10px] text-muted">
+                          <span className="line-through">${item.price.toFixed(2)}</span>{' '}
+                          <span className="text-success font-medium">
+                            ${discountedPrice.toFixed(2)} each
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="whitespace-nowrap text-xs font-medium text-text">
+                      {discountRatio > 0 ? (
+                        <>
+                          <span className="line-through text-muted mr-1">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
+                          <span className="text-success">
+                            ${(discountedPrice * item.quantity).toFixed(2)}
+                          </span>
+                        </>
+                      ) : (
+                        <>${(item.price * item.quantity).toFixed(2)}</>
+                      )}
                     </div>
                   </div>
-                  <div className="whitespace-nowrap text-xs font-medium text-text">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Totals */}
@@ -820,7 +978,7 @@ export default function CheckoutPage() {
                   <span>-${couponDiscount.toFixed(2)}</span>
                 </div>
               )}
-              <div className="mt-[2px] flex justify-between border-t border-border pt-2 text-base font-semibold text-text">
+              <div className="mt-0.5 flex justify-between border-t border-border pt-2 text-base font-semibold text-text">
                 <span>Total</span>
                 <span>${grandTotal.toFixed(2)}</span>
               </div>
@@ -828,27 +986,27 @@ export default function CheckoutPage() {
 
             {/* Selection reminder */}
             {!selectedMethod && isFormValid && (
-              <div className="mt-4 rounded-sm bg-pink-lt p-[10px] text-center text-[11px] text-text">
+              <div className="mt-4 rounded-sm bg-pink-lt p-2.5 text-center text-[11px] text-text">
                 Select a payment method above to complete your order
               </div>
             )}
 
             {!isFormValid && (
-              <div className="mt-4 rounded-sm bg-pink-lt p-[10px] text-center text-[11px] text-text">
+              <div className="mt-4 rounded-sm bg-pink-lt p-2.5 text-center text-[11px] text-text">
                 Please fill in your shipping information first
               </div>
             )}
 
             {/* Accepted payment methods */}
-            <div className="mt-4 border-t border-border pt-[14px]">
+            <div className="mt-4 border-t border-border pt-3.5">
               <div className="mb-2 text-[10px] uppercase tracking-[0.5px] text-muted">
                 Accepted Payments
               </div>
               <div className="flex items-center gap-2">
-                <div className="rounded-sm border border-border bg-bg px-2 py-[4px] text-[10px] text-text">
+                <div className="rounded-sm border border-border bg-bg px-2 py-1 text-[10px] text-text">
                   PayPal
                 </div>
-                <div className="rounded-sm border border-border bg-bg px-2 py-[4px] text-[10px] text-text">
+                <div className="rounded-sm border border-border bg-bg px-2 py-1 text-[10px] text-text">
                   Bakong KHQR
                 </div>
               </div>

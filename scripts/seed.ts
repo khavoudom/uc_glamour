@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { db } from '../lib/db';
 import { products, shades, reviews, coupons, users, shippingServices } from '../lib/db/schema';
 import { hash } from 'bcryptjs';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import {
   products as staticProducts,
   reviews as staticReviews,
@@ -15,14 +15,12 @@ const log = logger('scripts/seed');
 async function seed() {
   log.info('Seeding database...');
 
-  // Clear existing data
-  await db.delete(shades);
-  await db.delete(reviews);
-  await db.delete(coupons);
-  await db.delete(shippingServices);
-  await db.delete(products);
+  await db.execute(sql`TRUNCATE TABLE ${shades} RESTART IDENTITY CASCADE`);
+  await db.execute(sql`TRUNCATE TABLE ${reviews} RESTART IDENTITY CASCADE`);
+  await db.execute(sql`TRUNCATE TABLE ${coupons} RESTART IDENTITY CASCADE`);
+  await db.execute(sql`TRUNCATE TABLE ${shippingServices} RESTART IDENTITY CASCADE`);
+  await db.execute(sql`TRUNCATE TABLE ${products} RESTART IDENTITY CASCADE`);
 
-  // Seed products with their shades
   for (const p of staticProducts) {
     const [inserted] = await db
       .insert(products)
@@ -42,10 +40,8 @@ async function seed() {
       })
       .returning();
 
-    // Store mapping from static id to db id
     idMap.set(p.id, inserted.id);
 
-    // Insert shades for this product
     for (const s of p.shades) {
       await db.insert(shades).values({
         productId: inserted.id,
@@ -59,7 +55,6 @@ async function seed() {
     log.info(`✓ ${p.name}`);
   }
 
-  // Seed reviews using the id mapping
   for (const r of staticReviews) {
     const dbProductId = idMap.get(r.productId);
     if (!dbProductId) continue;
@@ -77,7 +72,6 @@ async function seed() {
   }
   log.info(`✓ ${staticReviews.length} reviews`);
 
-  // Seed coupons
   for (const c of staticCoupons) {
     await db.insert(coupons).values({
       code: c.code,
@@ -87,7 +81,6 @@ async function seed() {
   }
   log.info(`✓ ${staticCoupons.length} coupons`);
 
-  // Seed shipping services
   const defaultServices = [
     {
       name: 'Standard Shipping',
@@ -113,7 +106,6 @@ async function seed() {
   }
   log.info(`✓ ${defaultServices.length} shipping services`);
 
-  // Seed admin user
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPassword = process.env.ADMIN_PASSWORD ?? 'admin123';
   if (adminEmail) {
@@ -124,11 +116,9 @@ async function seed() {
       .limit(1);
 
     if (existing) {
-      // Promote existing user to admin
       await db.update(users).set({ role: 'admin' }).where(eq(users.email, adminEmail));
       log.info(`✓ Promoted ${adminEmail} to admin`);
     } else {
-      // Create admin user
       const hashedPassword = await hash(adminPassword, 12);
       await db.insert(users).values({
         name: 'Admin',

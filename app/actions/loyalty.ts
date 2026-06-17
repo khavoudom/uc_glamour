@@ -4,7 +4,6 @@ import { db } from '@/lib/db';
 import { loyaltyTransactions } from '@/lib/db/schema';
 import { getOptionalCustomerSession } from '@/lib/dal';
 import { updateLoyaltyPoints } from '@/lib/data-access/users';
-import { eq } from 'drizzle-orm';
 
 export async function addLoyaltyPoints(amount: number, reference?: string) {
   const session = await getOptionalCustomerSession();

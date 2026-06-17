@@ -10,7 +10,7 @@ export default async function VerifyEmailPage({
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg p-5">
-      <div className="w-full max-w-[400px] rounded-lg border border-border bg-white px-9 py-10 text-center">
+      <div className="w-full max-w-100 rounded-lg border border-border bg-white px-9 py-10 text-center">
         {status === 'success' ? (
           <>
             <div className="mb-4 text-4xl">✅</div>
@@ -20,7 +20,7 @@ export default async function VerifyEmailPage({
             </p>
             <Link
               href="/login"
-              className="inline-block w-full rounded-full bg-pink py-[13px] text-[13px] font-medium text-white no-underline"
+              className="inline-block w-full rounded-full bg-pink py-3.25 text-[13px] font-medium text-white no-underline"
             >
               Sign In
             </Link>

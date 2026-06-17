@@ -9,11 +9,6 @@ import { logger } from '@/lib/logger';
 
 const log = logger('api/khqr/status');
 
-/**
- * GET /api/khqr/status?orderId=123
- *
- * Frontend polls this to check if payment has settled in Bakong.
- */
 export async function GET(request: NextRequest) {
   try {
     const orderIdParam = request.nextUrl.searchParams.get('orderId');
@@ -59,7 +54,6 @@ export async function GET(request: NextRequest) {
     });
     if (bakongStatus.paid) {
       await updateOrderPaymentStatus(order.id, 'Paid');
-      // Fire-and-forget: send receipt email if we have the user's email
       sendReceiptEmail(order.id).catch(() => {});
       sendTelegramNotification(order.id).catch(() => {});
     }

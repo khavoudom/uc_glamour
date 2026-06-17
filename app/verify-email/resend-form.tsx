@@ -25,7 +25,7 @@ export function ResendForm({ email: initialEmail }: { email: string }) {
             type="email"
             required
             placeholder="you@example.com"
-            className="w-full rounded-sm border border-border-md px-3.5 py-[10px] text-[13px] text-text outline-none"
+            className="w-full rounded-sm border border-border-md px-3.5 py-2.5 text-[13px] text-text outline-none"
           />
         </div>
       )}
@@ -45,7 +45,7 @@ export function ResendForm({ email: initialEmail }: { email: string }) {
         <button
           type="submit"
           disabled={pending}
-          className={`w-full rounded-full py-[13px] text-[13px] font-medium text-white ${
+          className={`w-full rounded-full py-3.25 text-[13px] font-medium text-white ${
             pending ? 'cursor-not-allowed bg-hint' : 'cursor-pointer bg-pink'
           }`}
         >
@@ -57,7 +57,7 @@ export function ResendForm({ email: initialEmail }: { email: string }) {
         <div className="flex flex-col gap-2">
           <Link
             href="/login"
-            className="inline-block w-full rounded-full bg-pink py-[13px] text-[13px] font-medium text-white no-underline"
+            className="inline-block w-full rounded-full bg-pink py-3.25 text-[13px] font-medium text-white no-underline"
           >
             Go to Sign In
           </Link>

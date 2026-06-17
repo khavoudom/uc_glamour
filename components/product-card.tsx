@@ -41,7 +41,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
   return (
     <article
       onClick={() => onSelect(product)}
-      className="p-card bg-white border border-border rounded-[14px] overflow-hidden cursor-pointer"
+      className="p-card bg-white border border-border rounded-lg overflow-hidden cursor-pointer"
       style={{ transition: 'all 0.15s' }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-2px)';
@@ -57,7 +57,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
           <Badge badge={product.badge} />
         </div>
         <div
-          className="p-card-wish absolute top-2 right-2 w-[26px] h-[26px] rounded-full flex items-center justify-center cursor-pointer"
+          className="p-card-wish absolute top-2 right-2 w-6.5 h-6.5 rounded-full flex items-center justify-center cursor-pointer"
           style={{
             background: wishlisted ? 'var(--color-pink)' : 'var(--color-white)',
             border: '0.5px solid var(--color-border)',
@@ -85,25 +85,25 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="p-card-ico text-[48px]" aria-hidden="true">
+          <span className="p-card-ico text-5xl" aria-hidden="true">
             {product.emoji}
           </span>
         )}
       </div>
 
       <div className="p-card-body p-3">
-        <div className="p-brand text-[9px] text-muted tracking-[1px] uppercase mb-[3px]">
+        <div className="p-brand text-[9px] text-muted tracking-[1px] uppercase mb-0.75">
           {product.brand}
         </div>
-        <div className="p-name text-[13px] font-medium text-text leading-[1.3] mb-[6px]">
+        <div className="p-name text-[13px] font-medium text-text leading-[1.3] mb-1.5">
           {product.name}
         </div>
         {product.shades.length > 0 && (
-          <div className="p-shades flex gap-1 items-center mb-[6px]">
+          <div className="p-shades flex gap-1 items-center mb-1.5">
             {product.shades.slice(0, 3).map((s) => (
               <span
                 key={s.name}
-                className="w-[10px] h-[10px] rounded-full inline-block"
+                className="w-2.5 h-2.5 rounded-full inline-block"
                 style={{ background: s.hex, border: '0.5px solid rgba(0,0,0,0.1)' }}
                 title={s.name}
               />
@@ -113,7 +113,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
             )}
           </div>
         )}
-        <div className="p-stars flex items-center gap-[3px] mb-2">
+        <div className="p-stars flex items-center gap-0.5 mb-2">
           <span className="text-gold text-[11px]">
             {'★'.repeat(Math.floor(product.rating))}
             {product.rating % 1 >= 0.5 ? '½' : ''}
@@ -122,7 +122,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
         </div>
         <div className="p-footer flex items-center justify-between">
           <div>
-            <span className="p-price text-[14px] font-medium text-text">
+            <span className="p-price text-sm font-medium text-text">
               ${product.price.toFixed(2)}
             </span>
             {product.originalPrice && (
@@ -136,6 +136,10 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
               className={`p-add w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-white bg-text cursor-pointer`}
               onClick={(e) => {
                 e.stopPropagation();
+                if (!isAuthenticated) {
+                  router.push('/login?callbackUrl=' + encodeURIComponent(window.location.pathname));
+                  return;
+                }
                 addToCart(product, product.shades[0] || null, 1);
                 openCart();
               }}

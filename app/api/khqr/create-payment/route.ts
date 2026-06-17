@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { orders, orderItems } from '@/lib/db/schema';
+import { orders, orderItems, users } from '@/lib/db/schema';
 import { getOptionalSession } from '@/lib/dal';
 import {
   BakongOpenAPIError,
@@ -38,13 +38,6 @@ interface CreatePaymentRequest {
   shippingServiceId?: number | null;
 }
 
-/**
- * POST /api/khqr/create-payment
- *
- * 1. Creates the order in the database (status: Pending)
- * 2. Generates a dynamic KHQR with the Bakong KHQR SDK
- * 3. Returns the QR image data to display
- */
 export async function POST(request: Request) {
   let createdOrderId: number | null = null;
 
@@ -57,7 +50,6 @@ export async function POST(request: Request) {
       shipping: body.shippingInfo?.fullName,
     });
 
-    // Validate required fields
     if (!body.items || body.items.length === 0) {
       return NextResponse.json({ error: 'No items in order' }, { status: 400 });
     }
@@ -68,7 +60,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Shipping name is required' }, { status: 400 });
     }
 
-    // Verify Bakong Open API is configured before creating the order
     const config = getBakongOpenAPIConfig();
     log.info('Bakong Open API config', {
       configured: config.configured,
@@ -79,11 +70,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Bakong Open API is not configured' }, { status: 503 });
     }
 
-    // Get optional session
     const session = await getOptionalSession();
-    const userId = session?.userId ?? null;
+    let userId = session?.userId ?? null;
 
-    // Create the order first (we need the order ID for tran_id)
+    if (userId) {
+      const [user] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      if (!user) userId = null;
+    }
+
     const [order] = await db
       .insert(orders)
       .values({
@@ -109,7 +107,6 @@ export async function POST(request: Request) {
       .returning();
     createdOrderId = order.id;
 
-    // Insert order items
     if (body.items.length > 0) {
       await db.insert(orderItems).values(
         body.items.map((item) => ({
@@ -124,7 +121,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Log order details for debugging
     log.info('Calling createBakongKHQRPayment', {
       orderId: order.id,
       total: body.total,

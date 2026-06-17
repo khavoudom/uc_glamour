@@ -27,9 +27,9 @@ export default function FeatureCards() {
       {features.map((f) => (
         <div
           key={f.title}
-          className="feat-tile bg-white border-[0.5px] border-[var(--color-border)] rounded-xl p-[18px] flex gap-3 items-start"
+          className="feat-tile bg-white border-[0.5px] border-(--color-border) rounded-xl p-4.5 flex gap-3 items-start"
         >
-          <div className="feat-ico w-9 h-9 bg-[var(--color-pink-lt)] rounded-lg flex items-center justify-center shrink-0">
+          <div className="feat-ico w-9 h-9 bg-(--color-pink-lt) rounded-lg flex items-center justify-center shrink-0">
             <svg
               width="17"
               height="17"
@@ -68,10 +68,10 @@ export default function FeatureCards() {
             </svg>
           </div>
           <div>
-            <div className="feat-title text-xs font-medium text-[var(--color-text)] mb-0.5">
+            <div className="feat-title text-xs font-medium text-(--color-text) mb-0.5">
               {f.title}
             </div>
-            <div className="feat-desc text-[10px] text-[var(--color-muted)] leading-relaxed">
+            <div className="feat-desc text-[10px] text-(--color-muted) leading-relaxed">
               {f.desc}
             </div>
           </div>

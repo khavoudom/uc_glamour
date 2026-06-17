@@ -10,7 +10,7 @@ export default function SustainabilityPage() {
         impact on the planet and the people who call it home.
       </p>
 
-      <h2 className="font-heading text-[18px] text-text font-normal mt-6">Our Commitments</h2>
+      <h2 className="font-heading text-lg text-text font-normal mt-6">Our Commitments</h2>
       <p>
         <strong>Recyclable Packaging.</strong> By the end of 2026, 100% of our packaging will be
         recyclable or refillable. We&apos;ve already eliminated single-use plastics from our supply
@@ -29,7 +29,7 @@ export default function SustainabilityPage() {
         partner with organizations that redistribute unsold inventory to communities in need.
       </p>
 
-      <h2 className="font-heading text-[18px] text-text font-normal mt-6">Our Progress</h2>
+      <h2 className="font-heading text-lg text-text font-normal mt-6">Our Progress</h2>
       <div className="grid grid-cols-3 gap-3 mt-3">
         {[
           { value: '85%', label: 'recyclable packaging' },
@@ -40,7 +40,7 @@ export default function SustainabilityPage() {
             key={stat.label}
             className="bg-white border border-border rounded-xl p-4 text-center"
           >
-            <p className="font-heading text-[20px] text-pink">{stat.value}</p>
+            <p className="font-heading text-xl text-pink">{stat.value}</p>
             <p className="text-[10px] text-muted mt-1">{stat.label}</p>
           </div>
         ))}

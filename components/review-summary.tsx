@@ -40,10 +40,9 @@ export default function ReviewSummary({ stats, loading, error }: ReviewSummaryPr
 
   return (
     <div className="flex items-start gap-6 mb-5">
-      {/* Average rating */}
       <div className="text-center shrink-0">
         <div className="text-[32px] font-semibold text-text leading-none">{stats.average}</div>
-        <div className="text-gold text-[14px] mt-1">
+        <div className="text-gold text-sm mt-1">
           {'★'.repeat(Math.floor(stats.average))}
           {stats.average % 1 >= 0.5 ? '½' : ''}
         </div>
@@ -52,16 +51,15 @@ export default function ReviewSummary({ stats, loading, error }: ReviewSummaryPr
         </div>
       </div>
 
-      {/* Distribution bars */}
       <div className="flex-1 space-y-1.5">
         {[5, 4, 3, 2, 1].map((star) => {
           const count = stats.distribution[star] ?? 0;
           const pct = stats.total > 0 ? (count / stats.total) * 100 : 0;
           return (
-            <div key={star} className="flex items-center gap-2 text-[12px]">
+            <div key={star} className="flex items-center gap-2 text-xs">
               <span className="text-text w-3 text-right">{star}</span>
               <span className="text-gold">★</span>
-              <div className="flex-1 h-[6px] bg-border rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gold rounded-full transition-all duration-300"
                   style={{ width: `${pct}%` }}

@@ -41,7 +41,7 @@ export default function OrderStatusForm({ orderId, type, currentStatus, options 
       <select
         value={selected}
         onChange={(e) => setSelected(e.target.value)}
-        className="flex-1 border border-border-md rounded-lg px-[10px] py-2 text-[12px] font-sans outline-none bg-white text-text"
+        className="flex-1 border border-border-md rounded-lg px-2.5 py-2 text-xs font-sans outline-none bg-white text-text"
       >
         {options.map((opt) => (
           <option key={opt} value={opt}>
@@ -52,7 +52,7 @@ export default function OrderStatusForm({ orderId, type, currentStatus, options 
       <button
         onClick={handleUpdate}
         disabled={selected === currentStatus || updating}
-        className="px-4 py-2 rounded-lg border-none text-[12px] font-medium cursor-pointer font-sans disabled:cursor-not-allowed"
+        className="px-4 py-2 rounded-lg border-none text-xs font-medium cursor-pointer font-sans disabled:cursor-not-allowed"
         style={{
           background:
             selected === currentStatus || updating ? 'var(--color-bg)' : 'var(--color-pink)',

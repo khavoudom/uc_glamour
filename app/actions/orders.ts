@@ -1,10 +1,11 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { orders, orderItems } from '@/lib/db/schema';
+import { orders, orderItems, users } from '@/lib/db/schema';
 import { getOptionalCustomerSession } from '@/lib/dal';
 import { sendReceiptEmail } from '@/lib/receipt-email';
 import { sendTelegramNotification } from '@/lib/telegram-notify';
+import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 
 export interface CreateOrderInput {
@@ -37,7 +38,16 @@ export interface CreateOrderInput {
 
 export async function createOrder(input: CreateOrderInput) {
   const session = await getOptionalCustomerSession();
-  const userId = session?.userId ?? null;
+  let userId = session?.userId ?? null;
+
+  if (userId) {
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    if (!user) userId = null;
+  }
 
   const [order] = await db
     .insert(orders)
@@ -77,7 +87,6 @@ export async function createOrder(input: CreateOrderInput) {
     );
   }
 
-  // Fire-and-forget: send receipt email if we have the user's email
   sendReceiptEmail(order.id).catch(() => {});
   sendTelegramNotification(order.id).catch(() => {});
 

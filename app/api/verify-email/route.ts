@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/verify-email?status=error', request.url));
   }
 
-  // Mark email as verified and clear token
   await db
     .update(users)
     .set({

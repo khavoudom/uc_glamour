@@ -4,8 +4,6 @@ import { db } from '@/lib/db';
 import { emailQueue } from '@/lib/db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 
-/* ── Queue operations ── */
-
 export async function enqueueEmail({
   to,
   subject,
@@ -18,8 +16,6 @@ export async function enqueueEmail({
   await db.insert(emailQueue).values({ to, subject, html, status: 'pending' });
 }
 
-/* ── Processor ── */
-
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
 
@@ -30,10 +26,6 @@ function getTransporter() {
   });
 }
 
-/**
- * Process up to `batchSize` pending emails.
- * Can be called from a cron job or fired-and-forget after enqueue.
- */
 export async function processEmailQueue(batchSize = 10) {
   if (!smtpUser || !smtpPass) {
     console.warn('SMTP not configured — skipping email queue processing');

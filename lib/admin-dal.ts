@@ -22,10 +22,6 @@ export async function getOptionalAdminSession() {
   return { userId: parseInt(session.user.id, 10) };
 }
 
-/**
- * Guard for Server Actions — redirects unauthenticated or non-admin users.
- * Import from this module instead of duplicating the logic in every action file.
- */
 export async function requireAdmin() {
   const session = await auth();
   if (!session?.user) redirect('/login');

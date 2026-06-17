@@ -70,8 +70,7 @@ export async function POST(req: NextRequest) {
             } catch {}
           }
         }
-      } catch (err) {
-        console.error('Stream reading error:', err);
+      } catch {
       } finally {
         controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         controller.close();

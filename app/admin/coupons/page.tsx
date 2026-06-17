@@ -16,7 +16,7 @@ export default async function AdminCouponsPage() {
         <h1 className="font-heading text-2xl font-medium text-text">Coupons</h1>
         <Link
           href="/admin/coupons/new"
-          className="rounded-full bg-pink px-[18px] py-2 text-xs font-medium text-white no-underline"
+          className="rounded-full bg-pink px-4.5 py-2 text-xs font-medium text-white no-underline"
         >
           + New Coupon
         </Link>
@@ -40,16 +40,16 @@ export default async function AdminCouponsPage() {
             <tbody>
               {allCoupons.map((c) => (
                 <tr key={c.id} className="border-b border-border">
-                  <td className="px-3.5 py-[10px] font-semibold text-text font-mono">{c.code}</td>
-                  <td className="px-3.5 py-[10px] text-text">{c.discountPercent}%</td>
-                  <td className="px-3.5 py-[10px]">
+                  <td className="px-3.5 py-2.5 font-semibold text-text font-mono">{c.code}</td>
+                  <td className="px-3.5 py-2.5 text-text">{c.discountPercent}%</td>
+                  <td className="px-3.5 py-2.5">
                     <CouponToggleButton id={c.id} isActive={c.isActive} />
                   </td>
-                  <td className="px-3.5 py-[10px] text-right">
+                  <td className="px-3.5 py-2.5 text-right">
                     <div className="inline-flex gap-1.5">
                       <Link
                         href={`/admin/coupons/${c.id}/edit`}
-                        className="rounded-sm border border-border bg-white px-[10px] py-1 text-[11px] text-text no-underline"
+                        className="rounded-sm border border-border bg-white px-2.5 py-1 text-[11px] text-text no-underline"
                       >
                         Edit
                       </Link>
@@ -69,7 +69,7 @@ export default async function AdminCouponsPage() {
 function Th({ children, align }: { children: React.ReactNode; align?: 'left' | 'right' }) {
   return (
     <th
-      className={`px-3.5 py-[10px] font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
+      className={`px-3.5 py-2.5 font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
     >
       {children}
     </th>

@@ -41,6 +41,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
   const [frequency, setFrequency] = useState<SubscriptionFrequency>(4);
   const [activeTab, setActiveTab] = useState<'info' | 'ship' | 'reviews'>('info');
 
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -103,6 +104,10 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
 
   const handleAddToCart = () => {
     if (isAdmin) return;
+    if (!isAuthenticated) {
+      router.push('/login?callbackUrl=' + encodeURIComponent(window.location.pathname));
+      return;
+    }
     if (quantity < 1) return;
     if (isSubscribe && product.isSubscriptionEligible) {
       addSubscription({
@@ -127,7 +132,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-[500] flex items-center justify-center p-5 transition-all duration-200 ${
+      className={`fixed inset-0 z-500 flex items-center justify-center p-5 transition-all duration-200 ${
         visible ? 'bg-black/35' : 'bg-black/0'
       }`}
       onClick={handleOverlayClick}
@@ -135,13 +140,12 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
       aria-modal="true"
     >
       <div
-        className={`bg-white max-w-[900px] w-full max-h-[90vh] flex flex-col overflow-hidden transition-all duration-200 ${
+        className={`bg-white max-w-225 w-full max-h-[90vh] flex flex-col overflow-hidden transition-all duration-200 ${
           visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
         style={{ borderRadius: 14 }}
       >
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-[6px] px-7 py-3 text-[11px] text-muted border-b border-border shrink-0">
+        <div className="flex items-center gap-1.5 px-7 py-3 text-[11px] text-muted border-b border-border shrink-0">
           <span onClick={close} className="cursor-pointer">
             Home
           </span>
@@ -152,29 +156,28 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
           <button
             onClick={close}
             aria-label="Close"
-            className="ml-auto bg-none border-none text-[18px] cursor-pointer text-muted"
+            className="ml-auto bg-none border-none text-lg cursor-pointer text-muted"
           >
             ✕
           </button>
         </div>
 
         <div className="grid grid-cols-2 gap-8 px-7 py-6 overflow-auto">
-          {/* Left - Image */}
           <div>
             <div
-              className="bg-bg aspect-square flex items-center justify-center relative mb-[10px]"
+              className="bg-bg aspect-square flex items-center justify-center relative mb-2.5"
               style={{ borderRadius: 14 }}
             >
-              {product.imageUrls?.[0] ? (
+              {product.imageUrls?.[selectedImageIndex] ? (
                 <img
-                  src={product.imageUrls[0]}
+                  src={product.imageUrls[selectedImageIndex]}
                   alt=""
-                  className="block h-full w-full rounded-[14px] object-cover"
+                  className="block h-full w-full rounded-lg object-cover"
                   aria-hidden="true"
                 />
               ) : (
                 <span
-                  className="text-[96px]"
+                  className="text-8xl"
                   style={{ color: 'rgba(232,51,106,0.18)' }}
                   aria-hidden="true"
                 >
@@ -182,37 +185,27 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                 </span>
               )}
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {Array.from({ length: 4 }, (_, i) => {
-                const url = product.imageUrls?.[i + 1];
-                return (
+            {product.imageUrls && product.imageUrls.length > 0 && (
+              <div className="grid grid-cols-4 gap-2">
+                {product.imageUrls.map((url, i) => (
                   <div
                     key={i}
-                    className={`aspect-square rounded-lg bg-bg flex items-center justify-center cursor-pointer ${
-                      i === 0 ? 'border-[1.5px] border-pink' : 'border border-border'
+                    onClick={() => setSelectedImageIndex(i)}
+                    className={`aspect-square rounded-lg bg-bg flex items-center justify-center cursor-pointer overflow-hidden ${
+                      i === selectedImageIndex
+                        ? 'border-[1.5px] border-pink'
+                        : 'border border-border'
                     }`}
                   >
-                    {url ? (
-                      <img src={url} alt="" className="h-full w-full rounded-lg object-cover" />
-                    ) : (
-                      <span
-                        className="text-[22px]"
-                        style={{ color: 'rgba(0,0,0,0.15)' }}
-                        aria-hidden="true"
-                      >
-                        {product.emoji}
-                      </span>
-                    )}
+                    <img src={url} alt="" className="h-full w-full rounded-lg object-cover" />
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Right - Details */}
           <div className="pt-1">
-            {/* Rating row */}
-            <div className="flex items-center gap-2 mb-[10px]">
+            <div className="flex items-center gap-2 mb-2.5">
               <span className="text-gold text-[13px]">
                 {'★'.repeat(Math.floor(product.rating))}
                 {product.rating % 1 >= 0.5 ? '½' : ''}
@@ -224,7 +217,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               <span className="text-[11px] text-muted">{product.brand}</span>
             </div>
 
-            <h1 className="font-heading text-[28px] font-normal text-text leading-[1.2] mb-[6px]">
+            <h1 className="font-heading text-[28px] font-normal text-text leading-[1.2] mb-1.5">
               {product.name}
             </h1>
 
@@ -232,25 +225,24 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               <span className="text-[22px] font-medium text-text">${displayPrice.toFixed(2)}</span>
               {product.originalPrice && (
                 <>
-                  <span className="text-[14px] text-hint line-through">
+                  <span className="text-sm text-hint line-through">
                     ${product.originalPrice.toFixed(2)}
                   </span>
-                  <span className="text-[11px] font-medium bg-[#fde8e8] text-danger rounded px-[6px] py-[2px]">
+                  <span className="text-[11px] font-medium bg-[#fde8e8] text-danger rounded px-1.5 py-0.5">
                     Save {discountPct}%
                   </span>
                 </>
               )}
             </div>
 
-            {/* Shade selector */}
             {product.shades.length > 0 && (
               <>
                 <div className="flex items-baseline justify-between mb-2">
-                  <span className="text-[12px] font-medium text-text">Select shade</span>
+                  <span className="text-xs font-medium text-text">Select shade</span>
                   <span className="text-[11px] text-pink cursor-pointer">Find my shade</span>
                 </div>
-                <div className="text-[11px] text-muted mb-[10px]">{selectedShade?.name}</div>
-                <div className="flex gap-[6px] mb-4 flex-wrap">
+                <div className="text-[11px] text-muted mb-2.5">{selectedShade?.name}</div>
+                <div className="flex gap-1.5 mb-4 flex-wrap">
                   {product.shades.map((s) => (
                     <button
                       key={s.name}
@@ -269,23 +261,21 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               </>
             )}
 
-            {/* Action buttons */}
             <div className="flex gap-2 mb-3">
-              <button className="px-[14px] py-[7px] rounded-[20px] border border-border-md bg-white text-[11px] font-medium text-text cursor-pointer font-sans">
+              <button className="px-3.5 py-1.75 rounded-xl border border-border-md bg-white text-[11px] font-medium text-text cursor-pointer font-sans">
                 Find my shade
               </button>
-              <button className="px-[14px] py-[7px] rounded-[20px] border border-border-md bg-white text-[11px] font-medium text-text cursor-pointer font-sans">
+              <button className="px-3.5 py-1.75 rounded-xl border border-border-md bg-white text-[11px] font-medium text-text cursor-pointer font-sans">
                 Virtual try on
               </button>
             </div>
 
-            {/* Quantity + Add to Cart */}
             {!isAdmin && (
-              <div className="flex gap-[10px] items-center mb-[10px]">
-                <div className="flex items-center border border-border-md rounded-[20px] overflow-hidden">
+              <div className="flex gap-2.5 items-center mb-2.5">
+                <div className="flex items-center border border-border-md rounded-xl overflow-hidden">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-8 h-[38px] bg-white border-none text-[16px] cursor-pointer text-text flex items-center justify-center"
+                    className="w-8 h-9.5 bg-white border-none text-base cursor-pointer text-text flex items-center justify-center"
                     aria-label="Decrease quantity"
                   >
                     −
@@ -293,14 +283,14 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                   <span className="w-7 text-center text-[13px] font-medium">{quantity}</span>
                   <button
                     onClick={() => setQuantity((q) => q + 1)}
-                    className="w-8 h-[38px] bg-white border-none text-[16px] cursor-pointer text-text flex items-center justify-center"
+                    className="w-8 h-9.5 bg-white border-none text-base cursor-pointer text-text flex items-center justify-center"
                     aria-label="Increase quantity"
                   >
                     +
                   </button>
                 </div>
                 <button
-                  className={`flex-1 text-white border-none rounded-[24px] py-[11px] text-[12px] font-medium tracking-[0.5px] uppercase font-sans ${
+                  className={`flex-1 text-white border-none rounded-2xl py-2.75 text-xs font-medium tracking-[0.5px] uppercase font-sans ${
                     isAdmin ? 'bg-hint cursor-not-allowed' : 'bg-pink cursor-pointer'
                   }`}
                   onClick={handleAddToCart}
@@ -318,7 +308,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
                     }
                     toggleWishlist(product.id);
                   }}
-                  className="w-[38px] h-[38px] bg-white border border-border-md rounded-full flex items-center justify-center cursor-pointer shrink-0"
+                  className="w-9.5 h-9.5 bg-white border border-border-md rounded-full flex items-center justify-center cursor-pointer shrink-0"
                   aria-label={isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
                   <svg
@@ -345,7 +335,6 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               </div>
             )}
 
-            {/* Features */}
             <div className="grid grid-cols-2 gap-2 pt-4 border-t border-border">
               {[
                 'Finely milled',
@@ -357,25 +346,24 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               ].map((feat, i) => (
                 <div key={feat} className="flex items-center gap-2">
                   <span
-                    className={`w-[6px] h-[6px] rounded-full shrink-0 ${
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                       i % 2 === 0 ? 'bg-pink' : 'bg-gold'
                     }`}
                   />
-                  <span className="text-[12px] text-text">{feat}</span>
+                  <span className="text-xs text-text">{feat}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="px-7 pb-5">
           <div className="flex border-b border-border mb-5">
             {(['info', 'ship', 'reviews'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-[18px] py-[9px] text-[12px] cursor-pointer bg-none border-none font-sans ${
+                className={`px-4.5 py-2.25 text-xs cursor-pointer bg-none border-none font-sans ${
                   activeTab === tab
                     ? 'text-text font-medium border-b-2 border-text'
                     : 'text-muted border-b-2 border-transparent'
@@ -393,7 +381,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
 
           {activeTab === 'info' && (
             <div>
-              <p className="text-[13px] text-muted leading-[1.75] max-w-[600px]">
+              <p className="text-[13px] text-muted leading-[1.75] max-w-150">
                 {product.description ||
                   'Lock in your look with this product. Infused with skin-loving ingredients, it blurs imperfections, controls shine, and leaves you with a soft, natural finish all day long. Suitable for all skin tones and types including sensitive skin.'}
               </p>
@@ -402,20 +390,20 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
 
           {activeTab === 'ship' && (
             <div>
-              <div className="grid grid-cols-2 gap-[10px] mb-4">
+              <div className="grid grid-cols-2 gap-2.5 mb-4">
                 {[
                   { label: 'Standard shipping', value: '6–12 working days' },
                   { label: 'Express shipping', value: '2–3 working days' },
                   { label: 'Free returns', value: 'Within 30 days' },
                   { label: 'Ships to', value: '180+ countries' },
                 ].map((item) => (
-                  <div key={item.label} className="bg-pink-lt rounded-[10px] px-[14px] py-3">
-                    <div className="text-[10px] text-muted mb-[1px]">{item.label}</div>
-                    <div className="text-[12px] font-medium text-text">{item.value}</div>
+                  <div key={item.label} className="bg-pink-lt rounded-[10px] px-3.5 py-3">
+                    <div className="text-[10px] text-muted mb-px">{item.label}</div>
+                    <div className="text-xs font-medium text-text">{item.value}</div>
                   </div>
                 ))}
               </div>
-              <p className="text-[13px] text-muted leading-[1.75] max-w-[600px]">
+              <p className="text-[13px] text-muted leading-[1.75] max-w-150">
                 Orders placed before 2pm (GMT) on weekdays are dispatched the same day. Free
                 standard shipping on orders over $100.
               </p>
@@ -423,7 +411,7 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
           )}
 
           {activeTab === 'reviews' && (
-            <div className="max-h-[300px] overflow-auto">
+            <div className="max-h-75 overflow-auto">
               <ReviewSummary stats={reviewStats} loading={reviewsLoading} error={reviewsError} />
               <div>
                 {reviews.length > 0

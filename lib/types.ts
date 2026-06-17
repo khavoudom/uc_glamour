@@ -55,6 +55,7 @@ export interface CartItem {
   price: number;
   originalPrice?: number;
   emoji: string;
+  imageUrls?: string[];
   shade: string | null;
   quantity: number;
 }
@@ -71,40 +72,36 @@ export interface ReviewStats {
   distribution: Record<number, number>;
 }
 
-/* ── Loyalty & Rewards ── */
-
 export type LoyaltyTier = 'Bronze' | 'Silver' | 'Gold' | 'Diamond';
 
 export interface LoyaltyTierInfo {
   name: LoyaltyTier;
   emoji: string;
   minPoints: number;
-  maxPoints?: number; // undefined for top tier
+  maxPoints?: number;
 }
 
 export const LOYALTY_TIERS: LoyaltyTierInfo[] = [
   { name: 'Bronze', emoji: '🥉', minPoints: 0, maxPoints: 499 },
   { name: 'Silver', emoji: '🥈', minPoints: 500, maxPoints: 1499 },
   { name: 'Gold', emoji: '🥇', minPoints: 1500 },
-  { name: 'Diamond', emoji: '💎', minPoints: 0 }, // invite only
+  { name: 'Diamond', emoji: '💎', minPoints: 0 },
 ];
 
 export function getTier(points: number): LoyaltyTierInfo {
-  if (points >= 1500) return LOYALTY_TIERS[2]; // Gold
-  if (points >= 500) return LOYALTY_TIERS[1]; // Silver
-  return LOYALTY_TIERS[0]; // Bronze
+  if (points >= 1500) return LOYALTY_TIERS[2];
+  if (points >= 500) return LOYALTY_TIERS[1];
+  return LOYALTY_TIERS[0];
 }
 
 export function getNextTier(points: number): LoyaltyTierInfo | null {
   if (points >= 1500) return null;
-  if (points >= 500) return LOYALTY_TIERS[2]; // Gold
-  return LOYALTY_TIERS[1]; // Silver
+  if (points >= 500) return LOYALTY_TIERS[2];
+  return LOYALTY_TIERS[1];
 }
 
 export const POINTS_PER_DOLLAR = 1;
-export const REDEMPTION_RATE = 100; // 100 pts = $1
-
-/* ── Beauty Advisor ── */
+export const REDEMPTION_RATE = 100;
 
 export interface ChatMessage {
   id: string;
@@ -113,8 +110,6 @@ export interface ChatMessage {
   productId?: string;
   timestamp: number;
 }
-
-/* ── Subscription ── */
 
 export type SubscriptionFrequency = 2 | 4 | 6 | 8;
 
@@ -127,9 +122,23 @@ export interface SubscriptionPlan {
   price: number;
 }
 
-export const SUBSCRIPTION_DISCOUNT = 0.15; // 15% off
+export const SUBSCRIPTION_DISCOUNT = 0.15;
 
-/* ── Orders / Account ── */
+export interface SkinProfile {
+  skinType: 'dry' | 'oily' | 'combination' | 'normal' | 'sensitive';
+  concerns: string[];
+  allergies?: string[];
+}
+
+export interface ProductAlert {
+  id: number;
+  userId: number;
+  productId: number;
+  type: 'back_in_stock' | 'price_drop';
+  targetPrice: number | null;
+  isActive: boolean;
+  createdAt: Date;
+}
 
 export interface OrderSummary {
   id: number;

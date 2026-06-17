@@ -36,27 +36,27 @@ export default async function AdminOrdersPage() {
             <tbody>
               {allOrders.map((o) => (
                 <tr key={o.id} className="border-b border-border">
-                  <td className="px-3.5 py-[10px] font-semibold text-text font-mono">#{o.id}</td>
-                  <td className="px-3.5 py-[10px] text-text">
+                  <td className="px-3.5 py-2.5 font-semibold text-text font-mono">#{o.id}</td>
+                  <td className="px-3.5 py-2.5 text-text">
                     <div>{o.userName}</div>
                     <div className="text-[10px] text-muted">{o.userEmail}</div>
                   </td>
-                  <td className="px-3.5 py-[10px] font-medium text-text">
+                  <td className="px-3.5 py-2.5 font-medium text-text">
                     ${Number(o.total).toFixed(2)}
                   </td>
-                  <td className="px-3.5 py-[10px]">
+                  <td className="px-3.5 py-2.5">
                     <StatusBadge status={o.paymentStatus} type="payment" />
                   </td>
-                  <td className="px-3.5 py-[10px]">
+                  <td className="px-3.5 py-2.5">
                     <StatusBadge status={o.fulfillmentStatus} type="fulfillment" />
                   </td>
-                  <td className="px-3.5 py-[10px] text-[11px] text-muted">
+                  <td className="px-3.5 py-2.5 text-[11px] text-muted">
                     {new Date(o.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-3.5 py-[10px] text-right">
+                  <td className="px-3.5 py-2.5 text-right">
                     <Link
                       href={`/admin/orders/${o.id}`}
-                      className="rounded-sm border border-border bg-white px-[10px] py-1 text-[11px] text-text no-underline"
+                      className="rounded-sm border border-border bg-white px-2.5 py-1 text-[11px] text-text no-underline"
                     >
                       View
                     </Link>
@@ -74,7 +74,7 @@ export default async function AdminOrdersPage() {
 function Th({ children, align }: { children: React.ReactNode; align?: 'left' | 'right' }) {
   return (
     <th
-      className={`px-3.5 py-[10px] font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
+      className={`px-3.5 py-2.5 font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
     >
       {children}
     </th>

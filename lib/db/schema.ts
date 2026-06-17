@@ -10,13 +10,12 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 
-/* ── Users ── */
-
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
-  hashedPassword: text('hashed_password').notNull(),
+  hashedPassword: text('hashed_password'),
+  image: text('image'),
   role: text('role').notNull().default('customer'),
   emailVerified: boolean('email_verified').notNull().default(false),
   verificationToken: text('verification_token'),
@@ -26,13 +25,11 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-/* ── Products ── */
-
 export const products = pgTable('products', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   brand: text('brand').notNull(),
-  category: text('category').notNull(), // "Lips" | "Skincare" | "Perfume" | "Eyes" | "Face"
+  category: text('category').notNull(),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   originalPrice: decimal('original_price', { precision: 10, scale: 2 }),
   emoji: text('emoji').notNull(),
@@ -40,14 +37,12 @@ export const products = pgTable('products', {
   description: text('description').notNull(),
   rating: decimal('rating', { precision: 3, scale: 1 }).notNull().default('0'),
   reviewCount: integer('review_count').notNull().default(0),
-  badge: text('badge'), // "NEW" | "SALE" | "HOT" | null
+  badge: text('badge'),
   isNew: boolean('is_new').notNull().default(false),
   isSubscriptionEligible: boolean('is_subscription_eligible').default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
-
-/* ── Shades ── */
 
 export const shades = pgTable('shades', {
   id: serial('id').primaryKey(),
@@ -59,8 +54,6 @@ export const shades = pgTable('shades', {
   stock: integer('stock').notNull().default(0),
   sku: text('sku'),
 });
-
-/* ── Reviews ── */
 
 export const reviews = pgTable('reviews', {
   id: serial('id').primaryKey(),
@@ -77,16 +70,12 @@ export const reviews = pgTable('reviews', {
   notHelpful: integer('not_helpful').notNull().default(0),
 });
 
-/* ── Coupons ── */
-
 export const coupons = pgTable('coupons', {
   id: serial('id').primaryKey(),
   code: text('code').notNull().unique(),
   discountPercent: integer('discount_percent').notNull(),
   isActive: boolean('is_active').notNull().default(true),
 });
-
-/* ── Cart Items ── */
 
 export const cartItems = pgTable(
   'cart_items',
@@ -110,8 +99,6 @@ export const cartItems = pgTable(
   }),
 );
 
-/* ── Wishlist Items ── */
-
 export const wishlistItems = pgTable(
   'wishlist_items',
   {
@@ -128,8 +115,6 @@ export const wishlistItems = pgTable(
   }),
 );
 
-/* ── Subscriptions ── */
-
 export const subscriptions = pgTable('subscriptions', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')
@@ -139,12 +124,10 @@ export const subscriptions = pgTable('subscriptions', {
   productName: text('product_name').notNull(),
   productEmoji: text('product_emoji').notNull(),
   shade: text('shade'),
-  frequency: integer('frequency').notNull(), // 2, 4, 6, 8 weeks
+  frequency: integer('frequency').notNull(),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   active: boolean('active').notNull().default(true),
 });
-
-/* ── Loyalty Transactions ── */
 
 export const loyaltyTransactions = pgTable('loyalty_transactions', {
   id: serial('id').primaryKey(),
@@ -152,12 +135,10 @@ export const loyaltyTransactions = pgTable('loyalty_transactions', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   points: integer('points').notNull(),
-  type: text('type').notNull(), // "earned" | "redeemed"
+  type: text('type').notNull(),
   reference: text('reference'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
-
-/* ── Agent Conversations ── */
 
 export const conversations = pgTable('conversations', {
   id: serial('id').primaryKey(),
@@ -165,11 +146,11 @@ export const conversations = pgTable('conversations', {
   userId: integer('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
+  summary: text('summary'),
+  metadata: text('metadata'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
-
-/* ── Tool Executions ── */
 
 export const toolExecutions = pgTable('tool_executions', {
   id: serial('id').primaryKey(),
@@ -179,11 +160,9 @@ export const toolExecutions = pgTable('tool_executions', {
   toolName: text('tool_name').notNull(),
   input: text('input').notNull(),
   output: text('output').notNull(),
-  status: text('status').notNull().default('success'), // "success" | "error"
+  status: text('status').notNull().default('success'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
-
-/* ── Chat Messages ── */
 
 export const chatMessages = pgTable(
   'chat_messages',
@@ -192,17 +171,19 @@ export const chatMessages = pgTable(
     userId: integer('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    role: text('role').notNull(), // "user" | "advisor" | "ai"
+    conversationId: integer('conversation_id').references(() => conversations.id, {
+      onDelete: 'set null',
+    }),
+    role: text('role').notNull(),
     text: text('text').notNull(),
     productId: integer('product_id'),
     timestamp: timestamp('timestamp').notNull().defaultNow(),
   },
   (table) => ({
     userIdIdx: index('chat_user_id_idx').on(table.userId),
+    conversationIdIdx: index('chat_conversation_id_idx').on(table.conversationId),
   }),
 );
-
-/* ── Shipping Services ── */
 
 export const shippingServices = pgTable('shipping_services', {
   id: serial('id').primaryKey(),
@@ -211,8 +192,6 @@ export const shippingServices = pgTable('shipping_services', {
   estimatedDelivery: text('estimated_delivery').notNull(),
   isActive: boolean('is_active').notNull().default(true),
 });
-
-/* ── Orders ── */
 
 export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
@@ -239,20 +218,16 @@ export const orders = pgTable('orders', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-/* ── Email Queue ── */
-
 export const emailQueue = pgTable('email_queue', {
   id: serial('id').primaryKey(),
   to: text('to').notNull(),
   subject: text('subject').notNull(),
   html: text('html').notNull(),
-  status: text('status').notNull().default('pending'), // pending | sent | failed
+  status: text('status').notNull().default('pending'),
   error: text('error'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   sentAt: timestamp('sent_at'),
 });
-
-/* ── Order Items ── */
 
 export const orderItems = pgTable('order_items', {
   id: serial('id').primaryKey(),
@@ -265,4 +240,18 @@ export const orderItems = pgTable('order_items', {
   shade: text('shade'),
   quantity: integer('quantity').notNull(),
   unitPrice: decimal('unit_price', { precision: 10, scale: 2 }).notNull(),
+});
+
+export const productAlerts = pgTable('product_alerts', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  productId: integer('product_id')
+    .notNull()
+    .references(() => products.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(),
+  targetPrice: decimal('target_price', { precision: 10, scale: 2 }),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });

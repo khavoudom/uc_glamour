@@ -36,20 +36,20 @@ export default async function AdminReviewsPage() {
             <tbody>
               {allReviews.map((r) => (
                 <tr key={r.id} className="border-b border-border">
-                  <td className="px-3.5 py-[10px] text-text">
+                  <td className="px-3.5 py-2.5 text-text">
                     {r.productEmoji} {r.productName}
                   </td>
-                  <td className="px-3.5 py-[10px] text-text">{r.reviewerName}</td>
-                  <td className="px-3.5 py-[10px] text-gold">
+                  <td className="px-3.5 py-2.5 text-text">{r.reviewerName}</td>
+                  <td className="px-3.5 py-2.5 text-gold">
                     {'★'.repeat(r.rating)}
                     {'☆'.repeat(5 - r.rating)}
                   </td>
-                  <td className="px-3.5 py-[10px] text-muted">{r.date}</td>
-                  <td className="max-w-[200px] truncate px-3.5 py-[10px] text-muted">{r.body}</td>
-                  <td className="px-3.5 py-[10px]">
+                  <td className="px-3.5 py-2.5 text-muted">{r.date}</td>
+                  <td className="max-w-50 truncate px-3.5 py-2.5 text-muted">{r.body}</td>
+                  <td className="px-3.5 py-2.5">
                     <ReviewToggleButton id={r.id} isVerified={r.isVerified} />
                   </td>
-                  <td className="px-3.5 py-[10px] text-right">
+                  <td className="px-3.5 py-2.5 text-right">
                     <ReviewDeleteButton id={r.id} />
                   </td>
                 </tr>
@@ -65,7 +65,7 @@ export default async function AdminReviewsPage() {
 function Th({ children, align }: { children: React.ReactNode; align?: 'left' | 'right' }) {
   return (
     <th
-      className={`px-3.5 py-[10px] font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
+      className={`px-3.5 py-2.5 font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
     >
       {children}
     </th>

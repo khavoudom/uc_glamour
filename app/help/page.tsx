@@ -44,7 +44,7 @@ export default function HelpPage() {
           className="border-b border-border/40 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0"
         >
           <p className="text-[13px] font-medium text-text mb-1">{faq.q}</p>
-          <p className="text-[12px] text-muted">{faq.a}</p>
+          <p className="text-xs text-muted">{faq.a}</p>
         </div>
       ))}
     </ContentPageLayout>

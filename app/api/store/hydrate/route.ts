@@ -21,7 +21,6 @@ export async function GET() {
 
   const cart = await db.select().from(cartItems).where(eq(cartItems.userId, userId));
 
-  // Enrich cart with product details
   const enrichedCart = await Promise.all(
     cart.map(async (item) => {
       const [product] = await db

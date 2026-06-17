@@ -9,7 +9,6 @@ export async function getAllProducts() {
   const result = await db.select().from(products).orderBy(desc(products.createdAt));
   const productIds = result.map((p) => p.id);
 
-  // Single query for all shades, group by product_id
   const allShades =
     productIds.length > 0
       ? await db.select().from(shades).where(inArray(shades.productId, productIds))

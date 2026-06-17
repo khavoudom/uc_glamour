@@ -48,7 +48,6 @@ export default function EditProductForm({ product }: Props) {
       }
       setImageUrls(newUrls);
     } catch {
-      // silently fail
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -67,7 +66,7 @@ export default function EditProductForm({ product }: Props) {
       {state?.message && (
         <p
           className={`mb-4 rounded-sm px-3 py-2 text-xs ${
-            state.errors ? 'bg-[#fef2f2] text-danger' : 'bg-[var(--color-success-lt)] text-success'
+            state.errors ? 'bg-[#fef2f2] text-danger' : 'bg-(--color-success-lt) text-success'
           }`}
         >
           {state.message}
@@ -76,7 +75,7 @@ export default function EditProductForm({ product }: Props) {
 
       <form
         action={action}
-        className="flex max-w-[600px] flex-col gap-4 rounded-lg border border-border bg-white p-6"
+        className="flex max-w-150 flex-col gap-4 rounded-lg border border-border bg-white p-6"
       >
         <input type="hidden" name="id" value={product.id} />
         <input type="hidden" name="imageUrls" value={JSON.stringify(imageUrls)} />
@@ -137,7 +136,7 @@ export default function EditProductForm({ product }: Props) {
             accept="image/*"
             multiple
             onChange={handleImageUpload}
-            className="w-full text-[13px] text-text file:mr-3 file:cursor-pointer file:rounded-sm file:border file:border-border-md file:bg-bg file:px-3 file:py-[6px] file:text-[13px] file:text-text"
+            className="w-full text-[13px] text-text file:mr-3 file:cursor-pointer file:rounded-sm file:border file:border-border-md file:bg-bg file:px-3 file:py-1.5 file:text-[13px] file:text-text"
           />
           {uploading && <p className="mt-1 text-[10px] text-muted">Uploading...</p>}
           {imageUrls.length > 0 && (
@@ -168,7 +167,7 @@ export default function EditProductForm({ product }: Props) {
             name="description"
             rows={4}
             defaultValue={product.description}
-            className="w-full rounded-sm border border-border-md px-3.5 py-[10px] text-[13px] text-text outline-none resize-y box-border"
+            className="w-full rounded-sm border border-border-md px-3.5 py-2.5 text-[13px] text-text outline-none resize-y box-border"
           />
           {state?.errors?.description?.[0] && (
             <p className="mt-1 text-[10px] text-danger">{state.errors.description[0]}</p>
@@ -199,7 +198,7 @@ export default function EditProductForm({ product }: Props) {
           <button
             type="submit"
             disabled={pending}
-            className={`rounded-full px-6 py-[10px] text-[13px] font-medium text-white ${
+            className={`rounded-full px-6 py-2.5 text-[13px] font-medium text-white ${
               pending ? 'cursor-not-allowed bg-hint' : 'cursor-pointer bg-pink'
             }`}
           >
@@ -208,15 +207,14 @@ export default function EditProductForm({ product }: Props) {
           <button
             type="button"
             onClick={() => router.push('/admin/products')}
-            className="cursor-pointer rounded-full border border-border bg-white px-6 py-[10px] text-[13px] text-text"
+            className="cursor-pointer rounded-full border border-border bg-white px-6 py-2.5 text-[13px] text-text"
           >
             Cancel
           </button>
         </div>
       </form>
 
-      {/* Shade Manager */}
-      <div className="mt-6 max-w-[600px] rounded-lg border border-border bg-white p-6">
+      <div className="mt-6 max-w-150 rounded-lg border border-border bg-white p-6">
         <h2 className="mb-4 text-base font-medium text-text">Shades</h2>
 
         {product.shades.length > 0 && (
@@ -350,7 +348,7 @@ function Field({
         type={type}
         step={step}
         defaultValue={defaultValue}
-        className={`w-full rounded-sm border px-3.5 py-[10px] text-[13px] text-text outline-none box-border ${
+        className={`w-full rounded-sm border px-3.5 py-2.5 text-[13px] text-text outline-none box-border ${
           error ? 'border-danger' : 'border-border-md'
         }`}
       />
@@ -383,7 +381,7 @@ function SelectField({
         id={name}
         name={name}
         defaultValue={defaultValue}
-        className={`w-full rounded-sm border px-3.5 py-[10px] text-[13px] text-text outline-none box-border ${
+        className={`w-full rounded-sm border px-3.5 py-2.5 text-[13px] text-text outline-none box-border ${
           error ? 'border-danger' : 'border-border-md'
         }`}
       >

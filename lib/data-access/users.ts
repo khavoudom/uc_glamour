@@ -20,6 +20,15 @@ export async function getUserById(id: number) {
   return user || null;
 }
 
+export async function updateUserName(userId: number, name: string) {
+  const [updated] = await db
+    .update(users)
+    .set({ name })
+    .where(eq(users.id, userId))
+    .returning({ id: users.id, name: users.name });
+  return updated || null;
+}
+
 export async function updateLoyaltyPoints(userId: number, delta: number) {
   const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 

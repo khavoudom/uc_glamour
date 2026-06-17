@@ -111,15 +111,11 @@ for (const product of products) {
   const dest = path.join(UPLOADS_DIR, imageName);
 
   if (fs.existsSync(dest) && fs.statSync(dest).size > 0) {
-    console.log(`✓ Exists: ${imageName}`);
     count++;
     continue;
   }
 
   const svg = generateProductSVG(product.name, product.brand, product.category);
   fs.writeFileSync(dest, svg);
-  console.log(`✓ Generated: ${imageName}`);
   count++;
 }
-
-console.log(`\nDone! Generated ${count} product images.`);

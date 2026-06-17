@@ -16,7 +16,7 @@ export default async function AdminShippingServicesPage() {
         <h1 className="font-heading text-2xl font-medium text-text">Shipping Services</h1>
         <Link
           href="/admin/shipping/new"
-          className="rounded-full bg-pink px-[18px] py-2 text-xs font-medium text-white no-underline"
+          className="rounded-full bg-pink px-4.5 py-2 text-xs font-medium text-white no-underline"
         >
           + New Service
         </Link>
@@ -41,19 +41,19 @@ export default async function AdminShippingServicesPage() {
             <tbody>
               {allServices.map((s) => (
                 <tr key={s.id} className="border-b border-border">
-                  <td className="px-3.5 py-[10px] font-medium text-text">{s.name}</td>
-                  <td className="px-3.5 py-[10px] text-text">
+                  <td className="px-3.5 py-2.5 font-medium text-text">{s.name}</td>
+                  <td className="px-3.5 py-2.5 text-text">
                     {Number(s.price) === 0 ? 'Free' : `$${Number(s.price).toFixed(2)}`}
                   </td>
-                  <td className="px-3.5 py-[10px] text-muted">{s.estimatedDelivery}</td>
-                  <td className="px-3.5 py-[10px]">
+                  <td className="px-3.5 py-2.5 text-muted">{s.estimatedDelivery}</td>
+                  <td className="px-3.5 py-2.5">
                     <ShippingToggleButton id={s.id} isActive={s.isActive} />
                   </td>
-                  <td className="px-3.5 py-[10px] text-right">
+                  <td className="px-3.5 py-2.5 text-right">
                     <div className="inline-flex gap-1.5">
                       <Link
                         href={`/admin/shipping/${s.id}/edit`}
-                        className="rounded-sm border border-border bg-white px-[10px] py-1 text-[11px] text-text no-underline"
+                        className="rounded-sm border border-border bg-white px-2.5 py-1 text-[11px] text-text no-underline"
                       >
                         Edit
                       </Link>
@@ -73,7 +73,7 @@ export default async function AdminShippingServicesPage() {
 function Th({ children, align }: { children: React.ReactNode; align?: 'left' | 'right' }) {
   return (
     <th
-      className={`px-3.5 py-[10px] font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
+      className={`px-3.5 py-2.5 font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
     >
       {children}
     </th>

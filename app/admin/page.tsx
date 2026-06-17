@@ -114,7 +114,7 @@ export default async function AdminDashboard() {
               {card.icon}
             </span>
             <p className="font-heading mt-3 text-[28px] font-medium text-text">{card.value}</p>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.05em] text-muted">{card.label}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-wider text-muted">{card.label}</p>
           </div>
         ))}
       </div>

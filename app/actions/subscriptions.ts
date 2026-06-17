@@ -15,7 +15,6 @@ export async function addSubscription(data: {
 }) {
   const { userId } = await verifyCustomerSession();
 
-  // Remove existing subscription for same product+shade
   await db
     .delete(subscriptions)
     .where(

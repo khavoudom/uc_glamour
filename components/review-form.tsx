@@ -35,7 +35,7 @@ export default function ReviewForm({ productId, orderId, onSuccess }: ReviewForm
       <input type="hidden" name="orderId" value={orderId} />
 
       <div className="mb-3">
-        <label className="text-[12px] font-medium text-text block mb-1.5">Your Rating</label>
+        <label className="text-xs font-medium text-text block mb-1.5">Your Rating</label>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -44,7 +44,7 @@ export default function ReviewForm({ productId, orderId, onSuccess }: ReviewForm
               onClick={() => setRating(star)}
               onMouseEnter={() => setHoveredStar(star)}
               onMouseLeave={() => setHoveredStar(0)}
-              className="bg-none border-none cursor-pointer p-0 text-[20px] leading-none"
+              className="bg-none border-none cursor-pointer p-0 text-xl leading-none"
               aria-label={`Rate ${star} star${star !== 1 ? 's' : ''}`}
             >
               <span className={star <= (hoveredStar || rating) ? 'text-gold' : 'text-border'}>
@@ -59,7 +59,7 @@ export default function ReviewForm({ productId, orderId, onSuccess }: ReviewForm
       </div>
 
       <div className="mb-3">
-        <label htmlFor="review-body" className="text-[12px] font-medium text-text block mb-1.5">
+        <label htmlFor="review-body" className="text-xs font-medium text-text block mb-1.5">
           Your Review
         </label>
         <textarea
@@ -84,7 +84,7 @@ export default function ReviewForm({ productId, orderId, onSuccess }: ReviewForm
         <button
           type="submit"
           disabled={pending || rating === 0}
-          className="bg-pink text-white border-none rounded-[20px] px-5 py-2 text-[12px] font-medium tracking-[0.5px] uppercase cursor-pointer font-sans disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-pink text-white border-none rounded-xl px-5 py-2 text-xs font-medium tracking-[0.5px] uppercase cursor-pointer font-sans disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {pending ? 'Submitting...' : 'Submit Review'}
         </button>

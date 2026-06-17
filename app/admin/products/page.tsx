@@ -15,7 +15,7 @@ export default async function AdminProductsPage() {
         <h1 className="font-heading text-2xl font-medium text-text">Products</h1>
         <Link
           href="/admin/products/new"
-          className="rounded-full bg-pink px-[18px] py-2 text-xs font-medium text-white no-underline"
+          className="rounded-full bg-pink px-4.5 py-2 text-xs font-medium text-white no-underline"
         >
           + New Product
         </Link>
@@ -42,7 +42,7 @@ export default async function AdminProductsPage() {
             <tbody>
               {allProducts.map((p) => (
                 <tr key={p.id} className="border-b border-border">
-                  <td className="px-3.5 py-[10px]">
+                  <td className="px-3.5 py-2.5">
                     {p.imageUrls ? (
                       <img
                         src={(() => {
@@ -60,22 +60,22 @@ export default async function AdminProductsPage() {
                       <span className="text-xl">{p.emoji}</span>
                     )}
                   </td>
-                  <td className="px-3.5 py-[10px] font-medium text-text">{p.name}</td>
-                  <td className="px-3.5 py-[10px] text-muted">{p.brand}</td>
-                  <td className="px-3.5 py-[10px] text-muted">{p.category}</td>
-                  <td className="px-3.5 py-[10px] text-text">${Number(p.price).toFixed(2)}</td>
-                  <td className="px-3.5 py-[10px]">
+                  <td className="px-3.5 py-2.5 font-medium text-text">{p.name}</td>
+                  <td className="px-3.5 py-2.5 text-muted">{p.brand}</td>
+                  <td className="px-3.5 py-2.5 text-muted">{p.category}</td>
+                  <td className="px-3.5 py-2.5 text-text">${Number(p.price).toFixed(2)}</td>
+                  <td className="px-3.5 py-2.5">
                     {p.badge && (
                       <span className="rounded bg-pink-lt px-2 py-0.5 text-[10px] font-medium text-pink-dk">
                         {p.badge}
                       </span>
                     )}
                   </td>
-                  <td className="px-3.5 py-[10px] text-right">
+                  <td className="px-3.5 py-2.5 text-right">
                     <div className="inline-flex gap-1.5">
                       <Link
                         href={`/admin/products/${p.id}/edit`}
-                        className="rounded-sm border border-border bg-white px-[10px] py-1 text-[11px] text-text no-underline"
+                        className="rounded-sm border border-border bg-white px-2.5 py-1 text-[11px] text-text no-underline"
                       >
                         Edit
                       </Link>
@@ -95,7 +95,7 @@ export default async function AdminProductsPage() {
 function Th({ children, align }: { children: React.ReactNode; align?: 'left' | 'right' }) {
   return (
     <th
-      className={`px-3.5 py-[10px] font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
+      className={`px-3.5 py-2.5 font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
     >
       {children}
     </th>

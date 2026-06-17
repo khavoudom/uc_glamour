@@ -57,7 +57,6 @@ export default function HomeClient({ products: allProducts, coupons }: HomeClien
         <CategoryGrid onCategoryChange={setActiveCategory} products={allProducts} />
         <FeaturedBanner />
 
-        {/* Bestsellers / Product Grid */}
         <div className="section-wrap px-7 pb-10 pt-0">
           <div className="section-head flex items-baseline justify-between mb-5">
             <div>

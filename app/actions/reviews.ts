@@ -41,30 +41,25 @@ export async function createReviewAction(
 
   const { productId, orderId, rating, body } = validated.data;
 
-  // Verify order ownership
   const order = await getOrderInvoiceById(orderId, userId);
   if (!order) {
     return { message: 'Order not found.' };
   }
 
-  // Verify fulfillment status
   if (!DELIVERED_STATUSES.includes(order.fulfillmentStatus)) {
     return { message: 'You can only review products after they have been delivered.' };
   }
 
-  // Verify the product is in this order
   const item = order.items.find((i) => i.productId === productId);
   if (!item) {
     return { message: 'This product is not part of your order.' };
   }
 
-  // Prevent duplicate reviews
   const alreadyReviewed = await hasUserReviewedProduct(userId, productId);
   if (alreadyReviewed) {
     return { message: 'You have already reviewed this product.' };
   }
 
-  // Get user's display name
   const userName = await getUserName(userId);
   if (!userName) {
     return { message: 'User not found.' };

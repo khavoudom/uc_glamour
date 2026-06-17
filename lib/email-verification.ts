@@ -1,9 +1,5 @@
 import 'server-only';
 
-/**
- * Build the HTML for a verification email.
- * Takes the pre-built full URL (so the caller controls the base).
- */
 export function buildVerificationHtml(name: string, verificationUrl: string) {
   return `
 <!DOCTYPE html>

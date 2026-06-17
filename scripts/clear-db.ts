@@ -28,8 +28,6 @@ async function clearDb() {
   await db.delete(reviews);
   await db.delete(products);
   await db.delete(users);
-
-  console.log('All tables cleared.');
 }
 
 clearDb()

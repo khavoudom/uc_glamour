@@ -27,7 +27,7 @@ export default function TrackOrderPage() {
             onChange={(e) => setOrderId(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleTrack()}
             placeholder="e.g. ORD-12345"
-            className="flex-1 border border-border rounded-lg px-3 py-2 text-[12px] outline-none"
+            className="flex-1 border border-border rounded-lg px-3 py-2 text-xs outline-none"
           />
           <button
             onClick={handleTrack}

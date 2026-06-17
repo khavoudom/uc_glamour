@@ -133,13 +133,13 @@ export default async function AdminShell({ children }: { children: React.ReactNo
 
   return (
     <div className="flex min-h-screen bg-bg font-sans">
-      <aside className="w-[220px] min-w-[220px] bg-white border-r border-border flex flex-col p-0">
+      <aside className="w-55 min-w-55 bg-white border-r border-border flex flex-col p-0">
         <div className="px-5 py-6 border-b border-border">
           <Link href="/admin" style={{ textDecoration: 'none' }}>
-            <span className="font-heading text-[20px] font-medium text-text">
+            <span className="font-heading text-xl font-medium text-text">
               Glam<span style={{ fontStyle: 'italic', color: 'var(--color-pink)' }}>our</span>
             </span>
-            <span className="block text-[10px] text-muted mt-[2px] uppercase tracking-[0.05em]">
+            <span className="block text-[10px] text-muted mt-0.5 uppercase tracking-wider">
               Admin Panel
             </span>
           </Link>
@@ -150,7 +150,7 @@ export default async function AdminShell({ children }: { children: React.ReactNo
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-[10px] px-5 py-[10px] text-[13px] font-medium text-text no-underline"
+              className="flex items-center gap-2.5 px-5 py-2.5 text-[13px] font-medium text-text no-underline"
               style={{ transition: 'background 0.15s' }}
             >
               <span aria-hidden="true" className="inline-flex">
@@ -162,10 +162,7 @@ export default async function AdminShell({ children }: { children: React.ReactNo
         </nav>
 
         <div className="px-5 py-3 border-t border-border">
-          <Link
-            href="/"
-            className="text-[11px] text-muted no-underline flex items-center gap-[6px]"
-          >
+          <Link href="/" className="text-[11px] text-muted no-underline flex items-center gap-1.5">
             ← Back to store
           </Link>
         </div>

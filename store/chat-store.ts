@@ -26,7 +26,6 @@ export interface ChatProduct {
 }
 
 export interface ChatState {
-  /* UI state */
   width: number;
   height: number;
   isMinimized: boolean;
@@ -35,19 +34,17 @@ export interface ChatState {
   isOpen: boolean;
   isAiLoading: boolean;
 
-  /* Messages */
   messages: ChatMessage[];
 
-  /* Tool status — replacing label shown while agent runs tools */
+  conversationId: number | null;
+  conversations: { id: number; title: string; updatedAt: Date }[];
+
   toolStatus: string | null;
 
-  /* Products to display as cards */
   displayProducts: ChatProduct[];
 
-  /* Pending page navigation (set by agent tool, consumed by widget) */
   pendingNavigation: string | null;
 
-  /* Actions */
   setWidth: (width: number) => void;
   setHeight: (height: number) => void;
   setIsMinimized: (val: boolean) => void;
@@ -63,6 +60,9 @@ export interface ChatState {
   setAiLoading: (val: boolean) => void;
   sendMessage: (content: string) => Promise<void>;
   reset: () => void;
+  setConversationId: (id: number | null) => void;
+  loadConversations: () => Promise<void>;
+  switchConversation: (id: number) => Promise<void>;
 }
 
 const defaultWidth = 380;
@@ -80,7 +80,8 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   toolStatus: null,
   displayProducts: [],
   pendingNavigation: null,
-
+  conversationId: null,
+  conversations: [],
   setWidth: (width) => set({ width, isFullscreen: false, isMinimized: false }),
   setHeight: (height) => set({ height, isMinimized: false }),
   setIsMinimized: (val) => set({ isMinimized: val, isFullscreen: false }),
@@ -91,6 +92,33 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   setDisplayProducts: (products) => set({ displayProducts: products }),
   clearDisplayProducts: () => set({ displayProducts: [] }),
   setPendingNavigation: (page) => set({ pendingNavigation: page }),
+  setConversationId: (id) => set({ conversationId: id }),
+  loadConversations: async () => {
+    try {
+      const res = await fetch('/api/chat/history');
+      const data = await res.json();
+    } catch {}
+  },
+
+  switchConversation: async (id: number) => {
+    try {
+      const res = await fetch(`/api/chat/history?conversationId=${id}`);
+      const data = await res.json();
+      if (data.messages) {
+        set({
+          conversationId: id,
+          messages: data.messages.map((m: any) => ({
+            id: `db-${m.id}`,
+            role: m.role === 'ai' ? 'assistant' : m.role === 'user' ? 'user' : 'assistant',
+            content: m.text,
+            timestamp: new Date(m.timestamp).getTime(),
+          })),
+          displayProducts: [],
+          toolStatus: null,
+        });
+      }
+    } catch {}
+  },
 
   addMessage: (msg) => {
     const full: ChatMessage = {
@@ -125,15 +153,15 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       setDisplayProducts,
       clearDisplayProducts,
       setPendingNavigation,
+      conversationId,
+      setConversationId,
     } = get();
 
-    // Add user message
     addMessage({ role: 'user', content });
     setAiLoading(true);
     setToolStatus(null);
     clearDisplayProducts();
 
-    // Add placeholder AI message
     const aiMsg = addMessage({ role: 'assistant', content: '' });
 
     try {
@@ -148,6 +176,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
             })),
             { role: 'user', content },
           ],
+          conversationId,
         }),
       });
 
@@ -178,13 +207,16 @@ export const useChatStore = create<ChatState>()((set, get) => ({
           try {
             const parsed = JSON.parse(data);
 
-            // Handle tool-status — replaces previous label
+            if (parsed.type === 'conversation-created' && parsed.conversationId) {
+              setConversationId(parsed.conversationId);
+              continue;
+            }
+
             if (parsed.type === 'tool-status' && parsed.label) {
               setToolStatus(parsed.label);
               continue;
             }
 
-            // Handle text tokens — clear tool status
             if (parsed.type === 'text' && parsed.text) {
               setToolStatus(null);
               accumulated += parsed.text;
@@ -192,7 +224,6 @@ export const useChatStore = create<ChatState>()((set, get) => ({
               continue;
             }
 
-            // Handle tool results — update UI state for control tools
             if (parsed.type === 'tool-result') {
               const { toolName, result } = parsed;
               if (toolName === 'changeChatWidth' && result.width) {
@@ -215,11 +246,9 @@ export const useChatStore = create<ChatState>()((set, get) => ({
               if (toolName === 'moveChat' && result.position) {
                 setPosition(result.position);
               }
-              // Handle navigateToPage — store path for the widget to act on
               if (toolName === 'navigateToPage' && result?.navigated && result?.page) {
                 setPendingNavigation(result.page);
               }
-              // Handle addToCart — sync to client-side cart store
               if (toolName === 'addToCart' && result?.success && result?.product) {
                 const { addToCart } = useStore.getState();
                 addToCart(result.product, result.shade ?? null, result.quantity ?? 1);
@@ -227,20 +256,16 @@ export const useChatStore = create<ChatState>()((set, get) => ({
               continue;
             }
 
-            // Handle show-products — display product cards and widen chat
             if (parsed.type === 'show-products' && parsed.products?.length > 0) {
               setDisplayProducts(parsed.products);
               setWidth(520);
               setHeight(Math.max(get().height, 620));
               continue;
             }
-          } catch {
-            // skip malformed JSON
-          }
+          } catch {}
         }
       }
     } catch (error) {
-      console.error('Chat fetch error:', error);
       updateMessage(aiMsg.id, 'Sorry, I encountered an error. Please try again.');
     } finally {
       setAiLoading(false);
@@ -256,5 +281,6 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       isMinimized: false,
       isFullscreen: false,
       position: 'bottom-right',
+      conversationId: null,
     }),
 }));

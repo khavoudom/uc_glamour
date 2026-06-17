@@ -21,7 +21,7 @@ export default function PromoBanner({ couponCode, discountPercent }: PromoBanner
   return (
     <div
       id="promo-band"
-      className={`bg-[var(--color-pink)] text-white text-center px-5 py-[9px] text-[11px] tracking-[0.7px] font-light relative transition-all duration-300 ${
+      className={`bg-(--color-pink) text-white text-center px-5 py-2.25 text-[11px] tracking-[0.7px] font-light relative transition-all duration-300 ${
         leaving
           ? 'opacity-0 -translate-y-full max-h-0 py-0 overflow-hidden'
           : 'opacity-100 translate-y-0'

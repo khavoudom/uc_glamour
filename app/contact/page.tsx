@@ -32,7 +32,7 @@ export default function ContactPage() {
             <input
               type="email"
               placeholder="you@example.com"
-              className="w-full border border-border rounded-lg px-3 py-2 text-[12px] outline-none"
+              className="w-full border border-border rounded-lg px-3 py-2 text-xs outline-none"
             />
           </div>
           <div className="mb-4">
@@ -40,7 +40,7 @@ export default function ContactPage() {
             <textarea
               rows={4}
               placeholder="How can we help?"
-              className="w-full border border-border rounded-lg px-3 py-2 text-[12px] outline-none resize-none"
+              className="w-full border border-border rounded-lg px-3 py-2 text-xs outline-none resize-none"
             />
           </div>
           <button

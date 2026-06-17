@@ -22,7 +22,6 @@ export default function SearchOverlay({
 
   useEffect(() => {
     if (open) {
-      // Trigger entrance animation on next frame
       const raf = requestAnimationFrame(() => setVisible(true));
       return () => cancelAnimationFrame(raf);
     } else {
@@ -57,7 +56,7 @@ export default function SearchOverlay({
   return (
     <div
       id="search-overlay"
-      className={`sticky z-[190] bg-white border-b border-border px-7 py-3 flex gap-2.5 items-center transition-all duration-200 ${
+      className={`sticky z-190 bg-white border-b border-border px-7 py-3 flex gap-2.5 items-center transition-all duration-200 ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
       }`}
       style={{ top: 'var(--nav-h)' }}
@@ -69,7 +68,7 @@ export default function SearchOverlay({
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search for products, brands, categories…"
         aria-label="Search products"
-        className="flex-1 border border-border-md rounded-[20px] px-4 py-[9px] text-[13px] font-sans outline-none bg-bg text-text"
+        className="flex-1 border border-border-md rounded-xl px-4 py-2.25 text-[13px] font-sans outline-none bg-bg text-text"
         onFocus={(e) => {
           e.target.style.borderColor = 'var(--color-pink)';
         }}
@@ -83,14 +82,14 @@ export default function SearchOverlay({
           onClose();
         }}
         aria-label="Close search"
-        className="bg-none border-none cursor-pointer text-[18px] text-muted"
+        className="bg-none border-none cursor-pointer text-lg text-muted"
       >
         ✕
       </button>
 
       {filtered.length > 0 && (
         <div
-          className="absolute left-7 right-[60px] top-full bg-white border border-border rounded-[12px] p-2 mt-1 z-50"
+          className="absolute left-7 right-15 top-full bg-white border border-border rounded-md p-2 mt-1 z-50"
           style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
         >
           {filtered.map((p) => (
@@ -101,7 +100,7 @@ export default function SearchOverlay({
               onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-bg)')}
               onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
             >
-              <span aria-hidden="true" className="text-[20px]">
+              <span aria-hidden="true" className="text-xl">
                 {p.emoji}
               </span>
               <span className="font-medium">{p.name}</span>

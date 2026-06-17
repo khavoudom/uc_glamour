@@ -102,8 +102,7 @@ export async function signup(prevState: SignupState, formData: FormData) {
       html: buildVerificationHtml(name, verificationUrl),
     });
 
-    // Fire-and-forget processing in dev so emails send immediately
-    processEmailQueue();
+    await processEmailQueue();
   } catch {
     return {
       message: 'Something went wrong. Please try again.',
@@ -203,7 +202,7 @@ export async function resendVerification(prevState: ResendState, formData: FormD
     subject: 'Verify your email — Glamour Beauty',
     html: buildVerificationHtml(user.name, verificationUrl),
   });
-  processEmailQueue();
+  await processEmailQueue();
 
   return {
     success: 'If an account exists with this email, a new verification link has been sent.',

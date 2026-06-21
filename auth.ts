@@ -7,6 +7,7 @@ import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  debug: true,
   providers: [
     Credentials({
       name: 'credentials',
@@ -67,7 +68,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             user.id = String(newUser.id);
             user.role = newUser.role as 'customer' | 'admin';
           }
-        } catch {
+        } catch (error) {
+          console.error('[auth:signIn:google]', error);
           return false;
         }
       }

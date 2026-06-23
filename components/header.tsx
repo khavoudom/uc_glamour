@@ -181,7 +181,7 @@ export default function Header({ onSearchToggle, onCategoryChange }: HeaderProps
                     }}
                     className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[13px] text-text hover:bg-bg cursor-pointer border-none"
                   >
-                    My Orders
+                    My Account
                   </button>
                 )}
                 {userRole === 'admin' && (

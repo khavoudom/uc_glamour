@@ -33,7 +33,7 @@ interface ShippingForm {
 const emptyForm: ShippingForm = {
   fullName: '',
   email: '',
-  phone: '',
+  phone: '+855 ',
   address: '',
   city: '',
   state: '',
@@ -156,6 +156,66 @@ for (const c of countries) {
   countryCodeByName[c.name] = c.code;
 }
 
+const countryDialCodes: Record<string, string> = {
+  KH: '+855',
+  US: '+1',
+  GB: '+44',
+  CA: '+1',
+  AU: '+61',
+  FR: '+33',
+  DE: '+49',
+  JP: '+81',
+  KR: '+82',
+  SG: '+65',
+  MY: '+60',
+  TH: '+66',
+  VN: '+84',
+  LA: '+856',
+  MM: '+95',
+  PH: '+63',
+  ID: '+62',
+  BN: '+673',
+  CN: '+86',
+  TW: '+886',
+  HK: '+852',
+  IN: '+91',
+  NL: '+31',
+  ES: '+34',
+  IT: '+39',
+  SE: '+46',
+  NO: '+47',
+  DK: '+45',
+  FI: '+358',
+  CH: '+41',
+  AT: '+43',
+  BE: '+32',
+  PT: '+351',
+  PL: '+48',
+  CZ: '+420',
+  NZ: '+64',
+  AE: '+971',
+  SA: '+966',
+  EG: '+20',
+  ZA: '+27',
+  NG: '+234',
+  KE: '+254',
+  BR: '+55',
+  MX: '+52',
+  AR: '+54',
+  CO: '+57',
+  CL: '+56',
+  PE: '+51',
+  RU: '+7',
+  TR: '+90',
+  GR: '+30',
+  IE: '+353',
+  IL: '+972',
+  PK: '+92',
+  BD: '+880',
+  LK: '+94',
+  NP: '+977',
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -171,10 +231,14 @@ export default function CheckoutPage() {
     setSelectedShippingService,
   } = useStore();
 
-  const [shipping, setShipping] = useState<ShippingForm>(emptyForm);
+  const [shipping, setShipping] = useState<ShippingForm>(() => {
+    const hideCountry = process.env.NEXT_PUBLIC_HIDE_COUNTRY_INPUT === 'true';
+    return hideCountry ? { ...emptyForm, country: 'Cambodia', phone: '+855 ' } : { ...emptyForm };
+  });
   const [errors, setErrors] = useState<Partial<Record<keyof ShippingForm, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof ShippingForm, boolean>>>({});
   const [countryOpen, setCountryOpen] = useState(false);
+  const [phoneCodeOpen, setPhoneCodeOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<'paypal' | 'khqr' | null>(null);
   const [paypalError, setPaypalError] = useState<string | null>(null);
   const [khqrLoading, setKhqrLoading] = useState(false);
@@ -183,6 +247,7 @@ export default function CheckoutPage() {
   const [khqrOrderId, setKhqrOrderId] = useState<number | null>(null);
   const [qrCountdown, setQrCountdown] = useState(240);
   const [, setIsSubmitting] = useState(false);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [orderError] = useState<string | null>(null);
   const [statusChecking, setStatusChecking] = useState(false);
   const [shippingServices, setShippingServices] = useState<ShippingServiceOption[]>([]);
@@ -277,6 +342,7 @@ export default function CheckoutPage() {
 
   const handleInitiateKHQR = useCallback(async () => {
     if (!isFormValid || khqrLoading) return;
+    setIsPaymentProcessing(true);
     setKhqrLoading(true);
     setKhqrError(null);
     setQrImage(null);
@@ -310,6 +376,7 @@ export default function CheckoutPage() {
           : err instanceof Error
             ? err.message
             : 'Failed to generate QR code';
+      setIsPaymentProcessing(false);
       setKhqrError(message);
     } finally {
       setKhqrLoading(false);
@@ -342,8 +409,10 @@ export default function CheckoutPage() {
         setKhqrError('Payment was not successful. Please try again.');
         setQrImage(null);
         setKhqrOrderId(null);
+        setIsPaymentProcessing(false);
       } else if (data.error) {
         setKhqrError(`Unable to check payment: ${data.error}. Please try again.`);
+        setIsPaymentProcessing(false);
       }
     } catch (err) {
       const message =
@@ -408,6 +477,7 @@ export default function CheckoutPage() {
         if (pollCountRef.current === QR_HIDE_CYCLES) {
           setQrImage(null);
           setKhqrOrderId(null);
+          setIsPaymentProcessing(false);
         }
 
         if (pollCountRef.current >= POLL_STOP_CYCLES) {
@@ -443,6 +513,7 @@ export default function CheckoutPage() {
   }, [qrImage, khqrOrderId, clearCart, router]);
 
   const handleCreatePayPalOrder = useCallback(async (): Promise<string> => {
+    setIsPaymentProcessing(true);
     const res = await axios.post('/api/paypal/create-order', { amount: grandTotal });
     return res.data.orderId;
   }, [grandTotal]);
@@ -464,6 +535,7 @@ export default function CheckoutPage() {
         await createOrderAndRedirect(buildOrderInput(data.orderID));
       } catch (err) {
         setPaypalError(err instanceof Error ? err.message : 'Payment failed. Please try again.');
+        setIsPaymentProcessing(false);
         setIsSubmitting(false);
       }
     },
@@ -502,6 +574,8 @@ export default function CheckoutPage() {
   }
 
   const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+  const showPaypal = process.env.NEXT_PUBLIC_HIDE_PAYPAL !== 'true';
+  const showCountryInput = process.env.NEXT_PUBLIC_HIDE_COUNTRY_INPUT !== 'true';
 
   return (
     <div className="min-h-screen bg-bg">
@@ -547,15 +621,75 @@ export default function CheckoutPage() {
                     placeholder="john@example.com"
                     onBlur={() => handleBlur('email')}
                   />
-                  <InputField
-                    label="Phone"
-                    type="tel"
-                    value={shipping.phone}
-                    onChange={(v) => updateField('phone', v)}
-                    error={touched.phone ? errors.phone : undefined}
-                    placeholder="+855 12 345 678"
-                    onBlur={() => handleBlur('phone')}
-                  />
+                  <div>
+                    <label className="mb-1 block text-[11px] font-medium text-text">Phone</label>
+                    <div className="flex items-stretch">
+                      <div className="relative flex">
+                        <button
+                          type="button"
+                          onClick={() => setPhoneCodeOpen((o) => !o)}
+                          onBlur={() => setTimeout(() => setPhoneCodeOpen(false), 150)}
+                          className="flex cursor-pointer items-center gap-1 rounded-l-sm border border-r-0 border-border-md bg-bg px-2.5 py-2.5 text-[13px] font-sans text-text outline-none"
+                        >
+                          <ReactCountryFlag
+                            countryCode={countryCodeByName[shipping.country] || 'KH'}
+                            svg
+                            style={{ width: 40, height: 14 }}
+                          />
+                        </button>
+                        {phoneCodeOpen && (
+                          <div className="absolute left-0 top-full z-30 mt-1 max-h-50 w-52 overflow-y-auto rounded-sm border border-border bg-white shadow-lg">
+                            {countries.map((c) => (
+                              <button
+                                key={c.code}
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  const code = countryDialCodes[c.code] || '+855';
+                                  const currentNumber = shipping.phone.replace(/^\+\d+\s*/, '');
+                                  updateField('phone', code + ' ' + currentNumber);
+                                  setPhoneCodeOpen(false);
+                                }}
+                                className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-[13px] font-sans transition-[background] duration-75 ${
+                                  (countryDialCodes[countryCodeByName[shipping.country]] ||
+                                    '+855') === (countryDialCodes[c.code] || '+855')
+                                    ? 'bg-pink-lt text-text'
+                                    : 'text-text hover:bg-bg'
+                                }`}
+                              >
+                                <ReactCountryFlag
+                                  countryCode={c.code}
+                                  svg
+                                  style={{ width: 18, height: 14 }}
+                                />
+                                <span className="text-muted text-[11px]">
+                                  {countryDialCodes[c.code]}
+                                </span>
+                                <span className="text-text text-[11px]">{c.name}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        type="tel"
+                        value={shipping.phone.replace(/^\+\d+\s*/, '')}
+                        onChange={(e) => {
+                          const code =
+                            countryDialCodes[countryCodeByName[shipping.country]] || '+855';
+                          updateField('phone', code + ' ' + e.target.value);
+                        }}
+                        onBlur={() => handleBlur('phone')}
+                        placeholder="12 345 678"
+                        className={`w-full rounded-r-sm border px-3 py-2.5 text-[13px] font-sans text-text outline-none transition-[border-color] duration-150 ${
+                          errors.phone && touched.phone ? 'border-danger' : 'border-border-md'
+                        }`}
+                      />
+                    </div>
+                    {errors.phone && touched.phone && (
+                      <p className="mt-0.5 text-[11px] text-danger">{errors.phone}</p>
+                    )}
+                  </div>
                 </div>
                 <InputField
                   label="Address"
@@ -592,65 +726,72 @@ export default function CheckoutPage() {
                     placeholder="12000"
                     onBlur={() => handleBlur('zip')}
                   />
-                  <div className="relative">
-                    <label className="mb-1 block text-[11px] font-medium text-text">Country</label>
-                    <button
-                      type="button"
-                      onClick={() => setCountryOpen((o) => !o)}
-                      onBlur={() => {
-                        setTimeout(() => setCountryOpen(false), 150);
-                      }}
-                      className={`flex w-full cursor-pointer items-center gap-2 rounded-sm border px-3 py-2.5 text-[13px] font-sans text-text outline-none transition-[border-color] duration-150 ${
-                        errors.country && touched.country ? 'border-danger' : 'border-border-md'
-                      }`}
-                    >
-                      {shipping.country ? (
-                        <>
-                          <ReactCountryFlag
-                            countryCode={countryCodeByName[shipping.country] || ''}
-                            svg
-                            style={{ width: 18, height: 14 }}
-                          />
-                          <span className="flex-1 text-left">{shipping.country}</span>
-                        </>
-                      ) : (
-                        <span className="flex-1 text-left text-hint">Select a country</span>
-                      )}
-                      <span className="text-hint text-[10px]">▼</span>
-                    </button>
-                    {countryOpen && (
-                      <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-50 overflow-y-auto rounded-sm border border-border bg-white shadow-lg">
-                        {countries.map((c) => (
-                          <button
-                            key={c.code}
-                            type="button"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              updateField('country', c.name);
-                              setCountryOpen(false);
-                              setErrors(validateForm({ ...shipping, country: c.name }));
-                              setTouched((prev) => ({ ...prev, country: true }));
-                            }}
-                            className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-[13px] font-sans transition-[background] duration-75 ${
-                              shipping.country === c.name
-                                ? 'bg-pink-lt text-text'
-                                : 'text-text hover:bg-bg'
-                            }`}
-                          >
+                  {showCountryInput && (
+                    <div className="relative">
+                      <label className="mb-1 block text-[11px] font-medium text-text">
+                        Country
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setCountryOpen((o) => !o)}
+                        onBlur={() => {
+                          setTimeout(() => setCountryOpen(false), 150);
+                        }}
+                        className={`flex w-full cursor-pointer items-center gap-2 rounded-sm border px-3 py-2.5 text-[13px] font-sans text-text outline-none transition-[border-color] duration-150 ${
+                          errors.country && touched.country ? 'border-danger' : 'border-border-md'
+                        }`}
+                      >
+                        {shipping.country ? (
+                          <>
                             <ReactCountryFlag
-                              countryCode={c.code}
+                              countryCode={countryCodeByName[shipping.country] || ''}
                               svg
                               style={{ width: 18, height: 14 }}
                             />
-                            {c.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {errors.country && touched.country && (
-                      <p className="mt-0.5 text-[11px] text-danger">{errors.country}</p>
-                    )}
-                  </div>
+                            <span className="flex-1 text-left">{shipping.country}</span>
+                          </>
+                        ) : (
+                          <span className="flex-1 text-left text-hint">Select a country</span>
+                        )}
+                        <span className="text-hint text-[10px]">▼</span>
+                      </button>
+                      {countryOpen && (
+                        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-50 overflow-y-auto rounded-sm border border-border bg-white shadow-lg">
+                          {countries.map((c) => (
+                            <button
+                              key={c.code}
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                updateField('country', c.name);
+                                setCountryOpen(false);
+                                setErrors(validateForm({ ...shipping, country: c.name }));
+                                setTouched((prev) => ({ ...prev, country: true }));
+                                const newCode = countryDialCodes[c.code] || '+855';
+                                const currentNumber = shipping.phone.replace(/^\+\d+\s*/, '');
+                                updateField('phone', newCode + ' ' + currentNumber);
+                              }}
+                              className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-[13px] font-sans transition-[background] duration-75 ${
+                                shipping.country === c.name
+                                  ? 'bg-pink-lt text-text'
+                                  : 'text-text hover:bg-bg'
+                              }`}
+                            >
+                              <ReactCountryFlag
+                                countryCode={c.code}
+                                svg
+                                style={{ width: 18, height: 14 }}
+                              />
+                              {c.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {errors.country && touched.country && (
+                        <p className="mt-0.5 text-[11px] text-danger">{errors.country}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -669,12 +810,13 @@ export default function CheckoutPage() {
                       <button
                         key={svc.id}
                         type="button"
+                        disabled={isPaymentProcessing}
                         onClick={() => setSelectedShippingService(svc.id, price)}
                         className={`flex w-full cursor-pointer items-center gap-3.5 rounded-md bg-white p-4 text-left font-sans ${
                           shippingServiceId === svc.id
                             ? 'border-[1.5px] border-pink'
                             : 'border border-border'
-                        }`}
+                        } ${isPaymentProcessing ? 'cursor-not-allowed opacity-50' : ''}`}
                       >
                         <div
                           className={`h-5 w-5 rounded-full transition-[border] duration-150 ${
@@ -704,41 +846,43 @@ export default function CheckoutPage() {
               </div>
 
               <div className="flex flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={() => setSelectedMethod('paypal')}
-                  className={`flex w-full cursor-pointer items-center gap-3.5 rounded-md bg-white p-4 text-left font-sans ${
-                    selectedMethod === 'paypal'
-                      ? 'border-[1.5px] border-pink'
-                      : 'border border-border'
-                  }`}
-                >
-                  <div
-                    className={`h-5 w-5 rounded-full transition-[border] duration-150 ${
+                {showPaypal && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMethod('paypal')}
+                    className={`flex w-full cursor-pointer items-center gap-3.5 rounded-md bg-white p-4 text-left font-sans ${
                       selectedMethod === 'paypal'
-                        ? 'border-[5px] border-pink'
-                        : 'border-[1.5px] border-hint'
+                        ? 'border-[1.5px] border-pink'
+                        : 'border border-border'
                     }`}
-                  />
-                  <svg viewBox="0 0 24 24" width="32" height="32" fill="none">
-                    <rect width="24" height="24" rx="4" fill="#003087" />
-                    <text
-                      x="12"
-                      y="16"
-                      textAnchor="middle"
-                      fill="white"
-                      fontSize="10"
-                      fontWeight="bold"
-                      fontFamily="Arial"
-                    >
-                      P
-                    </text>
-                  </svg>
-                  <div>
-                    <div className="text-[13px] font-medium text-text">PayPal</div>
-                    <div className="text-[11px] text-muted">Pay with your PayPal account</div>
-                  </div>
-                </button>
+                  >
+                    <div
+                      className={`h-5 w-5 rounded-full transition-[border] duration-150 ${
+                        selectedMethod === 'paypal'
+                          ? 'border-[5px] border-pink'
+                          : 'border-[1.5px] border-hint'
+                      }`}
+                    />
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none">
+                      <rect width="24" height="24" rx="4" fill="#003087" />
+                      <text
+                        x="12"
+                        y="16"
+                        textAnchor="middle"
+                        fill="white"
+                        fontSize="10"
+                        fontWeight="bold"
+                        fontFamily="Arial"
+                      >
+                        P
+                      </text>
+                    </svg>
+                    <div>
+                      <div className="text-[13px] font-medium text-text">PayPal</div>
+                      <div className="text-[11px] text-muted">Pay with your PayPal account</div>
+                    </div>
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -782,8 +926,9 @@ export default function CheckoutPage() {
                           <PayPalButtons
                             createOrder={handleCreatePayPalOrder}
                             onApprove={handlePayPalApprove}
-                            onCancel={() => {}}
+                            onCancel={() => setIsPaymentProcessing(false)}
                             onError={(err) => {
+                              setIsPaymentProcessing(false);
                               const paypalErr = err as { message?: string } | undefined;
                               if (
                                 paypalErr?.message?.includes('Detected popup close') ||
@@ -1003,9 +1148,11 @@ export default function CheckoutPage() {
                 Accepted Payments
               </div>
               <div className="flex items-center gap-2">
-                <div className="rounded-sm border border-border bg-bg px-2 py-1 text-[10px] text-text">
-                  PayPal
-                </div>
+                {showPaypal && (
+                  <div className="rounded-sm border border-border bg-bg px-2 py-1 text-[10px] text-text">
+                    PayPal
+                  </div>
+                )}
                 <div className="rounded-sm border border-border bg-bg px-2 py-1 text-[10px] text-text">
                   Bakong KHQR
                 </div>

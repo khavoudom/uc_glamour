@@ -6,7 +6,6 @@ import { ChevronLeft, Package, Truck, FileText } from 'lucide-react';
 import StatusBadge from '@/components/admin/status-badge';
 import ReviewForm from '@/components/review-form';
 import Header from '@/components/header';
-import Footer from '@/components/footer';
 import CartDrawer from '@/components/cart-drawer';
 import Toast from '@/components/toast';
 import type { OrderInvoice } from '@/lib/types';
@@ -196,7 +195,6 @@ export default function OrderInvoiceContent({ order }: { order: OrderInvoice }) 
           </button>
         </div>
       </div>
-      <Footer />
       <CartDrawer />
       <Toast />
     </div>

@@ -3,7 +3,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Maximize2, Minimize2, Fullscreen, ChevronDown } from 'lucide-react';
+import { MessageCircle, X, Maximize2, Minimize2, Fullscreen } from 'lucide-react';
 import { useChatStore } from '@/store/chat-store';
 import ChatMessageBubble from './chat-message';
 import ChatInput from './chat-input';
@@ -175,7 +175,7 @@ export default function ChatWidget() {
               className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/15 transition-colors"
               aria-label={isMinimized ? 'Expand' : 'Minimize'}
             >
-              {isMinimized ? <Maximize2 size={13} /> : <ChevronDown size={14} />}
+              {isMinimized ? <Maximize2 size={13} /> : <Minimize2 size={13} />}
             </button>
 
             <button
@@ -304,13 +304,14 @@ export default function ChatWidget() {
 
         {!isMinimized && <ChatInput />}
 
-        {!isMinimized && !isFullscreen && (
+        {!isFullscreen && (
           <div
             onMouseDown={handleResizeStart}
-            className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 hover:opacity-100 transition-opacity"
+            className="absolute bottom-0 right-0 z-10 w-5 h-5 cursor-se-resize"
             style={{
               background: 'linear-gradient(135deg, transparent 50%, var(--color-border) 50%)',
             }}
+            title="Drag to resize"
           />
         )}
       </motion.div>

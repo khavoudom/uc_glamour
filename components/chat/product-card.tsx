@@ -2,7 +2,11 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Trash2 } from 'lucide-react';
 import type { ChatProduct } from '@/store/chat-store';
+import { useChatStore } from '@/store/chat-store';
+import { useStore } from '@/lib/store';
+import { toggleWishlist } from '@/app/actions/wishlist';
 
 interface ProductCardProps {
   product: ChatProduct;
@@ -17,8 +21,20 @@ export default function ProductCard({ product }: ProductCardProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="flex gap-3 rounded-md border-[0.5px] border-(--color-border) bg-(--color-white) p-3"
+      className="relative flex gap-3 rounded-md border-[0.5px] border-(--color-border) bg-(--color-white) p-3"
     >
+      <button
+        onClick={async () => {
+          await toggleWishlist(product.id);
+          useStore.getState().toggleWishlist(String(product.id));
+          useChatStore.getState().removeFromDisplayProducts(product.id);
+        }}
+        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-(--color-muted) hover:bg-red-50 hover:text-red-500 transition-colors"
+        aria-label="Remove from wishlist"
+        title="Remove from wishlist"
+      >
+        <Trash2 size={11} />
+      </button>
       <div className="h-[72px] w-[72px] shrink-0 overflow-hidden rounded-sm bg-(--color-bg)">
         {imageUrl && !imgError ? (
           <img

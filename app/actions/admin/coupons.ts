@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod/v4';
-import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin-dal';
 import {
   createCoupon,
@@ -22,6 +22,7 @@ const couponSchema = z.object({
 export interface CouponFormState {
   errors?: Record<string, string[]>;
   message?: string;
+  success?: boolean;
 }
 
 export async function createCouponAction(
@@ -42,7 +43,8 @@ export async function createCouponAction(
 
   try {
     await createCoupon(validated.data);
-    redirect('/admin/coupons');
+    revalidatePath('/admin/coupons');
+    return { success: true, message: 'Coupon created!' };
   } catch {
     return { message: 'Failed to create coupon. Code may already exist.' };
   }
@@ -69,7 +71,8 @@ export async function updateCouponAction(
 
   try {
     await updateCoupon(id, validated.data);
-    return { message: 'Coupon updated!' };
+    revalidatePath('/admin/coupons');
+    return { success: true, message: 'Coupon updated!' };
   } catch {
     return { message: 'Failed to update coupon.' };
   }

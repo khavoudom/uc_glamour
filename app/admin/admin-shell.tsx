@@ -76,6 +76,25 @@ function NavIcon({ type }: { type: string }) {
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
       );
+    case 'users':
+      return (
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 00-3-3.87" />
+          <path d="M16 3.13a4 4 0 010 7.75" />
+        </svg>
+      );
     case 'orders':
       return (
         <svg
@@ -124,6 +143,7 @@ const navItems = [
   { href: '/admin/coupons', label: 'Coupons', icon: 'coupons' },
   { href: '/admin/reviews', label: 'Reviews', icon: 'reviews' },
   { href: '/admin/shipping', label: 'Shipping', icon: 'shipping' },
+  { href: '/admin/users', label: 'Users', icon: 'users' },
   { href: '/admin/orders', label: 'Orders', icon: 'orders' },
 ];
 
@@ -133,7 +153,7 @@ export default async function AdminShell({ children }: { children: React.ReactNo
 
   return (
     <div className="flex min-h-screen bg-bg font-sans">
-      <aside className="w-55 min-w-55 bg-white border-r border-border flex flex-col p-0">
+      <aside className="w-55 min-w-55 bg-white border-r border-border flex flex-col p-0 fixed inset-y-0 left-0 z-40">
         <div className="px-5 py-6 border-b border-border">
           <Link href="/admin" style={{ textDecoration: 'none' }}>
             <span className="font-heading text-xl font-medium text-text">
@@ -168,7 +188,7 @@ export default async function AdminShell({ children }: { children: React.ReactNo
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-55">
         <header className="flex items-center justify-between px-7 py-3 bg-white border-b border-border">
           <span className="text-[13px] text-muted">
             Welcome back, <strong className="text-text">{session?.user?.name}</strong>

@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod/v4';
-import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin-dal';
 import {
   createShippingService,
@@ -20,6 +20,7 @@ const shippingServiceSchema = z.object({
 export interface ShippingServiceFormState {
   errors?: Record<string, string[]>;
   message?: string;
+  success?: boolean;
 }
 
 export async function createShippingServiceAction(
@@ -45,7 +46,8 @@ export async function createShippingServiceAction(
       estimatedDelivery: validated.data.estimatedDelivery,
       isActive: validated.data.isActive,
     });
-    redirect('/admin/shipping');
+    revalidatePath('/admin/shipping');
+    return { success: true, message: 'Shipping service created!' };
   } catch {
     return { message: 'Failed to create shipping service.' };
   }
@@ -77,7 +79,8 @@ export async function updateShippingServiceAction(
       estimatedDelivery: validated.data.estimatedDelivery,
       isActive: validated.data.isActive,
     });
-    return { message: 'Shipping service updated!' };
+    revalidatePath('/admin/shipping');
+    return { success: true, message: 'Shipping service updated!' };
   } catch {
     return { message: 'Failed to update shipping service.' };
   }

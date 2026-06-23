@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from '@/store/chat-store';
 
 interface ChatMessageBubbleProps {
@@ -11,6 +12,7 @@ interface ChatMessageBubbleProps {
 function MarkdownRenderer({ content }: { content: string }) {
   return (
     <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
       components={{
         p: ({ children }) => <p className="mb-1 last:mb-0 leading-relaxed">{children}</p>,
         ul: ({ children }) => <ul className="list-disc pl-4 mb-1 space-y-0.5">{children}</ul>,
@@ -20,6 +22,23 @@ function MarkdownRenderer({ content }: { content: string }) {
         em: ({ children }) => <em className="italic text-(--color-muted)">{children}</em>,
         code: ({ children }) => (
           <code className="bg-black/5 rounded px-1 text-[11px]">{children}</code>
+        ),
+        table: ({ children }) => (
+          <div className="overflow-x-auto mb-2">
+            <table className="w-full text-left text-[11px] border-collapse border border-(--color-border)">{children}</table>
+          </div>
+        ),
+        thead: ({ children }) => (
+          <thead className="bg-(--color-bg) text-(--color-text)">{children}</thead>
+        ),
+        th: ({ children }) => (
+          <th className="px-2 py-1.5 font-semibold border border-(--color-border) whitespace-nowrap">{children}</th>
+        ),
+        td: ({ children }) => (
+          <td className="px-2 py-1 border border-(--color-border)">{children}</td>
+        ),
+        tr: ({ children }) => (
+          <tr className="even:bg-black/[.03]">{children}</tr>
         ),
       }}
     >

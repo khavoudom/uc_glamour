@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "seed": "tsx scripts/seed.ts",
+"db:restore": "psql \"$(grep DATABASE_URL .env | cut -d= -f2-)\" < backup/data.sql",
     "seed:cosmetics": "tsx scripts/seed-cosmetics.ts",
     "db:push": "drizzle-kit push"
   },
@@ -40,6 +41,7 @@
     "react-country-flag": "^3.1.0",
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "resend": "^6.12.4",
     "shadcn": "^4.8.3",
     "tailwind-merge": "^3.6.0",

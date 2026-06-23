@@ -54,6 +54,7 @@ export interface ChatState {
   setToolStatus: (label: string | null) => void;
   setDisplayProducts: (products: ChatProduct[]) => void;
   clearDisplayProducts: () => void;
+  removeFromDisplayProducts: (productId: number) => void;
   setPendingNavigation: (page: string | null) => void;
   addMessage: (msg: Omit<ChatMessage, 'id' | 'timestamp'>) => ChatMessage;
   updateMessage: (id: string, content: string) => void;
@@ -91,6 +92,10 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   setToolStatus: (label) => set({ toolStatus: label }),
   setDisplayProducts: (products) => set({ displayProducts: products }),
   clearDisplayProducts: () => set({ displayProducts: [] }),
+  removeFromDisplayProducts: (productId: number) =>
+    set((state) => ({
+      displayProducts: state.displayProducts.filter((p) => p.id !== productId),
+    })),
   setPendingNavigation: (page) => set({ pendingNavigation: page }),
   setConversationId: (id) => set({ conversationId: id }),
   loadConversations: async () => {
@@ -221,6 +226,11 @@ export const useChatStore = create<ChatState>()((set, get) => ({
               setToolStatus(null);
               accumulated += parsed.text;
               updateMessage(aiMsg.id, accumulated);
+              // Auto-expand when text contains markdown tables
+              if (accumulated.includes('|---') || accumulated.includes('| ---')) {
+                setWidth(520);
+                setHeight(Math.max(get().height, 620));
+              }
               continue;
             }
 
@@ -252,6 +262,19 @@ export const useChatStore = create<ChatState>()((set, get) => ({
               if (toolName === 'addToCart' && result?.success && result?.product) {
                 const { addToCart } = useStore.getState();
                 addToCart(result.product, result.shade ?? null, result.quantity ?? 1);
+              }
+
+              // Auto-expand for tools that produce tables or detailed content
+              const tableTools = [
+                'getOrderHistory', 'getOrderStatus', 'trackOrder',
+                'getWishlist', 'addToWishlist', 'removeFromWishlist',
+                'showCart', 'getRecommendations', 'buildRoutine',
+                'findGifts', 'searchProducts', 'getProductDetails',
+                'compareProducts',
+              ];
+              if (tableTools.includes(toolName) && !result?.error) {
+                setWidth(520);
+                setHeight(Math.max(get().height, 620));
               }
               continue;
             }

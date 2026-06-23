@@ -22,6 +22,7 @@ export default function WishlistContent({ products }: WishlistContentProps) {
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     if (status === 'unauthenticated' || userRole === 'admin') {
@@ -87,10 +88,19 @@ export default function WishlistContent({ products }: WishlistContentProps) {
                   e.currentTarget.style.borderColor = '';
                 }}
               >
-                <div className="relative flex aspect-square items-center justify-center bg-pink-lt">
-                  <span className="text-5xl" aria-hidden="true">
-                    {p.emoji}
-                  </span>
+                <div className="relative flex aspect-square items-center justify-center bg-pink-lt overflow-hidden">
+                  {p.imageUrls?.[0] && !imgErrors[p.id] ? (
+                    <img
+                      src={p.imageUrls[0]}
+                      alt={p.name}
+                      className="h-full w-full object-cover"
+                      onError={() => setImgErrors((prev) => ({ ...prev, [p.id]: true }))}
+                    />
+                  ) : (
+                    <span className="text-5xl" aria-hidden="true">
+                      {p.emoji}
+                    </span>
+                  )}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

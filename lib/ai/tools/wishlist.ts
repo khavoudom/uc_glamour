@@ -6,6 +6,7 @@ import {
   removeWishlistItem,
   isInWishlist,
 } from '@/lib/data-access/wishlist';
+import { getProductById } from '@/lib/data-access/products';
 
 async function getUserId(): Promise<number | null> {
   const { getOptionalCustomerSession } = await import('@/lib/dal');
@@ -20,7 +21,18 @@ export const getWishlistTool = tool({
     const userId = await getUserId();
     if (!userId) return { error: 'Login required.' };
     const productIds = await getWishlistByUserId(userId);
-    return { productIds, count: productIds.length };
+    const products = (await Promise.all(productIds.map((id) => getProductById(id)))).filter(Boolean);
+    return {
+      products: products.map((p) => ({
+        id: p!.id,
+        name: p!.name,
+        brand: p!.brand,
+        price: p!.price,
+        emoji: p!.emoji,
+        badge: p!.badge,
+      })),
+      count: products.length,
+    };
   },
 });
 

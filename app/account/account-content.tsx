@@ -1,19 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShoppingBag, User, LogOut, Package } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Package, Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import StatusBadge from '@/components/admin/status-badge';
 import Header from '@/components/header';
-import Footer from '@/components/footer';
 import CartDrawer from '@/components/cart-drawer';
 import Toast from '@/components/toast';
 import { signOut } from 'next-auth/react';
 import { updateAccountName } from '@/app/actions/auth';
 import ConfirmModal from '@/components/confirm-modal';
-import type { OrderSummary } from '@/lib/types';
+import { useStore } from '@/lib/store';
+import ProductModal from '@/components/product-modal';
+import type { OrderSummary, Product } from '@/lib/types';
 
-type Section = 'orders' | 'profile';
+type Section = 'orders' | 'profile' | 'wishlist' | 'cart';
 
 interface UserProfile {
   id: number;
@@ -27,9 +28,11 @@ interface UserProfile {
 export default function AccountContent({
   orders,
   user,
+  products,
 }: {
   orders: OrderSummary[];
   user: UserProfile | null;
+  products: Product[];
 }) {
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -37,11 +40,32 @@ export default function AccountContent({
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(user?.name ?? '');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const {
+    wishlist,
+    toggleWishlist,
+    cart,
+    removeFromCart,
+    updateQuantity,
+    cartCount,
+    subtotal,
+    hydrate,
+  } = useStore();
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
 
   const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
     { id: 'orders', label: 'My Orders', icon: <Package size={16} /> },
+    { id: 'wishlist', label: 'Wishlist', icon: <Heart size={16} /> },
+    { id: 'cart', label: 'Cart', icon: <ShoppingCart size={16} /> },
     { id: 'profile', label: 'Profile', icon: <User size={16} /> },
   ];
+
+  const wishlistProducts = products.filter((p) => wishlist.includes(String(p.id)));
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -62,7 +86,7 @@ export default function AccountContent({
   return (
     <div className="min-h-screen bg-bg">
       <Header onSearchToggle={() => setSearchOpen((prev) => !prev)} />
-      <div className="mx-auto flex max-w-250 gap-10 px-7 py-10 mb-12">
+      <div className="mx-auto flex max-w-300 gap-10 px-7 py-10 mb-12">
         {/* Sidebar */}
         <aside className="w-45 shrink-0">
           <nav className="flex flex-col gap-1">
@@ -171,6 +195,183 @@ export default function AccountContent({
             </>
           )}
 
+          {activeSection === 'wishlist' && (
+            <>
+              <h1 className="font-heading mb-6 text-2xl font-medium text-text">
+                Wishlist ({wishlist.length})
+              </h1>
+
+              {wishlistProducts.length === 0 ? (
+                <div className="rounded-lg border border-border bg-white p-16 text-center">
+                  <div className="mb-4 flex justify-center">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-pink/10">
+                      <Heart size={28} className="text-pink" />
+                    </div>
+                  </div>
+                  <h2 className="mb-2 text-base font-medium text-text">Your wishlist is empty</h2>
+                  <p className="mb-6 text-xs text-muted">Save your favorite products here.</p>
+                  <button
+                    onClick={() => router.push('/products')}
+                    className="cursor-pointer rounded-full bg-pink min-w-max px-8 py-3 text-[13px] font-medium text-white font-sans border-none"
+                  >
+                    Browse Products
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3.5">
+                  {wishlistProducts.map((p) => (
+                    <div
+                      key={p.id}
+                      className="overflow-hidden rounded-lg border border-border bg-white cursor-pointer"
+                      style={{ transition: 'all 0.15s' }}
+                      onClick={() => setSelectedProduct(p)}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.borderColor = 'var(--color-hint)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = '';
+                        e.currentTarget.style.borderColor = '';
+                      }}
+                    >
+                      <div className="relative flex aspect-square items-center justify-center bg-pink-lt overflow-hidden">
+                        {p.imageUrls?.[0] && !imgErrors[p.id] ? (
+                          <img
+                            src={p.imageUrls[0]}
+                            alt={p.name}
+                            className="h-full w-full object-cover"
+                            onError={() => setImgErrors((prev) => ({ ...prev, [p.id]: true }))}
+                          />
+                        ) : (
+                          <span className="text-5xl" aria-hidden="true">
+                            {p.emoji}
+                          </span>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWishlist(String(p.id));
+                          }}
+                          className="absolute right-2 top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-border bg-white"
+                          aria-label="Remove from wishlist"
+                        >
+                          <Trash2 size={12} className="text-muted hover:text-red" />
+                        </button>
+                      </div>
+                      <div className="p-3">
+                        <div className="text-[11px] font-medium text-text">{p.name}</div>
+                        <div className="mt-1 text-sm font-medium text-pink">
+                          ${Number(p.price).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeSection === 'cart' && (
+            <>
+              <h1 className="font-heading mb-6 text-2xl font-medium text-text">
+                Cart ({cartCount} {cartCount === 1 ? 'item' : 'items'})
+              </h1>
+
+              {cart.length === 0 ? (
+                <div className="rounded-lg border border-border bg-white p-16 text-center">
+                  <div className="mb-4 flex justify-center">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-pink/10">
+                      <ShoppingCart size={28} className="text-pink" />
+                    </div>
+                  </div>
+                  <h2 className="mb-2 text-base font-medium text-text">Your cart is empty</h2>
+                  <p className="mb-6 text-xs text-muted">Add some products to get started.</p>
+                  <button
+                    onClick={() => router.push('/products')}
+                    className="cursor-pointer rounded-full bg-pink min-w-max px-8 py-3 text-[13px] font-medium text-white font-sans border-none"
+                  >
+                    Start Shopping
+                  </button>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-border bg-white">
+                  <table className="w-full border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <Th align="left">Product</Th>
+                        <Th align="left">Shade</Th>
+                        <Th align="center">Qty</Th>
+                        <Th align="right">Price</Th>
+                        <Th align="right">Total</Th>
+                        <Th align="center" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cart.map((item) => (
+                        <tr key={`${item.productId}-${item.shade}`} className="border-b border-border">
+                          <td className="px-3.5 py-3 text-text">
+                            {item.emoji} {item.name}
+                          </td>
+                          <td className="px-3.5 py-3 text-muted">{item.shade ?? '—'}</td>
+                          <td className="px-3.5 py-3 text-center">
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                onClick={() =>
+                                  updateQuantity(item.productId, item.shade ?? null, -1)
+                                }
+                                className="flex h-5 w-5 cursor-pointer items-center justify-center rounded border border-border text-text hover:bg-bg"
+                              >
+                                -
+                              </button>
+                              <span className="min-w-[16px] text-center text-text">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  updateQuantity(item.productId, item.shade ?? null, 1)
+                                }
+                                className="flex h-5 w-5 cursor-pointer items-center justify-center rounded border border-border text-text hover:bg-bg"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-3.5 py-3 text-right text-text">
+                            ${item.price.toFixed(2)}
+                          </td>
+                          <td className="px-3.5 py-3 text-right font-medium text-text">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </td>
+                          <td className="px-3.5 py-3 text-center">
+                            <button
+                              onClick={() => removeFromCart(item.productId, item.shade ?? null)}
+                              className="cursor-pointer text-muted hover:text-red transition-colors"
+                              aria-label="Remove item"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <div className="flex items-center justify-between border-t border-border px-5 py-4">
+                    <span className="text-sm font-semibold text-text">
+                      Subtotal: ${subtotal.toFixed(2)}
+                    </span>
+                    <button
+                      onClick={() => router.push('/checkout')}
+                      className="cursor-pointer rounded-full bg-pink px-6 py-2.5 text-[13px] font-medium text-white font-sans border-none"
+                    >
+                      Checkout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           {activeSection === 'profile' && user && (
             <>
               <h1 className="font-heading mb-6 text-2xl font-medium text-text">Profile</h1>
@@ -270,6 +471,9 @@ export default function AccountContent({
           )}
         </div>
       </div>
+      {selectedProduct && (
+        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
       <CartDrawer />
       <Toast />
       <ConfirmModal
@@ -286,11 +490,11 @@ export default function AccountContent({
   );
 }
 
-function Th({ children, align }: { children?: React.ReactNode; align?: 'left' | 'right' }) {
+function Th({ children, align }: { children?: React.ReactNode; align?: 'left' | 'right' | 'center' }) {
+  const alignClass =
+    align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left';
   return (
-    <th
-      className={`px-3.5 py-2.5 font-medium text-muted ${align === 'right' ? 'text-right' : 'text-left'}`}
-    >
+    <th className={`px-3.5 py-2.5 font-medium text-muted ${alignClass}`}>
       {children}
     </th>
   );

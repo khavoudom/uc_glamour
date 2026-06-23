@@ -1,8 +1,23 @@
 import 'server-only';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, desc, sql } from 'drizzle-orm';
 import { getTier } from '@/lib/types';
+
+export async function getAllUsers() {
+  return db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      loyaltyPoints: users.loyaltyPoints,
+      loyaltyTier: users.loyaltyTier,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .orderBy(desc(users.id));
+}
 
 export async function getUserById(id: number) {
   const [user] = await db

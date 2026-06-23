@@ -47,9 +47,7 @@ function writeToFile(fileName: string, line: string) {
 
 function logConsole(level: LogLevel, source: string, message: string, data?: unknown) {
   const formatted = formatMessage(level, source, message, data);
-  const fn = level === 'error' ? console.error
-    : level === 'warn' ? console.warn
-    : console.log;
+  const fn = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
   fn(formatted);
 }
 
@@ -68,10 +66,14 @@ function logFile(level: LogLevel, source: string, message: string, data?: unknow
 function logSentry(level: LogLevel, _source: string, message: string, data?: unknown) {
   try {
     const Sentry = require('@sentry/nextjs');
-    const severity = level === 'debug' ? 'debug'
-      : level === 'info' ? 'info'
-      : level === 'warn' ? 'warning'
-      : 'error';
+    const severity =
+      level === 'debug'
+        ? 'debug'
+        : level === 'info'
+          ? 'info'
+          : level === 'warn'
+            ? 'warning'
+            : 'error';
 
     Sentry.captureMessage(message, {
       level: severity,

@@ -5,7 +5,7 @@ import { getOrdersByUserId } from '@/lib/data-access/orders';
 import { getUserById } from '@/lib/data-access/users';
 import { getAllProducts } from '@/lib/data-access/products';
 import AccountContent from './account-content';
-import type { Product } from '@/lib/types';
+import type { Category, Product } from '@/lib/types';
 
 function parseImageUrls(raw: string | null): string[] {
   if (!raw) return [];
@@ -33,7 +33,9 @@ export default async function AccountPage() {
     rating: Number(p.rating),
     originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
     imageUrls: parseImageUrls(p.imageUrls),
+    category: p.category as Category,
     badge: p.badge as Product['badge'],
+    isSubscriptionEligible: p.isSubscriptionEligible ?? undefined,
     shades: p.shades.map((s) => ({ name: s.name, hex: s.hex, stock: s.stock })),
   }));
 

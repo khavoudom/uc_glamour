@@ -7,7 +7,7 @@ interface User {
   role: string;
   loyaltyPoints: number;
   loyaltyTier: string;
-  createdAt: string;
+  createdAt: Date;
 }
 
 export default function UsersContent({ users }: { users: User[] }) {

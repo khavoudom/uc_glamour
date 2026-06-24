@@ -14,6 +14,7 @@
     "test:coverage": "vitest run --coverage",
     "seed": "tsx scripts/seed.ts",
 "db:restore": "psql \"$(grep DATABASE_URL .env | cut -d= -f2-)\" < backup/data.sql",
+        "seed:admin": "tsx scripts/seed-admin.ts",
     "seed:cosmetics": "tsx scripts/seed-cosmetics.ts",
     "db:push": "drizzle-kit push"
   },

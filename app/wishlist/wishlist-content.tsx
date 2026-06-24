@@ -22,7 +22,7 @@ export default function WishlistContent({ products }: WishlistContentProps) {
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (status === 'unauthenticated' || userRole === 'admin') {

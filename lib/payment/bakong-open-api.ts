@@ -137,6 +137,19 @@ function toBakongCurrency(currency: BakongCurrency): number {
   return currency === 'USD' ? khqrData.currency.usd : khqrData.currency.khr;
 }
 
+function formatPhoneForKHQR(phone?: string): string | undefined {
+  if (!phone) return undefined;
+  // Remove spaces and dashes
+  let cleaned = phone.replace(/[\s\-]/g, '');
+  // Strip +855 country code and add leading 0
+  if (cleaned.startsWith('+855')) {
+    cleaned = '0' + cleaned.slice(4);
+  } else if (cleaned.startsWith('855')) {
+    cleaned = '0' + cleaned.slice(3);
+  }
+  return cleaned;
+}
+
 function assertSuccessfulKHQRResponse(response: BakongSDKResponse): asserts response is {
   status: { code: number; errorCode: null; message: null };
   data: { qr: string; md5: string };
@@ -212,7 +225,7 @@ export async function createBakongKHQRPayment(
     currency: toBakongCurrency(currency),
     amount,
     billNumber: params.orderId.toString(),
-    mobileNumber: params.customerPhone?.replace(/[\s\-+]/g, ''),
+    mobileNumber: formatPhoneForKHQR(params.customerPhone),
     storeLabel: config.merchantName,
     terminalLabel: 'Web checkout',
     expirationTimestamp: Date.now() + expiresInMinutes * 60 * 1000,

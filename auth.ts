@@ -35,7 +35,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         };
       },
     }),
-    Google,
+    Google({
+      authorization: {
+        params: {
+          prompt: 'consent',
+        },
+      },
+    }),
   ],
   callbacks: {
     async signIn({ user, account }) {

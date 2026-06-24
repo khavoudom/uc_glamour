@@ -3,6 +3,7 @@ import { writeFile, unlink, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
+const UPLOAD_PROVIDER = process.env.UPLOAD_PROVIDER ?? 'public';
 
 async function ensureDir() {
   try {
@@ -30,6 +31,12 @@ export async function POST(request: Request) {
     const ext = file.name.split('.').pop() ?? 'jpg';
     const filename = `${crypto.randomUUID()}.${ext}`;
 
+    if (UPLOAD_PROVIDER === 'vercel') {
+      const { put } = await import('@vercel/blob');
+      const blob = await put(filename, file, { access: 'public' });
+      return NextResponse.json({ url: blob.url });
+    }
+
     await ensureDir();
     const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(path.join(UPLOAD_DIR, filename), buffer);
@@ -45,6 +52,12 @@ export async function DELETE(request: Request) {
     const { url } = await request.json();
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'No URL provided.' }, { status: 400 });
+    }
+
+    if (UPLOAD_PROVIDER === 'vercel') {
+      const { del } = await import('@vercel/blob');
+      await del(url);
+      return NextResponse.json({ success: true });
     }
 
     const filename = path.basename(url);

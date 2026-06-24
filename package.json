@@ -13,16 +13,18 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "seed": "tsx scripts/seed.ts",
-"db:restore": "psql \"$(grep DATABASE_URL .env | cut -d= -f2-)\" < backup/data.sql",
-        "seed:admin": "tsx scripts/seed-admin.ts",
+    "db:restore": "psql \"$(grep DATABASE_URL .env | cut -d= -f2-)\" < backup/data.sql",
+    "seed:admin": "tsx scripts/seed-admin.ts",
     "seed:cosmetics": "tsx scripts/seed-cosmetics.ts",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.71",
     "@base-ui/react": "^1.5.0",
     "@paypal/react-paypal-js": "^10.0.0",
     "@sentry/nextjs": "^6.3.5",
+    "@vercel/blob": "^2.4.1",
     "ai": "^6.0.204",
     "axios": "^1.17.0",
     "bakong-khqr": "^1.0.20",

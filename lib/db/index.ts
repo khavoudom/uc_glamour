@@ -4,7 +4,11 @@ import * as schema from './schema';
 import path from 'path';
 import fs from 'fs';
 
-const dbPath = process.env.SQLITE_DB_PATH ?? path.join(process.cwd(), 'data', 'glamour.db');
+const dbPath =
+  process.env.SQLITE_DB_PATH ??
+  (process.env.VERCEL
+    ? path.join('/tmp', 'data', 'glamour.db')
+    : path.join(process.cwd(), 'data', 'glamour.db'));
 
 const dir = path.dirname(dbPath);
 if (!fs.existsSync(dir)) {

@@ -4,16 +4,29 @@ import * as schema from './schema';
 import path from 'path';
 import fs from 'fs';
 
-const dbPath =
-  process.env.SQLITE_DB_PATH ??
-  (process.env.VERCEL
-    ? path.join('/tmp', 'data', 'glamour.db')
-    : path.join(process.cwd(), 'data', 'glamour.db'));
+function ensureDbPath() {
+  if (process.env.SQLITE_DB_PATH) return process.env.SQLITE_DB_PATH;
 
-const dir = path.dirname(dbPath);
-if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir, { recursive: true });
+  const candidates = [
+    path.join(process.cwd(), 'data', 'glamour.db'),
+    path.join('/tmp', 'data', 'glamour.db'),
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      fs.mkdirSync(path.dirname(candidate), { recursive: true });
+      return candidate;
+    } catch (error) {
+      if (candidate === candidates[candidates.length - 1]) {
+        throw error;
+      }
+    }
+  }
+
+  throw new Error('Unable to initialize SQLite database path');
 }
+
+const dbPath = ensureDbPath();
 
 const globalForDb = globalThis as unknown as { client: Database.Database | undefined };
 const client = (globalForDb.client ??= new Database(dbPath));

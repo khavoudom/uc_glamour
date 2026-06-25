@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductCard from '@/components/product-card';
@@ -82,17 +82,10 @@ describe('ProductCard', () => {
 
   it('calls onSelect when article is clicked', async () => {
     const user = userEvent.setup();
-    let selected: Product | null = null;
-    render(
-      <ProductCard
-        product={mockProduct}
-        onSelect={(p) => {
-          selected = p;
-        }}
-      />,
-    );
+    const onSelect = vi.fn();
+    render(<ProductCard product={mockProduct} onSelect={onSelect} />);
     await user.click(screen.getByRole('article'));
-    expect(selected?.id).toBe('1');
+    expect(onSelect).toHaveBeenCalledWith(mockProduct);
   });
 
   it('wishlist heart is filled when product is wishlisted', () => {

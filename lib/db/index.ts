@@ -4,6 +4,7 @@ import Database from 'better-sqlite3';
 import * as schema from './schema';
 import path from 'path';
 import fs from 'fs';
+import { logger } from '../logger';
 
 function resolveCandidateDbPath(candidate: string) {
   return path.isAbsolute(candidate) ? candidate : path.resolve(process.cwd(), candidate);
@@ -38,6 +39,14 @@ client.pragma('foreign_keys = ON');
 
 export const db = drizzle(client, { schema });
 
-// Auto-apply pending migrations on startup (critical for Vercel deploys
-// where the SQLite database is ephemeral and created fresh each time).
 migrate(db, { migrationsFolder: path.join(process.cwd(), 'drizzle') });
+
+// Seed initial data on ephemeral environments (Vercel). This runs after
+// migration so tables exist. Uses dynamic import to avoid circular deps
+// (the seed modules import `db` from this module).
+const log = logger('lib/db');
+import('./auto-seed')
+  .then((m) => m.autoSeed())
+  .catch((e) => {
+    log.error('Auto-seed failed', e instanceof Error ? { message: e.message } : { error: e });
+  });

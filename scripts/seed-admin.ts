@@ -7,10 +7,10 @@ import { logger } from '../lib/logger';
 
 const log = logger('scripts/seed-admin');
 
-const ADMIN_EMAIL = 'admin@glamour.com';
-const ADMIN_PASSWORD = '12345678';
+export const ADMIN_EMAIL = 'admin@glamour.com';
+export const ADMIN_PASSWORD = '12345678';
 
-async function seedAdmin() {
+export async function seedAdmin() {
   log.info(`Upserting admin user: ${ADMIN_EMAIL}`);
 
   const hashedPassword = await hash(ADMIN_PASSWORD, 12);
@@ -38,12 +38,15 @@ async function seedAdmin() {
   }
 }
 
-seedAdmin()
-  .catch((e) => {
-    log.error(
-      'Seed admin failed',
-      e instanceof Error ? { message: e.message, stack: e.stack } : { error: e },
-    );
-    process.exit(1);
-  })
-  .then(() => process.exit(0));
+const isMain = process.argv[1]?.includes('seed-admin');
+if (isMain) {
+  seedAdmin()
+    .catch((e) => {
+      log.error(
+        'Seed admin failed',
+        e instanceof Error ? { message: e.message, stack: e.stack } : { error: e },
+      );
+      process.exit(1);
+    })
+    .then(() => process.exit(0));
+}

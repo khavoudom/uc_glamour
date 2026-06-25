@@ -453,10 +453,10 @@ function downloadImage(url: string, dest: string): Promise<void> {
   });
 }
 
-async function seedCosmetics() {
+export async function seedCosmetics() {
   log.info('Seeding cosmetic products with images...');
 
-  const uploadsDir = join(__dirname, '..', 'public', 'uploads');
+  const uploadsDir = join(process.cwd(), 'public', 'uploads');
   if (!existsSync(uploadsDir)) {
     mkdirSync(uploadsDir, { recursive: true });
   }
@@ -532,12 +532,15 @@ async function seedCosmetics() {
   );
 }
 
-seedCosmetics()
-  .catch((e) => {
-    log.error(
-      'Seed failed',
-      e instanceof Error ? { message: e.message, stack: e.stack } : { error: e },
-    );
-    process.exit(1);
-  })
-  .then(() => process.exit(0));
+const isMain = process.argv[1]?.includes('seed-cosmetics');
+if (isMain) {
+  seedCosmetics()
+    .catch((e) => {
+      log.error(
+        'Seed failed',
+        e instanceof Error ? { message: e.message, stack: e.stack } : { error: e },
+      );
+      process.exit(1);
+    })
+    .then(() => process.exit(0));
+}

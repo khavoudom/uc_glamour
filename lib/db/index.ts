@@ -4,13 +4,14 @@ import * as schema from './schema';
 import path from 'path';
 import fs from 'fs';
 
-function ensureDbPath() {
-  if (process.env.SQLITE_DB_PATH) return process.env.SQLITE_DB_PATH;
+function resolveCandidateDbPath(candidate: string) {
+  return path.isAbsolute(candidate) ? candidate : path.resolve(process.cwd(), candidate);
+}
 
-  const candidates = [
-    path.join(process.cwd(), 'data', 'glamour.db'),
-    path.join('/tmp', 'data', 'glamour.db'),
-  ];
+function ensureDbPath() {
+  const candidates = process.env.SQLITE_DB_PATH
+    ? [resolveCandidateDbPath(process.env.SQLITE_DB_PATH), path.join('/tmp', 'data', 'glamour.db')]
+    : [path.join(process.cwd(), 'data', 'glamour.db'), path.join('/tmp', 'data', 'glamour.db')];
 
   for (const candidate of candidates) {
     try {

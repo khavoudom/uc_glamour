@@ -5,6 +5,7 @@ import * as schema from './schema';
 import path from 'path';
 import fs from 'fs';
 import { logger } from '../logger';
+import { autoSeed } from '../seed/auto-seed';
 
 function resolveCandidateDbPath(candidate: string) {
   return path.isAbsolute(candidate) ? candidate : path.resolve(process.cwd(), candidate);
@@ -41,12 +42,8 @@ export const db = drizzle(client, { schema });
 
 migrate(db, { migrationsFolder: path.join(process.cwd(), 'drizzle') });
 
-// Seed initial data on ephemeral environments (Vercel). This runs after
-// migration so tables exist. Uses dynamic import to avoid circular deps
-// (the seed modules import `db` from this module).
-const log = logger('lib/db');
-import('./auto-seed')
-  .then((m) => m.autoSeed())
-  .catch((e) => {
-    log.error('Auto-seed failed', e instanceof Error ? { message: e.message } : { error: e });
-  });
+// Auto-seed admin user and cosmetics on ephemeral environments (Vercel).
+// These run on every cold start but are idempotent (upsert/skip existing).
+autoSeed(db).catch((e) => {
+  logger('lib/db').error('Auto-seed failed', e instanceof Error ? { message: e.message } : { error: e });
+});

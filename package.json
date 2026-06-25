@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "mkdir -p /tmp/data && next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",

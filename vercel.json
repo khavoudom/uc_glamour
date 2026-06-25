@@ -1,0 +1,6 @@
+{
+  "buildCommand": "mkdir -p /tmp/data && next build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs"
+}

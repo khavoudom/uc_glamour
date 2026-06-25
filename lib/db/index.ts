@@ -1,4 +1,5 @@
 import { drizzle } from 'drizzle-orm/better-sqlite3';
+import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
 import * as schema from './schema';
 import path from 'path';
@@ -36,3 +37,7 @@ client.pragma('journal_mode = WAL');
 client.pragma('foreign_keys = ON');
 
 export const db = drizzle(client, { schema });
+
+// Auto-apply pending migrations on startup (critical for Vercel deploys
+// where the SQLite database is ephemeral and created fresh each time).
+migrate(db, { migrationsFolder: path.join(process.cwd(), 'drizzle') });

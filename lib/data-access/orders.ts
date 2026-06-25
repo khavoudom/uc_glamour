@@ -127,7 +127,7 @@ export async function getOrdersByUserId(userId: number): Promise<OrderSummary[]>
   const counts = await db
     .select({
       orderId: orderItems.orderId,
-      count: sql<number>`COUNT(*)::int`,
+      count: sql<number>`COUNT(*)`,
     })
     .from(orderItems)
     .where(inArray(orderItems.orderId, orderIds))

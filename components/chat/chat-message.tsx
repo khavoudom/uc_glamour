@@ -25,21 +25,23 @@ function MarkdownRenderer({ content }: { content: string }) {
         ),
         table: ({ children }) => (
           <div className="overflow-x-auto mb-2">
-            <table className="w-full text-left text-[11px] border-collapse border border-(--color-border)">{children}</table>
+            <table className="w-full text-left text-[11px] border-collapse border border-(--color-border)">
+              {children}
+            </table>
           </div>
         ),
         thead: ({ children }) => (
           <thead className="bg-(--color-bg) text-(--color-text)">{children}</thead>
         ),
         th: ({ children }) => (
-          <th className="px-2 py-1.5 font-semibold border border-(--color-border) whitespace-nowrap">{children}</th>
+          <th className="px-2 py-1.5 font-semibold border border-(--color-border) whitespace-nowrap">
+            {children}
+          </th>
         ),
         td: ({ children }) => (
           <td className="px-2 py-1 border border-(--color-border)">{children}</td>
         ),
-        tr: ({ children }) => (
-          <tr className="even:bg-black/[.03]">{children}</tr>
-        ),
+        tr: ({ children }) => <tr className="even:bg-black/[.03]">{children}</tr>,
       }}
     >
       {content}

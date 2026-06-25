@@ -92,7 +92,12 @@ export default function ShippingContent({ services }: { services: ShippingServic
         </div>
       )}
 
-      <ShippingFormModal key={modalKey} open={modalOpen} onClose={closeModal} service={editingService} />
+      <ShippingFormModal
+        key={modalKey}
+        open={modalOpen}
+        onClose={closeModal}
+        service={editingService}
+      />
     </>
   );
 }

@@ -137,7 +137,7 @@ export interface ProductAlert {
   type: 'back_in_stock' | 'price_drop';
   targetPrice: number | null;
   isActive: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface OrderSummary {
@@ -149,7 +149,7 @@ export interface OrderSummary {
   paymentStatus: PaymentStatus;
   fulfillmentStatus: FulfillmentStatus;
   paymentMethod: string | null;
-  createdAt: Date;
+  createdAt: string;
   itemCount: number;
 }
 
@@ -182,6 +182,6 @@ export interface OrderInvoice {
   shippingState: string | null;
   shippingZip: string | null;
   shippingCountry: string | null;
-  createdAt: Date;
+  createdAt: string;
   items: OrderItemLine[];
 }

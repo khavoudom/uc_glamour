@@ -92,7 +92,7 @@ export async function signup(prevState: SignupState, formData: FormData) {
       hashedPassword,
       emailVerified: false,
       verificationToken,
-      verificationTokenExpiresAt,
+      verificationTokenExpiresAt: verificationTokenExpiresAt.toISOString(),
     });
 
     const verificationUrl = `${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000')}/api/verify-email?token=${encodeURIComponent(verificationToken)}`;
@@ -186,7 +186,7 @@ export async function resendVerification(prevState: ResendState, formData: FormD
 
   await db
     .update(users)
-    .set({ verificationToken, verificationTokenExpiresAt })
+    .set({ verificationToken, verificationTokenExpiresAt: verificationTokenExpiresAt.toISOString() })
     .where(eq(users.id, user.id));
 
   const verificationUrl = `${process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000')}/api/verify-email?token=${encodeURIComponent(verificationToken)}`;

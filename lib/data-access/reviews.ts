@@ -79,7 +79,7 @@ export async function getReviewStatsByProduct(productId: number) {
   const rows = await db
     .select({
       rating: reviews.rating,
-      count: sql<number>`COUNT(*)::int`,
+      count: sql<number>`COUNT(*)`,
     })
     .from(reviews)
     .where(eq(reviews.productId, productId))
@@ -104,7 +104,7 @@ export async function getReviewStatsByProduct(productId: number) {
 
 export async function hasUserReviewedProduct(userId: number, productId: number) {
   const [result] = await db
-    .select({ count: sql<number>`COUNT(*)::int` })
+    .select({ count: sql<number>`COUNT(*)` })
     .from(reviews)
     .where(and(eq(reviews.userId, userId), eq(reviews.productId, productId)));
 

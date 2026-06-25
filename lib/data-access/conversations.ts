@@ -37,7 +37,7 @@ export async function updateConversation(
 ) {
   const [conversation] = await db
     .update(conversations)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...data, updatedAt: new Date().toISOString() })
     .where(eq(conversations.id, id))
     .returning();
   return conversation;

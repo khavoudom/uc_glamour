@@ -53,7 +53,7 @@ export async function processEmailQueue(batchSize = 10) {
       });
       await db
         .update(emailQueue)
-        .set({ status: 'sent', sentAt: new Date() })
+        .set({ status: 'sent', sentAt: new Date().toISOString() })
         .where(eq(emailQueue.id, email.id));
       processed++;
     } catch (error) {

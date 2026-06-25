@@ -266,10 +266,18 @@ export const useChatStore = create<ChatState>()((set, get) => ({
 
               // Auto-expand for tools that produce tables or detailed content
               const tableTools = [
-                'getOrderHistory', 'getOrderStatus', 'trackOrder',
-                'getWishlist', 'addToWishlist', 'removeFromWishlist',
-                'showCart', 'getRecommendations', 'buildRoutine',
-                'findGifts', 'searchProducts', 'getProductDetails',
+                'getOrderHistory',
+                'getOrderStatus',
+                'trackOrder',
+                'getWishlist',
+                'addToWishlist',
+                'removeFromWishlist',
+                'showCart',
+                'getRecommendations',
+                'buildRoutine',
+                'findGifts',
+                'searchProducts',
+                'getProductDetails',
                 'compareProducts',
               ];
               if (tableTools.includes(toolName) && !result?.error) {

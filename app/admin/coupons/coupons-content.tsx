@@ -87,7 +87,12 @@ export default function CouponsContent({ coupons }: { coupons: Coupon[] }) {
         </div>
       )}
 
-      <CouponFormModal key={modalKey} open={modalOpen} onClose={closeModal} coupon={editingCoupon} />
+      <CouponFormModal
+        key={modalKey}
+        open={modalOpen}
+        onClose={closeModal}
+        coupon={editingCoupon}
+      />
     </>
   );
 }

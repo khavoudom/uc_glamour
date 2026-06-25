@@ -22,7 +22,7 @@ interface UserProfile {
   email: string;
   loyaltyPoints: number;
   loyaltyTier: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export default function AccountContent({
@@ -308,7 +308,10 @@ export default function AccountContent({
                     </thead>
                     <tbody>
                       {cart.map((item) => (
-                        <tr key={`${item.productId}-${item.shade}`} className="border-b border-border">
+                        <tr
+                          key={`${item.productId}-${item.shade}`}
+                          className="border-b border-border"
+                        >
                           <td className="px-3.5 py-3 text-text">
                             {item.emoji} {item.name}
                           </td>
@@ -490,14 +493,16 @@ export default function AccountContent({
   );
 }
 
-function Th({ children, align }: { children?: React.ReactNode; align?: 'left' | 'right' | 'center' }) {
+function Th({
+  children,
+  align,
+}: {
+  children?: React.ReactNode;
+  align?: 'left' | 'right' | 'center';
+}) {
   const alignClass =
     align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left';
-  return (
-    <th className={`px-3.5 py-2.5 font-medium text-muted ${alignClass}`}>
-      {children}
-    </th>
-  );
+  return <th className={`px-3.5 py-2.5 font-medium text-muted ${alignClass}`}>{children}</th>;
 }
 
 function getTierEmoji(tier: string): string {

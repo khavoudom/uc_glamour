@@ -1,16 +1,12 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: glamour-postgres
-    restart: unless-stopped
+  app:
+    build: .
     ports:
-      - "5444:5432"
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_DB: glamour
-      POSTGRES_PASSWORD: postgres
+      - '3000:3000'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - sqlite_data:/app/data
+    environment:
+      SQLITE_DB_PATH: /app/data/glamour.db
 
 volumes:
-  postgres_data:
+  sqlite_data:

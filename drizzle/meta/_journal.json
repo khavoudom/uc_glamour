@@ -1,40 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1781093992212,
-      "tag": "0000_brief_lockheed",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1781342051964,
-      "tag": "0001_mature_microchip",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1781488185281,
-      "tag": "0002_swift_puck",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1781708516357,
-      "tag": "0003_clever_nehzno",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1781711870233,
-      "tag": "0004_brainy_slayback",
+      "version": "6",
+      "when": 1782350894293,
+      "tag": "0000_rare_argent",
       "breakpoints": true
     }
   ]

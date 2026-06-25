@@ -24,10 +24,10 @@ interface ShippingFormModalProps {
 
 export default function ShippingFormModal({ open, onClose, service }: ShippingFormModalProps) {
   const action = service ? updateShippingServiceAction : createShippingServiceAction;
-  const [state, formAction, pending] = useActionState<ShippingServiceFormState | undefined, FormData>(
-    action,
-    undefined,
-  );
+  const [state, formAction, pending] = useActionState<
+    ShippingServiceFormState | undefined,
+    FormData
+  >(action, undefined);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -83,9 +83,7 @@ export default function ShippingFormModal({ open, onClose, service }: ShippingFo
         {state?.message && (
           <p
             className={`mb-4 rounded-sm px-3 py-2 text-xs ${
-              state.success
-                ? 'bg-(--color-success-lt) text-success'
-                : 'bg-[#fef2f2] text-danger'
+              state.success ? 'bg-(--color-success-lt) text-success' : 'bg-[#fef2f2] text-danger'
             }`}
           >
             {state.message}
@@ -134,7 +132,13 @@ export default function ShippingFormModal({ open, onClose, service }: ShippingFo
               disabled={pending}
               className="rounded-sm border-none bg-pink px-4 py-2 text-xs font-medium text-white cursor-pointer font-sans disabled:bg-hint disabled:cursor-not-allowed"
             >
-              {pending ? (service ? 'Saving...' : 'Creating...') : service ? 'Save Changes' : 'Create Service'}
+              {pending
+                ? service
+                  ? 'Saving...'
+                  : 'Creating...'
+                : service
+                  ? 'Save Changes'
+                  : 'Create Service'}
             </button>
           </div>
         </form>

@@ -1,94 +1,90 @@
 import {
-  pgTable,
-  serial,
+  sqliteTable,
   text,
   integer,
-  decimal,
-  boolean,
-  timestamp,
   uniqueIndex,
   index,
-} from 'drizzle-orm/pg-core';
+} from 'drizzle-orm/sqlite-core';
 
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
+export const users = sqliteTable('users', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   hashedPassword: text('hashed_password'),
   image: text('image'),
   role: text('role').notNull().default('customer'),
-  emailVerified: boolean('email_verified').notNull().default(false),
+  emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false),
   verificationToken: text('verification_token'),
-  verificationTokenExpiresAt: timestamp('verification_token_expires_at'),
-  loyaltyPoints: integer('loyalty_points').notNull().default(0),
+  verificationTokenExpiresAt: text('verification_token_expires_at'),
+  loyaltyPoints: integer('loyalty_points', { mode: 'number' }).notNull().default(0),
   loyaltyTier: text('loyalty_tier').notNull().default('Bronze'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
 });
 
-export const products = pgTable('products', {
-  id: serial('id').primaryKey(),
+export const products = sqliteTable('products', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   brand: text('brand').notNull(),
   category: text('category').notNull(),
-  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
-  originalPrice: decimal('original_price', { precision: 10, scale: 2 }),
+  price: text('price').notNull(),
+  originalPrice: text('original_price'),
   emoji: text('emoji').notNull(),
   imageUrls: text('image_urls'),
   description: text('description').notNull(),
-  rating: decimal('rating', { precision: 3, scale: 1 }).notNull().default('0'),
-  reviewCount: integer('review_count').notNull().default(0),
+  rating: text('rating').notNull().default('0'),
+  reviewCount: integer('review_count', { mode: 'number' }).notNull().default(0),
   badge: text('badge'),
-  isNew: boolean('is_new').notNull().default(false),
-  isSubscriptionEligible: boolean('is_subscription_eligible').default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  isNew: integer('is_new', { mode: 'boolean' }).notNull().default(false),
+  isSubscriptionEligible: integer('is_subscription_eligible', { mode: 'boolean' }).default(false),
+  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
 });
 
-export const shades = pgTable('shades', {
-  id: serial('id').primaryKey(),
-  productId: integer('product_id')
+export const shades = sqliteTable('shades', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  productId: integer('product_id', { mode: 'number' })
     .notNull()
     .references(() => products.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   hex: text('hex').notNull(),
-  stock: integer('stock').notNull().default(0),
+  stock: integer('stock', { mode: 'number' }).notNull().default(0),
   sku: text('sku'),
 });
 
-export const reviews = pgTable('reviews', {
-  id: serial('id').primaryKey(),
-  productId: integer('product_id')
+export const reviews = sqliteTable('reviews', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  productId: integer('product_id', { mode: 'number' })
     .notNull()
     .references(() => products.id, { onDelete: 'cascade' }),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
+  userId: integer('user_id', { mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
   reviewerName: text('reviewer_name').notNull(),
-  isVerified: boolean('is_verified').notNull().default(false),
+  isVerified: integer('is_verified', { mode: 'boolean' }).notNull().default(false),
   date: text('date').notNull(),
-  rating: integer('rating').notNull(),
+  rating: integer('rating', { mode: 'number' }).notNull(),
   body: text('body').notNull(),
-  helpful: integer('helpful').notNull().default(0),
-  notHelpful: integer('not_helpful').notNull().default(0),
+  helpful: integer('helpful', { mode: 'number' }).notNull().default(0),
+  notHelpful: integer('not_helpful', { mode: 'number' }).notNull().default(0),
 });
 
-export const coupons = pgTable('coupons', {
-  id: serial('id').primaryKey(),
+export const coupons = sqliteTable('coupons', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   code: text('code').notNull().unique(),
-  discountPercent: integer('discount_percent').notNull(),
-  isActive: boolean('is_active').notNull().default(true),
+  discountPercent: integer('discount_percent', { mode: 'number' }).notNull(),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
 });
 
-export const cartItems = pgTable(
+export const cartItems = sqliteTable(
   'cart_items',
   {
-    id: serial('id').primaryKey(),
-    userId: integer('user_id')
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    userId: integer('user_id', { mode: 'number' })
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    productId: integer('product_id')
+    productId: integer('product_id', { mode: 'number' })
       .notNull()
       .references(() => products.id, { onDelete: 'cascade' }),
     shade: text('shade'),
-    quantity: integer('quantity').notNull().default(1),
+    quantity: integer('quantity', { mode: 'number' }).notNull().default(1),
   },
   (table) => ({
     userProductShadeIdx: uniqueIndex('cart_user_product_shade_idx').on(
@@ -99,14 +95,14 @@ export const cartItems = pgTable(
   }),
 );
 
-export const wishlistItems = pgTable(
+export const wishlistItems = sqliteTable(
   'wishlist_items',
   {
-    id: serial('id').primaryKey(),
-    userId: integer('user_id')
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    userId: integer('user_id', { mode: 'number' })
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    productId: integer('product_id')
+    productId: integer('product_id', { mode: 'number' })
       .notNull()
       .references(() => products.id, { onDelete: 'cascade' }),
   },
@@ -115,69 +111,69 @@ export const wishlistItems = pgTable(
   }),
 );
 
-export const subscriptions = pgTable('subscriptions', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const subscriptions = sqliteTable('subscriptions', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  userId: integer('user_id', { mode: 'number' })
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  productId: integer('product_id').notNull(),
+  productId: integer('product_id', { mode: 'number' }).notNull(),
   productName: text('product_name').notNull(),
   productEmoji: text('product_emoji').notNull(),
   shade: text('shade'),
-  frequency: integer('frequency').notNull(),
-  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
-  active: boolean('active').notNull().default(true),
+  frequency: integer('frequency', { mode: 'number' }).notNull(),
+  price: text('price').notNull(),
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
 });
 
-export const loyaltyTransactions = pgTable('loyalty_transactions', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const loyaltyTransactions = sqliteTable('loyalty_transactions', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  userId: integer('user_id', { mode: 'number' })
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  points: integer('points').notNull(),
+  points: integer('points', { mode: 'number' }).notNull(),
   type: text('type').notNull(),
   reference: text('reference'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
 });
 
-export const conversations = pgTable('conversations', {
-  id: serial('id').primaryKey(),
+export const conversations = sqliteTable('conversations', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   title: text('title').notNull().default('New Conversation'),
-  userId: integer('user_id')
+  userId: integer('user_id', { mode: 'number' })
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   summary: text('summary'),
   metadata: text('metadata'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
 });
 
-export const toolExecutions = pgTable('tool_executions', {
-  id: serial('id').primaryKey(),
-  conversationId: integer('conversation_id')
+export const toolExecutions = sqliteTable('tool_executions', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  conversationId: integer('conversation_id', { mode: 'number' })
     .notNull()
     .references(() => conversations.id, { onDelete: 'cascade' }),
   toolName: text('tool_name').notNull(),
   input: text('input').notNull(),
   output: text('output').notNull(),
   status: text('status').notNull().default('success'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
 });
 
-export const chatMessages = pgTable(
+export const chatMessages = sqliteTable(
   'chat_messages',
   {
-    id: serial('id').primaryKey(),
-    userId: integer('user_id')
+    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+    userId: integer('user_id', { mode: 'number' })
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    conversationId: integer('conversation_id').references(() => conversations.id, {
+    conversationId: integer('conversation_id', { mode: 'number' }).references(() => conversations.id, {
       onDelete: 'set null',
     }),
     role: text('role').notNull(),
     text: text('text').notNull(),
-    productId: integer('product_id'),
-    timestamp: timestamp('timestamp').notNull().defaultNow(),
+    productId: integer('product_id', { mode: 'number' }),
+    timestamp: text('timestamp').notNull().default('CURRENT_TIMESTAMP'),
   },
   (table) => ({
     userIdIdx: index('chat_user_id_idx').on(table.userId),
@@ -185,21 +181,21 @@ export const chatMessages = pgTable(
   }),
 );
 
-export const shippingServices = pgTable('shipping_services', {
-  id: serial('id').primaryKey(),
+export const shippingServices = sqliteTable('shipping_services', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
-  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
+  price: text('price').notNull(),
   estimatedDelivery: text('estimated_delivery').notNull(),
-  isActive: boolean('is_active').notNull().default(true),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
 });
 
-export const orders = pgTable('orders', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),
-  subtotal: decimal('subtotal', { precision: 10, scale: 2 }).notNull(),
-  shippingCost: decimal('shipping_cost', { precision: 10, scale: 2 }).notNull().default('0'),
-  couponDiscount: decimal('coupon_discount', { precision: 10, scale: 2 }).notNull().default('0'),
-  total: decimal('total', { precision: 10, scale: 2 }).notNull(),
+export const orders = sqliteTable('orders', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  userId: integer('user_id', { mode: 'number' }).references(() => users.id, { onDelete: 'set null' }),
+  subtotal: text('subtotal').notNull(),
+  shippingCost: text('shipping_cost').notNull().default('0'),
+  couponDiscount: text('coupon_discount').notNull().default('0'),
+  total: text('total').notNull(),
   paymentStatus: text('payment_status').notNull().default('Pending'),
   fulfillmentStatus: text('fulfillment_status').notNull().default('Pending'),
   paymentMethod: text('payment_method'),
@@ -212,46 +208,46 @@ export const orders = pgTable('orders', {
   shippingState: text('shipping_state'),
   shippingZip: text('shipping_zip'),
   shippingCountry: text('shipping_country'),
-  shippingServiceId: integer('shipping_service_id').references(() => shippingServices.id, {
+  shippingServiceId: integer('shipping_service_id', { mode: 'number' }).references(() => shippingServices.id, {
     onDelete: 'set null',
   }),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
 });
 
-export const emailQueue = pgTable('email_queue', {
-  id: serial('id').primaryKey(),
+export const emailQueue = sqliteTable('email_queue', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   to: text('to').notNull(),
   subject: text('subject').notNull(),
   html: text('html').notNull(),
   status: text('status').notNull().default('pending'),
   error: text('error'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  sentAt: timestamp('sent_at'),
+  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  sentAt: text('sent_at'),
 });
 
-export const orderItems = pgTable('order_items', {
-  id: serial('id').primaryKey(),
-  orderId: integer('order_id')
+export const orderItems = sqliteTable('order_items', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  orderId: integer('order_id', { mode: 'number' })
     .notNull()
     .references(() => orders.id, { onDelete: 'cascade' }),
-  productId: integer('product_id').notNull(),
+  productId: integer('product_id', { mode: 'number' }).notNull(),
   productName: text('product_name').notNull(),
   emoji: text('emoji').notNull(),
   shade: text('shade'),
-  quantity: integer('quantity').notNull(),
-  unitPrice: decimal('unit_price', { precision: 10, scale: 2 }).notNull(),
+  quantity: integer('quantity', { mode: 'number' }).notNull(),
+  unitPrice: text('unit_price').notNull(),
 });
 
-export const productAlerts = pgTable('product_alerts', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id')
+export const productAlerts = sqliteTable('product_alerts', {
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  userId: integer('user_id', { mode: 'number' })
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  productId: integer('product_id')
+  productId: integer('product_id', { mode: 'number' })
     .notNull()
     .references(() => products.id, { onDelete: 'cascade' }),
   type: text('type').notNull(),
-  targetPrice: decimal('target_price', { precision: 10, scale: 2 }),
-  isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  targetPrice: text('target_price'),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
 });

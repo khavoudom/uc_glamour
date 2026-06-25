@@ -13,8 +13,8 @@ export interface DbProduct {
   badge: string | null;
   isNew: boolean;
   isSubscriptionEligible: boolean | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface DbShade {

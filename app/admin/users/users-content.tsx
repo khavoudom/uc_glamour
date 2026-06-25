@@ -7,7 +7,7 @@ interface User {
   role: string;
   loyaltyPoints: number;
   loyaltyTier: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export default function UsersContent({ users }: { users: User[] }) {
@@ -42,9 +42,7 @@ export default function UsersContent({ users }: { users: User[] }) {
                   <td className="px-3.5 py-2.5">
                     <span
                       className={`rounded px-2 py-0.5 text-[10px] font-medium ${
-                        u.role === 'admin'
-                          ? 'bg-pink-lt text-pink-dk'
-                          : 'bg-border text-muted'
+                        u.role === 'admin' ? 'bg-pink-lt text-pink-dk' : 'bg-border text-muted'
                       }`}
                     >
                       {u.role}

@@ -15,11 +15,12 @@ const log = logger('scripts/seed');
 async function seed() {
   log.info('Seeding database...');
 
-  await db.execute(sql`TRUNCATE TABLE ${shades} RESTART IDENTITY CASCADE`);
-  await db.execute(sql`TRUNCATE TABLE ${reviews} RESTART IDENTITY CASCADE`);
-  await db.execute(sql`TRUNCATE TABLE ${coupons} RESTART IDENTITY CASCADE`);
-  await db.execute(sql`TRUNCATE TABLE ${shippingServices} RESTART IDENTITY CASCADE`);
-  await db.execute(sql`TRUNCATE TABLE ${products} RESTART IDENTITY CASCADE`);
+  await db.delete(shades);
+  await db.delete(reviews);
+  await db.delete(coupons);
+  await db.delete(shippingServices);
+  await db.delete(products);
+  await db.run(sql`DELETE FROM sqlite_sequence`);
 
   for (const p of staticProducts) {
     const [inserted] = await db

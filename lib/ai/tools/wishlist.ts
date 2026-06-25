@@ -21,7 +21,9 @@ export const getWishlistTool = tool({
     const userId = await getUserId();
     if (!userId) return { error: 'Login required.' };
     const productIds = await getWishlistByUserId(userId);
-    const products = (await Promise.all(productIds.map((id) => getProductById(id)))).filter(Boolean);
+    const products = (await Promise.all(productIds.map((id) => getProductById(id)))).filter(
+      Boolean,
+    );
     return {
       products: products.map((p) => ({
         id: p!.id,

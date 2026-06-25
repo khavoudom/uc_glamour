@@ -2,7 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useActionState } from 'react';
-import { createCouponAction, updateCouponAction, type CouponFormState } from '@/app/actions/admin/coupons';
+import {
+  createCouponAction,
+  updateCouponAction,
+  type CouponFormState,
+} from '@/app/actions/admin/coupons';
 
 interface Coupon {
   id: number;
@@ -123,7 +127,13 @@ export default function CouponFormModal({ open, onClose, coupon }: CouponFormMod
               disabled={pending}
               className="rounded-sm border-none bg-pink px-4 py-2 text-xs font-medium text-white cursor-pointer font-sans disabled:bg-hint disabled:cursor-not-allowed"
             >
-              {pending ? (coupon ? 'Saving...' : 'Creating...') : coupon ? 'Save Changes' : 'Create Coupon'}
+              {pending
+                ? coupon
+                  ? 'Saving...'
+                  : 'Creating...'
+                : coupon
+                  ? 'Save Changes'
+                  : 'Create Coupon'}
             </button>
           </div>
         </form>

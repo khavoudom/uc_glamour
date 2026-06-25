@@ -671,7 +671,10 @@ export async function* agentLoop(
     ? 'CURRENT AUTH STATUS: The user IS logged in. You can use their account tools (orders, wishlist, cart, recommendations, etc.) immediately — do NOT ask them to log in.'
     : 'CURRENT AUTH STATUS: The user is NOT logged in. You must ask them to log in before using account tools (orders, wishlist, cart, etc.).';
 
-  const currentMessages: any[] = [{ role: 'system', content: agentSystemPrompt + '\n\n' + authStatus }, ...messages];
+  const currentMessages: any[] = [
+    { role: 'system', content: agentSystemPrompt + '\n\n' + authStatus },
+    ...messages,
+  ];
 
   if (context?.conversationId && messages.length <= 1) {
     yield JSON.stringify({ type: 'conversation-created', conversationId: context.conversationId });

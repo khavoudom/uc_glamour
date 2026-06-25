@@ -89,7 +89,7 @@ export async function updateProduct(
 ) {
   const [product] = await db
     .update(products)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...data, updatedAt: new Date().toISOString() })
     .where(eq(products.id, id))
     .returning();
   clearCatalogCache();

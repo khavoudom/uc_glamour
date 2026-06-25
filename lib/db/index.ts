@@ -1,14 +1,14 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import * as schema from './schema';
+import path from 'path';
 
-const connectionString = process.env.DATABASE_URL!;
+const dbPath = process.env.SQLITE_DB_PATH ?? path.join(process.cwd(), 'data', 'glamour.db');
 
-const globalForDb = globalThis as unknown as { client: ReturnType<typeof postgres> | undefined };
-const client = (globalForDb.client ??= postgres(connectionString, {
-  prepare: false,
-  max: 10,
-  ssl: process.env.NODE_ENV === 'development' ? false : 'require',
-}));
+const globalForDb = globalThis as unknown as { client: Database.Database | undefined };
+const client = (globalForDb.client ??= new Database(dbPath));
+
+client.pragma('journal_mode = WAL');
+client.pragma('foreign_keys = ON');
 
 export const db = drizzle(client, { schema });
